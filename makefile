@@ -13,6 +13,7 @@ make:
 	${CC} ${SRC}/wh_frktcp.c -o ${BIN}/wh_frktcp
 	${CC} ${SRC}/wh_inchttpext.c -o ${BIN}/wh_inchttpext
 	${CC} ${SRC}/wh_httpext.c -o ${BIN}/wh_httpext
+	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
 
 clearbin:
 	rm ${BIN}/*

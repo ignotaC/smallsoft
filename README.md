@@ -67,6 +67,9 @@ A pack of my little unix programs.
                  command. Only has sens to use after cut command.
                  Ofc loop will end with eof at stdin. If you 
                  don't pass any command *help prompt* will appear. 
+11. linsaftrdiff - You pass two file names. Program prints on stdout
+                   all lines of first passed file after first different
+                   file is met.
 
 How to install?
 Run make in makefile directory.
