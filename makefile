@@ -14,6 +14,7 @@ make:
 	${CC} ${SRC}/wh_inchttpext.c -o ${BIN}/wh_inchttpext
 	${CC} ${SRC}/wh_httpext.c -o ${BIN}/wh_httpext
 	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
+	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
 
 clearbin:
 	rm ${BIN}/*

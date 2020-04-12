@@ -70,6 +70,14 @@ A pack of my little unix programs.
 11. linsaftrdiff - You pass two file names. Program prints on stdout
                    all lines of first passed file after first different
                    file is met.
+12. fstrswp - Swap one string in stream to other, only files with lines
+              shorter than 8192 for now. Perfect for some source fixing.
+              For example when we need to swap malloc.h to stdlib.h.
+              this would look like this:
+              find src -type f -iname '*.c' -exec sh -c \
+                   'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'' ' \
+                   '| tmpfile; mv tmpfile {}' \;
+              Could be without '\'' but what if we have spaces or worse?
 
 How to install?
 Run make in makefile directory.
