@@ -49,6 +49,7 @@ A pack of my little unix programs.
                processess that will run an internet
                command using tcp. It will use torsocks
                all times. So we keep privacy.
+               This mean you need to install torsocks.
                Program will guide you how to use it.
 9. wh_inchttpext - Program will go through specified
                    link incrementing http link each time,
@@ -69,7 +70,7 @@ A pack of my little unix programs.
                  don't pass any command *help prompt* will appear. 
 11. linsaftrdiff - You pass two file names. Program prints on stdout
                    all lines of first passed file after first different
-                   file is met.
+                   line is met in other file.
 12. fstrswp - Swap one string in stream to other, only files with lines
               shorter than 8192 for now. Perfect for some source fixing.
               For example when we need to swap malloc.h to stdlib.h.
@@ -78,6 +79,19 @@ A pack of my little unix programs.
                    'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'' ' \
                    '| tmpfile; mv tmpfile {}' \;
               Could be without '\'' but what if we have spaces or worse?
+13. parsekdump - This is wrote for openbsd ktrace output. Not sure how it
+                 would worko on other oses. Anyway you ktrace your program
+                 eventualy to keep track of forks ktrace -i program.
+                 Than run parsekdump and it will try to turn kdump output
+                 into lists of system calls and their percent time.
+                 Basic PID/TID output makes one line per system call.
+                 line containes:
+                 1. System call
+                 2. How many times system call was called and returned
+                 3. Precent of all system calls times it took
+                 4. Precent it took compared to recording time.
+                 last one takes recording time as first and last appearance
+                 of CALL or RET.
 
 How to install?
 Run make in makefile directory.

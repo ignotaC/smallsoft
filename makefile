@@ -15,6 +15,7 @@ make:
 	${CC} ${SRC}/wh_httpext.c -o ${BIN}/wh_httpext
 	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
+	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
 
 clearbin:
 	rm ${BIN}/*
