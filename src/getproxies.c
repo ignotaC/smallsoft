@@ -729,6 +729,7 @@ int main( int argc, char *argv[] )  {
   
   FILE *proxylist = NULL;
   
+  remove( "proxylist" );
   if( ( proxylist = fopen( "proxylist", "a" ) ) == NULL )   err(); 
 
   char *ptr;
@@ -741,232 +742,44 @@ int main( int argc, char *argv[] )  {
   //////////////////////////////////////////////////////////////////////
 
   char tempfile_1[8192];
+  char tempfile_2[8192];
   if( tmpnam( tempfile_1 ) == NULL )  err(); 
+  if( tmpnam( tempfile_2 ) == NULL )  err(); 
 
   count = 0;
-  size_t anspos;
-  for( int i = 1, found = 1; found; i++ )  {
-    
-    sprintf( bigline, "wget https://www.cool-proxy.net/proxies?page=%d"
-		      " -q -O %s", i, tempfile_1 );
-    system( bigline );
-    found = 0;
+  
+  sprintf( bigline, "wget -q -O %s 'https://api.proxyscrape.com/?request=getproxies&"
+		    "proxytype=http&timeout=40000&country=all&"
+		    "ssl=all&anonymity=all'" , tempfile_1 );
 
-    ptr = getline_rmv( "<!-- Here is where we loop through our"
-	               " $posts array, printing out post info -->",
-		       tempfile_1 );
-    if( ptr == NULL )  break;
+  system( bigline );
+  
+  sprintf( bigline, "cat '%s' | tr -d '\\r' > '%s'", tempfile_1, tempfile_2 );
+  system( bigline );
 
+  FILE *biglist = fopen( tempfile_2, "r" );
+  if( biglist == NULL )  err();
+  #define LINESIZ 8192
+  #define LINESIZ_SCAN "8191"
+  for( char ip_scan[ LINESIZ ] = {0} , port_scan[ LINESIZ ] = {0};; )  {
 
-    for(;; found++)  {
+    int scan_ret = fscanf( biglist, "%" LINESIZ_SCAN "[^:]%" LINESIZ_SCAN "[^\n]",
+      ip_scan, port_scan );
+    getc( biglist );
 
-      ans[0] = 0;
-      anspos = 0;
-      int continue_flag = 0;
-      
-      // ip X.x.x.x
-      ptr = getline_rmv( "</span><span class=\"", tempfile_1 );
-      if( ptr == NULL )  break;
+    if( scan_ret == EOF )  break;
+    if( scan_ret != 2 )  continue;
 
-      ptr = strstr( ptr, "</span><span class=\"" );
-      if( ptr == NULL )  continue;
-     
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '>' );
-      if( ptr == NULL )  continue;
-      ptr++;
-
-      while( ptr != '\0' )  {
-
-	if( isdigit( *ptr ) )  {
-
-	  ans[anspos] = *ptr;
-	  anspos++;
-	  ptr++;
-	  continue;
-
-	}
-
-	if( *ptr == '<' )  break;
-	continue_flag = 1;
-	break;
-
-      }
-
-      if( continue_flag )  continue;
-
-      ans[anspos] = '.';
-      anspos++;
-
-      // ip x.X.x.x
-      ptr = strstr( ptr, "</span>.<span class=\"" );
-      if( ptr == NULL )  continue;
-      
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '>' );
-      if( ptr == NULL )  continue;
-      ptr++;
-
-      while( ptr != '\0' )  {
-
-	if( isdigit( *ptr ) )  {
-
-	  ans[anspos] = *ptr;
-	  anspos++;
-	  ptr++;
-	  continue;
-
-	}
-
-	if( *ptr == '<' )  break;
-	continue_flag = 1;
-	break;
-
-      }
-
-      if( continue_flag )  continue;
-
-      ans[anspos] = '.';
-      anspos++;
-
-      // ip x.x.X.x
-      ptr = strstr( ptr, "</span>.<span class=\"" );
-      if( ptr == NULL )  continue;
-      
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '>' );
-      if( ptr == NULL )  continue;
-      ptr++;
-
-      while( ptr != '\0' )  {
-
-	if( isdigit( *ptr ) )  {
-
-	  ans[anspos] = *ptr;
-	  anspos++;
-	  ptr++;
-	  continue;
-
-	}
-
-	if( *ptr == '<' )  break;
-	continue_flag = 1;
-	break;
-
-      }
-
-      if( continue_flag )  continue;
-
-      ans[anspos] = '.';
-      anspos++;
-
-
-      // ip x.x.x.X
-      ptr = strstr( ptr, "</span><span class=\"" );
-      if( ptr == NULL )  continue;
-      
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '\"' );
-      if( ptr == NULL )  continue;
-
-      ptr++;
-      ptr = strchr( ptr, '>' );
-      if( ptr == NULL )  continue;
-      ptr++;
-
-      while( ptr != '\0' )  {
-
-	if( isdigit( *ptr ) )  {
-
-	  ans[anspos] = *ptr;
-	  anspos++;
-	  ptr++;
-	  continue;
-
-	}
-
-	if( *ptr == '<' )  break;
-	continue_flag = 1;
-	break;
-
-      }
-
-      if( continue_flag )  continue;
-
-      ans[anspos] = ' ';
-      anspos++;
-      ans[anspos] = '\0';
-
-      ptr = find_between( ptr, "Base64.decode(str_rot13(\"", "\"" );
- 
-      // port
-      ptr = getline_rmv( "<td>", tempfile_1 );
-      if( ptr == NULL )  break;
-      ptr = find_between( ptr, "<td>", "<" );
-      if( ptr == NULL )  continue;
-      addspace( ptr );
-      strcat( ans, ptr );
-
-      // location
-      ptr = getline_rmv( "<td>", tempfile_1 );
-      ptr = getline_rmv( "<td>", tempfile_1 );
-      if( ptr == NULL )  break;
-      ptr = find_between( ptr, "<td>", "<" );
-      if( ptr == NULL )  continue;
-      spacetounderscore( ptr );
-      addspace( ptr );
-      strcat( ans, ptr );
-
-      // anon type
-      ptr = getline_rmv( "<td>", tempfile_1 );
-      ptr = getline_rmv( "<td>", tempfile_1 );
-      if( ptr == NULL )  break;
-      ptr = find_between( ptr, "<td>", "<" );
-      if( ptr == NULL )  continue;
-      if( tolower( ptr[0] ) == 'n' )  strcat( ans, "Open");
-      else  strcat( ans, ptr );
-
-      // http type
-      strcat( ans, " Http" );
-
-      fprintf( proxylist, "%s\n", ans );
-      count++;
-
-    }
-
-    printf( "Cool proxies current page: %d              \r", i );
-    fflush( stdout );
-
+    count++;
+    fprintf( proxylist, "%s %s unknown unknown unknown\n" , ip_scan, &port_scan[1] );
   }
-
-  printf( "Taken %d proxies from cool proxy site.\n", count );
+  
+  fclose( biglist );
+  remove( tempfile_2 );
+  printf( "Taken %d proxies from proxy scrape site.\n", count );
 
   ////////////////////////////////////////////////////////////////////////// 
-
+  
   count_all += count;
   count = 0;
   sprintf( bigline, "wget http://proxysearcher.sourceforge.net/Proxy%%20List.php?type=http\\&filtered=true -q -O %s", tempfile_1 );

@@ -655,6 +655,36 @@ int main( void )  {
   printf( "System calls took  %.3f%% of "
           "recording time\n\n", calls_sum );
  
+  // Sort syscall data, max count on top.
+  for( size_t i = 0; i < pd_len; i++ )  {
+
+    for( size_t sc_pos = 0;
+        sc_pos < pd[i].sd_len; sc_pos++ )  {
+
+      struct syscall_data **pos_1, **pos_2, *swap;
+      pos_1 = &( pd[i].sd[ sc_pos ] );
+
+      for( size_t j = sc_pos + 1; j < pd[i].sd_len; j++ )  {
+
+        pos_2 = &( pd[i].sd[j] );
+
+	if( ( *pos_1 )->count < ( *pos_2 )->count )  {
+
+	  swap = *pos_1;
+	  *pos_1 = *pos_2;
+	  *pos_2 = swap;
+
+	}
+
+      }
+
+
+    }
+
+  }
+
+
+
   for( size_t i = 0; i < pd_len; i++ )  {
 
     printf( "Program PID/TID %s/%s\n",
