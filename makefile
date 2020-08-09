@@ -16,6 +16,7 @@ make:
 	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
+	${CC} ${SRC}/ualist.c -o ${BIN}/ualist
 
 clearbin:
 	rm ${BIN}/*

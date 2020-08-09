@@ -92,6 +92,12 @@ A pack of my little unix programs.
                  4. Precent it took compared to recording time.
                  last one takes recording time as first and last appearance
                  of CALL or RET.
+14. ualist - Program will output little list of user agents to stdout.
+             You use it like this: ualist > my_list.
+             It uses torsocks wget to download specific webpage.
+             Program sleeps a bit and is slow. If you stop getting output
+             restart tor to change the end point IP. The owner of
+             page we get UA is a bit dramatic. So you need to be stealthy.
 
 How to install?
 Run make in makefile directory.
