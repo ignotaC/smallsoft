@@ -93,11 +93,18 @@ A pack of my little unix programs.
                  last one takes recording time as first and last appearance
                  of CALL or RET.
 14. ualist - Program will output little list of user agents to stdout.
-             You use it like this: ualist > my_list.
+             You use it like this: ualist proxyip:proxyport > my_list.
              It uses torsocks wget to download specific webpage.
+             Torsocks is kind of for not getting real IP banned.
+             The page owner bans a lot so it's better to hide and
+             you should not trust proxies.
+             Anyway use getproxies and pass one of lister by it proxy ip port
+             or use your own. They will surely ban it after you use it.
+             So open free proxies are best thing. Since they will die out
+             in few days anyway.
              Program sleeps a bit and is slow. If you stop getting output
-             restart tor to change the end point IP. The owner of
-             page we get UA is a bit dramatic. So you need to be stealthy.
+             change the proxy. The owner of page we get UA is a bit dramatic.
+             So you need to be stealthy.
 
 How to install?
 Run make in makefile directory.
