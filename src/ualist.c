@@ -29,8 +29,13 @@ OF THIS SOFTWARE.
 #include <string.h>
 #include <unistd.h>
 
-#define WGET "torsocks wget -O"
-#define SPACE " "
+#define USER_AGENT "--user-agent='Mozilla/5.0" \
+" (Windows NT 10.0; Win64; x64; " \
+"rv:79.0) Gecko/20100101 Firefox/79.0'"
+
+#define WGET "torsocks wget " USER_AGENT "-q -O"
+
+#define PROXY "-e use_proxy=yes http_proxy="
 
 #define ANDROID_LIST "https://developers.what" \
 "ismybrowser.com/useragents/explore/" \
@@ -102,7 +107,9 @@ int extract_ua( char *filename, char *buff ) {
 
 }
 
-int main( void )  {
+int main( int argc, char *argv[]  )  {
+
+  if( argc != 2 )  fail( "You must provide ip:port string" );
 
   char *tempname = tmpnam( NULL );
   if( tempname == NULL )  fail( "Could not get temp name" );
@@ -110,7 +117,7 @@ int main( void )  {
   char buff[ BUFF_SIZE ];
   memset( buff, 0, BUFF_SIZE );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, ANDROID_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1],  ANDROID_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
@@ -121,42 +128,42 @@ int main( void )  {
    * GOOD */
 
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, IOS_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], IOS_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, WINDOWS_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], WINDOWS_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, LINUX_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], LINUX_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, MACOSX_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], MACOSX_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, MACOS_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], MACOS_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, SYMBIAN_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], SYMBIAN_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, FIREOS_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], FIREOS_LIST );
   system( buff );
   extract_ua( tempname, buff );
   sleep( 10 );
 
-  sprintf( buff, "%s '%s' '%s'", WGET, tempname, CHROMEOS_LIST );
+  sprintf( buff, "%s '%s' %s%s '%s'", WGET, tempname, PROXY, argv[1], CHROMEOS_LIST );
   system( buff );
   extract_ua( tempname, buff );
 
