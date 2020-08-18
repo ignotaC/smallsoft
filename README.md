@@ -94,12 +94,14 @@ A pack of my little unix programs.
                  of CALL or RET.
 14. ualist - Program will output little list of user agents to stdout.
              You use it like this: ualist proxyip:proxyport > my_list.
-             It uses torsocks wget to download specific webpage.
-             Torsocks is kind of for not getting real IP banned.
+             It uses torsocks wget to download specific webpage
+             Torsocks is only for not getting real IP banned.
              The page owner bans a lot so it's better to hide and
              you should not trust proxies.
              Anyway use getproxies and pass one of lister by it proxy ip port
-             or use your own. They will surely ban it after you use it.
+             or use your own.
+             CRUCIAL: use https proxies.
+             They will surely ban it after you use it.
              So open free proxies are best thing. Since they will die out
              in few days anyway.
              Program sleeps a bit and is slow. If you stop getting output

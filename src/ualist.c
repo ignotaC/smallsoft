@@ -35,7 +35,7 @@ OF THIS SOFTWARE.
 
 #define WGET "torsocks wget " USER_AGENT "-q -O"
 
-#define PROXY "-e use_proxy=yes http_proxy="
+#define PROXY "-e use_proxy=yes https_proxy="
 
 #define ANDROID_LIST "https://developers.what" \
 "ismybrowser.com/useragents/explore/" \
