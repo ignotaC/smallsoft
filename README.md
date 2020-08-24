@@ -107,6 +107,12 @@ A pack of my little unix programs.
              Program sleeps a bit and is slow. If you stop getting output
              change the proxy. The owner of page we get UA is a bit dramatic.
              So you need to be stealthy.
+15. randstr - Program generates using pseudorandom generator ( C rand() )
+              Randomn string. You must pass number of bytes to generate.
+              Also you can force to output onlu uppercase letters, lowercase
+              and digits. With commands -u -l -d.
+              Example: randstr -u 124 -ld. This will generate 124 bytes
+              that in asci code appear as lowercase uppercase or digits.
 
 How to install?
 Run make in makefile directory.

@@ -17,6 +17,7 @@ make:
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
 	${CC} ${SRC}/ualist.c -o ${BIN}/ualist
+	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 
 clearbin:
 	rm ${BIN}/*
