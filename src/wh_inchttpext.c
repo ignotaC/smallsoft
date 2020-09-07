@@ -111,14 +111,23 @@ int main( int argc, char *argv[]  )  {
 
   char *ansptr = NULL;
 
+  int sysret = 0;
   while( start_num <= end_num )  {
 
     char *tmpfile_name = tmpnam( NULL );
     if( sprintf( buff, httplink, tmpfile_name, start_num ) < 0 )
       fail( "Failed on sprintf command" );
 
-    if( system( buff ) == -1 )
-      fail( "Failed on system function" );
+    for(;;)  {
+
+      if( ( sysret = system( buff ) ) == -1 )
+        fail( "Failed on system function" );
+
+      // CHECK SYSTEM RETURN and proceed.
+      //
+      break;
+
+    }
      
     FILE *tmpfile = fopen( tmpfile_name, "r" );
     if( tmpfile == NULL )  fail( "could not open tmpfilename" );
