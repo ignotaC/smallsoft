@@ -18,6 +18,7 @@ make:
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
 	${CC} ${SRC}/ualist.c -o ${BIN}/ualist
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
+	${CC} ${SRC}/logdata.c -o ${BIN}/logdata
 
 clearbin:
 	rm ${BIN}/*

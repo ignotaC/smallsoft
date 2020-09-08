@@ -34,7 +34,11 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-// do if def  debug
+#ifdef DBG
+ #define PUTSDBG(WRD) fprintf( stderr, "%s\n", WRD )
+#else
+ #define PUTSDBG(WRD)
+#endif
 
 int getsock( char *name )  {
 
@@ -42,7 +46,7 @@ int getsock( char *name )  {
   sun.sun_family = AF_UNIX;
   strcpy( sun.sun_path, name );
 
-  int sockfd =  socket( AF_UNIX, SOCK_STREAM, 0 );
+  int sockfd = socket( AF_UNIX, SOCK_STREAM, 0 );
   if( sockfd == -1 )  return -1;
 
   if( bind( sockfd, ( struct sockaddr* ) &sun, SUN_LEN( &sun ) )
@@ -69,12 +73,20 @@ void fail( const char *const error_str )  {
 
 int main( int argc, char *argv[] )  {
 
+  PUTSDBG( "Program start" );
+
   if( argc != 2 )
     fail( "You need to pass socket name - absolute or relative path" );
 
   char *sockname = argv[1];
-  const size_t sockname_size = strlen( sockname ) + sizeof( *sockname );
-  if( sockname_size > PATH_MAX ) fail( "Socket name too long." );
+
+  PUTSDBG( "Passed path:" );
+  PUTSDBG( argv[1] );
+  
+  const size_t sockname_size = 
+    strlen( sockname ) + sizeof( *sockname );
+  if( sockname_size > PATH_MAX )
+     fail( "Socket name too long." );
 
   {
 
@@ -82,20 +94,28 @@ int main( int argc, char *argv[] )  {
     size_t sunpath_size = sizeof( sun.sun_path );
     if( sockname_size > sunpath_size )  {
 
-      fprintf( stderr, "Your max unix socket name path is %zu\n",
+      fprintf( stderr,
+        "Your max unix socket name path is %zu\n",
         sunpath_size );
-      fail( "Unix socket path is to small for your socket name path" );
+      fail( "Unix socket path is "
+	    "too small for your socket name path" );
 
     }
 
+    PUTSDBG( "Provided socket path is fine." );
+
   }
 
-  FILE *check_socket_path = fopen( "r", sockname );
+  PUTSDBG( "Checking socket path" );
+  FILE *check_socket_path = fopen( sockname, "r" );
   if( check_socket_path != NULL )
     fail( "File under socket name already exists." );
 
-  fclose( check_socket_path );
-  printf( "Unix socket path:\n%s\n\n", sockname );
+  // since it is NULL we don't need to close it
+
+  PUTSDBG( "File with provided socket name"
+	   " does not exist" );
+  errno = 0; // clear errno
 
   int sockfd = getsock( sockname );
   if( sockfd == -1 ) fail( "Could not create socket." );
@@ -108,7 +128,10 @@ int main( int argc, char *argv[] )  {
   struct pollfd pfd[ pfd_len ];
   pfd[0].fd = sockfd;
   pfd[0].events = POLLIN;
+
   for(;;)  {
+
+    PUTSDBG( "Poll loop start" );
 
     int ret = poll( pfd, pfd_len, poll_ms_timeout );
     if( ret == -1 )  {
@@ -117,6 +140,7 @@ int main( int argc, char *argv[] )  {
 
         case EINTR:
         case EAGAIN:
+	  errno = 0;  // clear errno
 	  continue;
 	default:
 	  fail( "Fail on poll call" );
@@ -133,14 +157,14 @@ int main( int argc, char *argv[] )  {
 
       close( sockfd );
       sockfd = getsock( sockname );
-      if( sockfd == -1 )  fail( "Could not create socket" );
+      if( sockfd == -1 )
+        fail( "Could not create socket" );
       pfd[0].fd = sockfd;
       continue;
 
     }
 
     // Error on device - read to see what happened.
-    // If no error we read anyway. maybe also error pops out.
     if( pfd[0].revents & ( POLLERR | POLLIN ) )  {
 
       int newsock = accept( sockfd, NULL, NULL  );
@@ -153,37 +177,50 @@ int main( int argc, char *argv[] )  {
 
       for( int leaveloop = 0; ! leaveloop;)  {
 
+	PUTSDBG( "Loop start" );
+
 	// -1 because i might need last one for nul
-	ssize_t read_size = read( newsock, buff, buff_size - 1 );      
+	ssize_t read_size = 
+	  read( newsock, buff, buff_size - 1 );      
         if( read_size == -1 )  {
 
 	  switch( errno )  {
 
 	    case EINTR:
+	      errno = 0; // clear errno
 	      continue;
-	    default:  // will it know  about things after ? 
+	    default:  
+	      // will it know  about things after ? 
 	      perror( "Unusuall error on read" );
 	    case ECONNRESET:
 	    case ENOTCONN:
 	    case ETIMEDOUT:
 	      leaveloop = 1;
+	      errno = 0;  //clear errno
 	      break;
 
 	  }
 
 	} else if( read_size == 0 )  {
 
+	  PUTSDBG( "EOF/FIN" );
+	  
 	  close( newsock );
-	  if( printf( "\n" ) > 0 )  perror( "Printf error" );
 	  leaveloop = 1;
 
 	} else {
 
+	  PUTSDBG( "MESSAGE" );
+
 	  // set nul;
 	  buff[ read_size ] = '\0';
-	  if( printf( "%s", buff ) > 0 )
-	    perror( "Printf error" );
+	  if( printf( "%s", buff ) < 0 ) {
 
+	    perror( "Printf error" );
+	    errno = 0;  //clear errno
+
+	  }
+  
 	}
 
       }

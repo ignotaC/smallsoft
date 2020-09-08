@@ -113,6 +113,16 @@ A pack of my little unix programs.
               and digits. With commands -u -l -d.
               Example: randstr -u 124 -ld. This will generate 124 bytes
               that in asci code appear as lowercase uppercase or digits.
+16. logdata - Program opens unix socket and prints all data sent to it.
+              Example of using it:
+              We start it: logdata unix_socket_name_we_pass > savehere
+              Now we need to send some data using netcat.
+              Openbsd netcat can send to unix socket. 
+              Many linux distros have in their repository: openbsd-netcat
+              or something similar. So we can with nc:
+              echo "test" | nc -UN socket_name
+              -N option is a must. Socket must sent FIN else the connection stales.
+              SIGINT it logdata when not anymore needed!
 
 How to install?
 Run make in makefile directory.
