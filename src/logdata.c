@@ -27,6 +27,7 @@ OF THIS SOFTWARE.
 
 #include <limits.h>
 #include <poll.h>
+#include <signal.h>
 #include <unistd.h>
 
 #include <errno.h>
@@ -68,6 +69,15 @@ void fail( const char *const error_str )  {
 
   perror( error_str );
   exit( EXIT_FAILURE );
+
+}
+
+
+volatile sig_atomic_t exit_interrupt = 0;
+void sigint_handler( int sig )  {
+
+  ( void ) sig;
+  exit_interrupt = 1;
 
 }
 
@@ -117,6 +127,14 @@ int main( int argc, char *argv[] )  {
 	   " does not exist" );
   errno = 0; // clear errno
 
+  struct sigaction sa;
+  sa.sa_mask = 0;
+  sa.sa_flags = 0;
+  sa.sa_handler = sigint_handler;
+
+  if( sigaction( SIGINT, &sa, NULL ) == -1 )
+    fail( "Could not set signal handler" );
+
   int sockfd = getsock( sockname );
   if( sockfd == -1 ) fail( "Could not create socket." );
 
@@ -132,6 +150,13 @@ int main( int argc, char *argv[] )  {
   for(;;)  {
 
     PUTSDBG( "Poll loop start" );
+    if( exit_interrupt )  {
+
+      close( sockfd );
+      fprintf( stderr, "Exiting on sigint - gentle fin." );
+      return 0;
+
+    }
 
     int ret = poll( pfd, pfd_len, poll_ms_timeout );
     if( ret == -1 )  {

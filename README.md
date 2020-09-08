@@ -80,7 +80,7 @@ A pack of my little unix programs.
                    '| tmpfile; mv tmpfile {}' \;
               Could be without '\'' but what if we have spaces or worse?
 13. parsekdump - This is wrote for openbsd ktrace output. Not sure how it
-                 would worko on other oses. Anyway you ktrace your program
+                 would work on other oses. Anyway you ktrace your program
                  eventualy to keep track of forks ktrace -i program.
                  Than run parsekdump and it will try to turn kdump output
                  into lists of system calls and their percent time.
@@ -122,7 +122,7 @@ A pack of my little unix programs.
               or something similar. So we can with nc:
               echo "test" | nc -UN socket_name
               -N option is a must. Socket must sent FIN else the connection stales.
-              SIGINT it logdata when not anymore needed!
+              SIGINT logdata for gentle close when not anymore needed!
 
 How to install?
 Run make in makefile directory.
