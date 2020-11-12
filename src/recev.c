@@ -280,13 +280,13 @@ void mv_toalp( char **strpos )  {
 
   while( ! isspace( **strpos ) )  {
 
-    if( *strpos == '\0' )  return;	  
+    if( **strpos == '\0' )  return;	  
     ( *strpos )++;
 
   }
   while( isspace( **strpos ) )  {
 
-    if( *strpos == '\0' )  return;
+    if( **strpos == '\0' )  return;
     ( *strpos )++;
 
   }

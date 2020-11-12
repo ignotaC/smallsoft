@@ -68,13 +68,13 @@ void mv_toalp( char **strpos )  {
 
   while( ! isspace( **strpos ) )  {
 
-    if( *strpos == '\0' )  fail( "mv_toalp should not meet nul" );
+    if( **strpos == '\0' )  fail( "mv_toalp should not meet nul" );
     ( *strpos )++;
 
   }
   while( isspace( **strpos ) )  {
 
-    if( *strpos == '\0' )  fail( "mv_toalp should not meet nul" );
+    if( **strpos == '\0' )  fail( "mv_toalp should not meet nul" );
     ( *strpos )++;
 
   }
