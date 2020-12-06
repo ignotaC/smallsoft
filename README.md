@@ -123,6 +123,13 @@ A pack of my little unix programs.
               echo "test" | nc -UN socket_name
               -N option is a must. Socket must sent FIN else the connection stales.
               SIGINT logdata for gentle close when not anymore needed!
+17. runprog - Program opens unix socket and runs with system C syscall
+              command we pass at it start up. It runs the command when
+              there is opened connection. What matters is if dara is sent
+              it closes the socket and ignores it. You must open the
+              conection and sent FIN. No data. You can use openbsd netcat for this.
+              Example: ./runprog '/tmp/sun' './runthisscript';  nc -UNz '/tmp/sun'
+              Runprog closes gently when recives sigint.
 
 How to install?
 Run make in makefile directory.
