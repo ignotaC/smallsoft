@@ -22,6 +22,7 @@ OF THIS SOFTWARE.
 
 
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
 
@@ -81,12 +82,52 @@ void sigint_handler( int sig )  {
 
 }
 
+mode_t glob_sunperm = S_IRWXU;
+
+int setperm( const char *const permstr )  {
+
+  const char *spos = ( const char*) permstr;
+  for(; *spos != '\0'; spos++ )  {
+
+    switch( *spos )  {
+
+     case 'g':
+      glob_sunperm |= S_IWGRP;
+      continue;
+
+     case 'o':
+      glob_sunperm |= S_IWOTH;
+      continue;
+
+     default:
+      return -1;
+
+    }
+
+  }
+
+  return 0;
+
+}
+
 int main( int argc, char *argv[] )  {
 
   PUTSDBG( "Program start" );
 
-  if( argc != 3 )
-    fail( "You need to pass socket name and script you want to run" );
+  if( argc != 3 )  {
+
+    if( argc == 4 )  {
+
+      if( setperm( argv[3] ) == -1 )
+        fail( "Wrong file permissions\n"
+	      "Example: 'go' which is group and other\n"
+	      "User can by default" );
+
+    }
+    else fail( "You need to pass socket name and script you want to run.\n"
+               "Also you can pass unix socket file permissions, else only user"
+	       "will be set" ); 
+  }
 
   char *sockname = argv[1];
 
@@ -137,6 +178,10 @@ int main( int argc, char *argv[] )  {
 
   int sockfd = getsock( sockname );
   if( sockfd == -1 ) fail( "Could not create socket." );
+
+  if( argc == 4 )
+    if( chmod( sockname, glob_sunperm ) == -1 )
+      fail( "Failed on socket permissions settings" );
 
   const size_t buff_size = 8192;
   char buff[ buff_size ];

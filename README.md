@@ -129,7 +129,12 @@ A pack of my little unix programs.
               it closes the socket and ignores it. You must open the
               conection and sent FIN. No data. You can use openbsd netcat for this.
               Example: ./runprog '/tmp/sun' './runthisscript';  nc -UNz '/tmp/sun'
-              Runprog closes gently when recives sigint.
+              Runprog closes gently when recives sigint. Additional one more argument
+              is for groups. You can do:
+              ./runprog '/tmp/sun' './runthisscript' 'go'
+              last one go stand for group and other - write permissions set on
+              unix socket. So if you need root to execute something simple user
+              can call it via this socket to do job.
 
 How to install?
 Run make in makefile directory.
