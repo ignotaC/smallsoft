@@ -135,6 +135,15 @@ A pack of my little unix programs.
               last one go stand for group and other - write permissions set on
               unix socket. So if you need root to execute something simple user
               can call it via this socket to do job.
+18. httpreq_addcrlf - Program adds after new line of each entry CRLF creating
+              proper http request. On the end it makes passes one more CRLF.
+              Empty lines are being ignored. Example of usage, we have file httpreq:
+              
+              GET /babylon/tower HTTP/1.0
+              Host: gagle.shit
+              
+              We use it this way:
+              cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
 
 How to install?
 Run make in makefile directory.
