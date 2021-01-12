@@ -125,16 +125,18 @@ A pack of my little unix programs.
               SIGINT logdata for gentle close when not anymore needed!
 17. runprog - Program opens unix socket and runs with system C syscall
               command we pass at it start up. It runs the command when
-              there is opened connection. What matters is if dara is sent
-              it closes the socket and ignores it. You must open the
-              conection and sent FIN. No data. You can use openbsd netcat for this.
-              Example: ./runprog '/tmp/sun' './runthisscript';  nc -UNz '/tmp/sun'
+              there is opened connection. It ignores sent data.  You can either
+              not even wait for the program to finish running the command
+              or wait.
+              Example: ./runprog '/tmp/sun' './runthisscript';
+              Than ask it to run it but don't wait for it to finish: nc -Uz '/tmp/sun'
+              Or ask it to run it and wait till it finish: nc -Ud '/tmp/sun'
               Runprog closes gently when recives sigint. Additional one more argument
               is for groups. You can do:
               ./runprog '/tmp/sun' './runthisscript' 'go'
               last one go stand for group and other - write permissions set on
               unix socket. So if you need root to execute something simple user
-              can call it via this socket to do job.
+              can call it via this socket to do the job.
 18. httpreq_addcrlf - Program adds after new line of each entry CRLF creating
               proper http request. On the end it makes passes one more CRLF.
               Empty lines are being ignored. Example of usage, we have file httpreq:

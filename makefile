@@ -19,6 +19,7 @@ make:
 	${CC} ${SRC}/ualist.c -o ${BIN}/ualist
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 	${CC} ${SRC}/logdata.c -o ${BIN}/logdata
+	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 
 clearbin:

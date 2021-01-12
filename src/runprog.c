@@ -121,12 +121,14 @@ int main( int argc, char *argv[] )  {
       if( setperm( argv[3] ) == -1 )
         fail( "Wrong file permissions\n"
 	      "Example: 'go' which is group and other\n"
-	      "User can by default" );
+	      "User can by default write to unix socket\n" );
 
     }
     else fail( "You need to pass socket name and script you want to run.\n"
-               "Also you can pass unix socket file permissions, else only user"
-	       "will be set" ); 
+               "Also you can pass unix socket file permissions,\n"
+	       "else only default permissions, also you can ask server,\n"
+	       "to wait before you finish.\n"
+	       "Example ./prog sockname command go\n" ); 
   }
 
   char *sockname = argv[1];
@@ -182,9 +184,6 @@ int main( int argc, char *argv[] )  {
   if( argc == 4 )
     if( chmod( sockname, glob_sunperm ) == -1 )
       fail( "Failed on socket permissions settings" );
-
-  const size_t buff_size = 8192;
-  char buff[ buff_size ];
 
   int poll_ms_timeout = 50;
   const size_t pfd_len = 1;
@@ -247,44 +246,10 @@ int main( int argc, char *argv[] )  {
 
       for( int leaveloop = 0; ! leaveloop;)  {
 
-	PUTSDBG( "Loop start" );
-
-	// -1 because i might need last one for nul
-	ssize_t read_size = 
-	  read( newsock, buff, buff_size - 1 );      
-        if( read_size == -1 )  {
-
-	  switch( errno )  {
-
-	    case EINTR:
-	      errno = 0; // clear errno
-	      continue;
-	    default:  
-	      // will it know  about things after ? 
-	      perror( "Unusuall error on read" );
-	    case ECONNRESET:
-	    case ENOTCONN:
-	    case ETIMEDOUT:
-	      leaveloop = 1;
-	      errno = 0;  //clear errno
-	      break;
-
-	  }
-
-	} else if( read_size == 0 )  {
-
-	  PUTSDBG( "EOF/FIN" );
-	  system( argv[2] );
-	  close( newsock );
-	  break;
-
-	} else {
-
-	  PUTSDBG( "DATA WE DON'T NEED" );
-	  close( newsock );
-	  break;
-  
-	}
+ 	PUTSDBG( "NOW WAIT WE FINISH COMMAND" );
+	system( argv[2] );
+	shutdown( newsock, SHUT_RDWR );
+	break;
 
       }
 
