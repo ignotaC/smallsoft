@@ -249,6 +249,7 @@ int main( int argc, char *argv[] )  {
  	PUTSDBG( "NOW WAIT WE FINISH COMMAND" );
 	system( argv[2] );
 	shutdown( newsock, SHUT_RDWR );
+	close( newsock );
 	break;
 
       }
