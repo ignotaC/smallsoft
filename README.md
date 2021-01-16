@@ -146,6 +146,11 @@ A pack of my little unix programs.
               
               We use it this way:
               cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
+19. flinemem - program loads stdin line to memory and searches if passed arguments
+	      exist in line. Line is printed to stdout only if all strings exist in line.
+              No need for regular expression when you simply need to find static patterns.
+              Example fo using:  cat file | flinemem 'pattern1' 'pattern2' 'pattern3' 
+
 
 How to install?
 Run make in makefile directory.

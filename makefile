@@ -1,4 +1,6 @@
-CC=cc -Wall -Wextra -pedantic -O2 -std=c99
+CC=cc -Wall -Wextra -pedantic \
+   -O2 -std=c99
+#  -D_POSIX_C_SOURCE=200809L
 SRC=src
 BIN=bin
 
@@ -21,6 +23,7 @@ make:
 	${CC} ${SRC}/logdata.c -o ${BIN}/logdata
 	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
+	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
 
 clearbin:
 	rm ${BIN}/*
