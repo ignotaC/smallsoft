@@ -167,9 +167,9 @@ A pack of my little unix programs.
               # former tools from this soft pack ( httpreq_addcrlf ):
               { cat httpreq | httpreq_addcrlf | cat; printf "%s" "$postbody" } | \
               nc -c -X 5 -x localhost:9050 www:443
- 
-              Hope this is clear. The last line shows nc with passing traffic via tor
-              for server with https.
+
+              # Hope this is clear. The last line shows nc with passing traffic via tor
+              # for server with https.
 
 How to install?
 Run make in makefile directory.
