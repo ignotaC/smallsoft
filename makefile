@@ -24,6 +24,7 @@ make:
 	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
+	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 
 clearbin:
 	rm ${BIN}/*

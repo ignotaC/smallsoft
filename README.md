@@ -151,6 +151,25 @@ A pack of my little unix programs.
               No need for regular expression when you simply need to find static patterns.
               Example fo using:  cat file | flinemem 'pattern1' 'pattern2' 'pattern3' 
 
+20. urlcode - at the moment we have 3 options, encode (-e), decode (-d)  and
+              'make post body' (-p). How to use:
+              echo 'string to @#$ encode" | urlcode -e | urlcode -d
+              This will encode irl string and than decode it. Now the post part is a bit tricky.
+              First argument after options gets encoded and second argument does not.
+              Than third gets encoded and fourth does not. And so on.
+              We would use it in script like this:
+
+              postbody=$( encode -p 'login' '=' 'someone' '&' \
+                                    'pass' '=' '7ygft67$%^&*some' '&' \
+                                    'hidden_token' '=' '12fjwhr@#$Rwef345r3tGF#$$' )
+              # at this moment we find out the lengh of body and pass it for contetn lengh 
+              # after forming the http header we simply send this stuff like this using 
+              # former tools from this soft pack ( httpreq_addcrlf ):
+              { cat httpreq | httpreq_addcrlf | cat; printf "%s" "$postbody" } | \
+              nc -c -X 5 -x localhost:9050 www:443
+ 
+              Hope this is clear. The last line shows nc with passing traffic via tor
+              for server with https.
 
 How to install?
 Run make in makefile directory.
