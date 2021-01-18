@@ -166,7 +166,7 @@ A pack of my little unix programs.
               # after forming the http header we simply send this stuff like this using 
               # former tools from this soft pack ( httpreq_addcrlf ):
               { cat httpreq | httpreq_addcrlf | cat; printf "%s" "$postbody"; } | \
-              nc -c -X 5 -x localhost:9050 www:443
+              nc -c -X 5 -x localhost:9050 www 443
 
               # Hope this is clear. The last line shows nc with passing traffic via tor
               # for server with https.

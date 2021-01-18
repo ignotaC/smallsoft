@@ -166,8 +166,8 @@ int main( int argc, char *argv[] )  {
 	  }  else  {
 
 	   
-	    if( printf( "%%%.2x",
-	        ( unsigned int )chrin ) < 0 )
+	    if( printf( "%%%02x",
+	        ( (unsigned char ) chrin ) ) < 0 )
 	      fail( "failed on printing encoded char" );
 
 	  }
