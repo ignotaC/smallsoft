@@ -25,6 +25,7 @@ make:
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
+	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
 
 clearbin:
 	rm ${BIN}/*

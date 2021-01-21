@@ -171,6 +171,10 @@ A pack of my little unix programs.
               # Hope this is clear. The last line shows nc with passing traffic via tor
               # for server with https.
 
+21. givetask - Simple program, opens unix socket from first argument. And outputs each line
+               from stdin per connection. Then shutdowns and closes each socket. Example:
+               cat file | givetask /tmp/some; nc -U /tmp/some 
+
 How to install?
 Run make in makefile directory.
 Compiled programs will go to the bin directory

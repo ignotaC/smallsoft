@@ -42,9 +42,10 @@ int main( int argc, char *argv[] )  {
 
   for( bool found = 1;; found = 1)  {
 
+    errno = 0;
     if( getline( &linepointer, &lp_size, stdin ) == -1 )  {
 
-      if( ferror( stdin ) )  fail( "Fail on stdin getline" );
+      if( errno )  fail( "Fail on stdin getline" );
       return 0;
 
     }

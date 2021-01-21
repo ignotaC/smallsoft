@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2021 Piotr Trzpil  p.trzpil@protonmail.com
+Copyright (c) 2020 Piotr Trzpil  p.trzpil@protonmail.com
 
 Permission to use, copy, modify, and distribute 
 this software for any purpose with or without fee
@@ -22,6 +22,7 @@ OF THIS SOFTWARE.
 
 
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
 
@@ -32,7 +33,6 @@ OF THIS SOFTWARE.
 
 #include <errno.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,101 +82,44 @@ void sigint_handler( int sig )  {
 
 }
 
-int writefd(
-    const int sockfd,
-    char *buff,
-    size_t writesize )  {
+mode_t glob_sunperm = S_IRWXU;
 
-  ssize_t writeret = 0;
-  for(;;)  {
+int setperm( const char *const permstr )  {
 
-    if( writesize == 0 ) return 0;
+  const char *spos = ( const char*) permstr;
+  for(; *spos != '\0'; spos++ )  {
 
-    writeret = write( sockfd, buff, writesize );
-    if( writeret == 0 )  {
+    switch( *spos )  {
 
-      errno = 0;
-      return -1;
+     case 'g':
+      glob_sunperm |= S_IWGRP;
+      continue;
 
-    }  else if ( writeret < 0 )  {
+     case 'o':
+      glob_sunperm |= S_IWOTH;
+      continue;
 
-      if( errno == EINTR )  continue;
-      return -1;
-
-    }
-
-    writesize -= ( size_t ) writeret;
-    buff += writeret;
-
-  }
-
-}
-
-
-int readfd(
-    const int sockfd,
-    char *buff,
-    size_t readsize )  {
-
-  ssize_t readret = 0;
-  for(;;)  {
-
-    if( readsize == 0 ) return 0;
-
-    readret = read( sockfd, buff, readsize );
-    if( readret == 0 )  {
-
-      errno = 0;
-      return -1;
-
-    }  else if ( readret < 0 )  {
-
-      if( errno == EINTR )  continue;
+     default:
       return -1;
 
     }
 
-    readsize -= ( size_t ) readret;
-    buff += readret;
-
   }
 
-}
-
-struct saved_data sd = {
-
-  char *data;
-  uint64_t data_size;
-  uint64_t expire;
-  int64_t next_empty;
+  return 0;
 
 }
-
-void free_sd( struct saved_data *sd )  {
-
-  free( sd->data );
-  sd->data = NULL;
-  sd->expire = 0;
-  next_empty = -1;
-
-}
-
-union prot {
-
-  SAVE_DATA;
-  READ_DATA;
-  NO_MEMORY;
-
-};
-
-
 
 int main( int argc, char *argv[] )  {
 
   PUTSDBG( "Program start" );
 
-  if( argc != 2 )
-    fail( "You need to pass socket name - absolute or relative path" );
+  if( argc != 2 )  {
+
+    fail( "You need to pass socket name, \n"
+      "Each line on stdin will be passed per connection" ); 
+ 
+  }
 
   char *sockname = argv[1];
 
@@ -234,12 +177,6 @@ int main( int argc, char *argv[] )  {
   pfd[0].fd = sockfd;
   pfd[0].events = POLLIN;
 
-  struct saved_data *sd = NULL;
-  uint64_t sd_size = 0;
-  int64_t = empty_slot = 0;
-
-  uint8_t proto = 0;
-  uint64_t data_size = 0;
   for(;;)  {
 
     PUTSDBG( "Poll loop start" );
@@ -293,53 +230,60 @@ int main( int argc, char *argv[] )  {
 
       }
 
+
+      char *linestr = NULL;
+      size_t linesize = 0;
       for( int leaveloop = 0; ! leaveloop;)  {
 
-	PUTSDBG( "Loop start" );
+ 	PUTSDBG( "NOW WAIT WE PASS LINE" );
+	
+	errno = 0;
+	if( getline( &linestr, &linesize, stdin ) ==
+          -1 )  {
 
-	// -1 because i might need last one for nul
-	ssize_t read_size = 
-	  read( newsock, buff, buff_size - 1 );      
-        if( read_size == -1 )  {
+	  if( errno )
+	    fail( "Error on getting line in stdin" );
 
-	  switch( errno )  {
-
-	    case EINTR:
-	      errno = 0; // clear errno
-	      continue;
-	    default:  
-	      // will it know  about things after ? 
-	      perror( "Unusuall error on read" );
-	    case ECONNRESET:
-	    case ENOTCONN:
-	    case ETIMEDOUT:
-	      leaveloop = 1;
-	      errno = 0;  //clear errno
-	      break;
-
-	  }
-
-	} else if( read_size == 0 )  {
-
-	  PUTSDBG( "EOF/FIN" );
-	  
+	  shutdown( newsock, SHUT_RDWR );
 	  close( newsock );
-	  leaveloop = 1;
+	  break;
 
-	} else {
+	}
 
-	  PUTSDBG( "MESSAGE" );
+	char *linestr_pos = linestr;
+	size_t bytes = strlen( linestr );
+	for( ssize_t writeret = 0; bytes;)  {
 
-	  // set nul;
-	  buff[ read_size ] = '\0';
-	  if( printf( "%s", buff ) < 0 ) {
+	  writeret = write( newsock, linestr_pos, bytes );
+	  if( writeret < 0 )  {
 
-	    perror( "Printf error" );
-	    errno = 0;  //clear errno
+	    switch( errno )  {
+
+	      case EINTR:
+	       continue;
+	      
+	      case EPIPE:
+	      case ENETDOWN:
+	       goto finish;
+              
+	      default:	  
+	       fail( "Write error" );  
+
+	    }
 
 	  }
-  
+
+	  bytes -= ( size_t ) writeret;
+	  linestr_pos += ( size_t ) writeret;
+
 	}
+
+	shutdown( newsock, SHUT_RDWR );
+       finish:
+	free( linestr );
+	linestr = NULL;
+	close( newsock );
+	break;
 
       }
 
