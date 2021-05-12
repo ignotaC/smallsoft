@@ -26,6 +26,7 @@ make:
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
+	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 
 clearbin:
 	rm ${BIN}/*
