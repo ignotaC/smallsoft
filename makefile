@@ -1,6 +1,5 @@
 CC=cc -Wall -Wextra -pedantic \
-   -O2 -std=c99
-#  -D_POSIX_C_SOURCE=200809L
+   -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
 SRC=src
 BIN=bin
 

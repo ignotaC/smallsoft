@@ -46,6 +46,66 @@ OF THIS SOFTWARE.
 #define BUTTON_RELEASE 16
 #define MOTION 6
 
+#ifdef _POSIX_C_SOURCE
+  #define IMPLEMENT_PURGE
+#endif
+
+#ifndef __unix__
+  #define IMPLEMENT_PURGE
+#endif
+
+#ifdef IMPLEMENT_PURGE
+
+  int fpurge( FILE *stream )  {
+
+    char *pbuff[ BUFF_SIZE ];
+
+    int streamfd = fileno( stream );
+    int keepflag = fcntl( streamfd, F_GETFL );
+    if( keepflag == -1 )  return EOF;
+
+    if( fcntl( streamfd, F_SETFL, keepflag | O_NONBLOCK ) == -1 )
+      return EOF;
+
+    ssize_t readret = 0;
+    for(;;)  {
+
+      readret = read( streamfd, pbuff, BUFF_SIZE );
+      if( readret == -1 )  {
+
+	switch( errno )  {
+
+          case EINTR:
+	    continue;
+	  
+         #ifdef EAGAIN
+	  case EAGAIN:
+	    break;
+	 #else
+          case EWOULDBLOCK:
+            break;
+	 #endif
+
+	  default:
+	    return EOF;
+
+	}
+        if( errno != EINTR )  return EOF;
+	continue;
+
+      }
+      else if( readret == 0 )  break;
+
+    }
+
+    if( fcntl( streamfd, F_SETFL, keepflag ) == -1 )
+      return EOF;
+
+    return 0;
+
+  }
+
+#endif
 
 // macro to remove compiler  *dupicate case* rambling
 #if( EWOULDBLOCK != EAGAIN )

@@ -42,6 +42,15 @@ OF THIS SOFTWARE.
  #define PUTSDBG(WRD)
 #endif
 
+
+#ifndef SUN_LEN
+  #define SUN_LEN(sun) ( sizeof( *( sun ) ) \
+    - sizeof( ( sun )->sun_path ) \
+    + strlen( ( sun )->sun_path  ) )
+#endif
+
+
+
 int getsock( char *name )  {
 
   struct sockaddr_un sun = { 0 };
