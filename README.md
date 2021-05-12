@@ -7,12 +7,14 @@ A pack of my little unix programs.
 
 1. coin - Program lets you find an answer
           to a 0/1 problem.
+
 2. getproxies - Program filters few webpages
                 to suck up proxies, also checks
                 if they work properly. Data is
                 saved to file "proxylist" in work dir.
                 Program uses wget, so it is needed
                 to work.
+
 3. novena - It will save file in home directory
             and track with it day of novena.
             All you need to do is enter the name
@@ -20,11 +22,14 @@ A pack of my little unix programs.
             set time, if you started two days
             ago the prayer - still will work fine.
             Creates .novena file in env HOME
+
 4. workout - Program generates workout entries
              for each day. Keep training!
              Creates .workout file in env HOME
+
 5. logtime - Logs time from stdin per line and
              attaches it on stdout.
+
 6. recev - Record events from mouse and keyboard.
            It needs to work xinput, and xmodmap.
            Also xev might be useful. Record before
@@ -34,6 +39,7 @@ A pack of my little unix programs.
            recording and file where he saves
            the record. To play recorded events
            use playev program from this list.
+
 7. playev - Program playes events saved in file
             created by recev program. In general
             you just use it like this:
@@ -45,12 +51,14 @@ A pack of my little unix programs.
             The *y* is time before starting to
             play event loop and *z* is time
             between every event record replaying.
+
 8. wh_frktcp - Program sets up chosen ammoun of
                processess that will run an internet
                command using tcp. It will use torsocks
                all times. So we keep privacy.
                This mean you need to install torsocks.
                Program will guide you how to use it.
+
 9. wh_inchttpext - Program will go through specified
                    link incrementing http link each time,
                    in position you point like http://xxx.xx/%lld.
@@ -60,6 +68,7 @@ A pack of my little unix programs.
                    from websites. I find it sometimes useful.
                    It will try to find phrase in downloaded web
                    page source. 
+
 10. wh_httpext - In general it's a string extractor form a file.
                  It has three basic commands. Pass to pass file
                  untill a string is met. Cut that find strings
@@ -67,10 +76,12 @@ A pack of my little unix programs.
                  last command is loop. It will loop for ever last
                  command. Only has sens to use after cut command.
                  Ofc loop will end with eof at stdin. If you 
+
                  don't pass any command *help prompt* will appear. 
 11. linsaftrdiff - You pass two file names. Program prints on stdout
                    all lines of first passed file after first different
                    line is met in other file.
+
 12. fstrswp - Swap one string in stream to other, only files with lines
               shorter than 8192 for now. Perfect for some source fixing.
               For example when we need to swap malloc.h to stdlib.h.
@@ -79,6 +90,7 @@ A pack of my little unix programs.
                    'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'' ' \
                    '| tmpfile; mv tmpfile {}' \;
               Could be without '\'' but what if we have spaces or worse?
+
 13. parsekdump - This is wrote for openbsd ktrace output. Not sure how it
                  would work on other oses. Anyway you ktrace your program
                  eventualy to keep track of forks ktrace -i program.
@@ -92,6 +104,7 @@ A pack of my little unix programs.
                  4. Precent it took compared to recording time.
                  last one takes recording time as first and last appearance
                  of CALL or RET.
+
 14. ualist - Program will output little list of user agents to stdout.
              You use it like this: ualist proxyip:proxyport > my_list.
              It uses torsocks wget to download specific webpage
@@ -107,12 +120,14 @@ A pack of my little unix programs.
              Program sleeps a bit and is slow. If you stop getting output
              change the proxy. The owner of page we get UA is a bit dramatic.
              So you need to be stealthy.
+
 15. randstr - Program generates using pseudorandom generator ( C rand() )
               Randomn string. You must pass number of bytes to generate.
               Also you can force to output onlu uppercase letters, lowercase
               and digits. With commands -u -l -d.
               Example: randstr -u 124 -ld. This will generate 124 bytes
               that in asci code appear as lowercase uppercase or digits.
+
 16. logdata - Program opens unix socket and prints all data sent to it.
               Example of using it:
               We start it: logdata unix_socket_name_we_pass > savehere
@@ -123,6 +138,7 @@ A pack of my little unix programs.
               echo "test" | nc -UN socket_name
               -N option is a must. Socket must sent FIN else the connection stales.
               SIGINT logdata for gentle close when not anymore needed!
+
 17. runprog - Program opens unix socket and runs with system C syscall
               command we pass at it start up. It runs the command when
               there is opened connection. It ignores sent data.  You can either
@@ -137,6 +153,7 @@ A pack of my little unix programs.
               last one go stand for group and other - write permissions set on
               unix socket. So if you need root to execute something simple user
               can call it via this socket to do the job.
+
 18. httpreq_addcrlf - Program adds after new line of each entry CRLF creating
               proper http request. On the end it makes passes one more CRLF.
               Empty lines are being ignored. Example of usage, we have file httpreq:
@@ -146,6 +163,7 @@ A pack of my little unix programs.
               
               We use it this way:
               cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
+
 19. flinemem - program loads stdin line to memory and searches if passed arguments
 	      exist in line. Line is printed to stdout only if all strings exist in line.
               No need for regular expression when you simply need to find static patterns.
@@ -174,6 +192,8 @@ A pack of my little unix programs.
 21. givetask - Simple program, opens unix socket from first argument. And outputs each line
                from stdin per connection. Then shutdowns and closes each socket. Example:
                cat file | givetask /tmp/some; nc -U /tmp/some 
+
+22. miodpitny - program tells you MEAD proportions. 
 
 How to install?
 Run make in makefile directory.
