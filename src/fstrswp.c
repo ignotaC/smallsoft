@@ -25,8 +25,6 @@ OF THIS SOFTWARE.
 #include <errno.h>
 #include <stdlib.h>
 
-#define BUFF_SIZE 8192
-
 void pfail( const char *const pstr )  {
 
   fprintf( stderr, "%s", pstr );
@@ -41,42 +39,55 @@ void fail( const char *const estr )  {
 
 }
 
-int main( const int argc, const char *const argv[] )  {
+int main( 
+    const int argc,
+    const char *const argv[] 
+)  {
 
   if( argc != 3 )  pfail( "Wrong number of arguments" );
 
-  char buff[ BUFF_SIZE ];
-  memset( buff, '\0', BUFF_SIZE );
-
-  const char *const search_str = argv[1];
-  const char *const replace_str = argv[2];
-  char *buff_ptr = NULL;
+  const char *const searchstr = argv[1];
+  const char *const replacestr = argv[2];
+  char *lineptr = NULL;
   char *found_phrease = NULL;
 
-  const size_t search_str_len = strlen( search_str );
+  const size_t searchstr_len = strlen( searchstr );
 
-  while( fgets( buff, BUFF_SIZE, stdin ) != NULL )  {
+  char *line = NULL;
+  size_t linesize = 0;
 
-    if( buff[ BUFF_SIZE - 1 ] != '\0' )  pfail( "Too long line" );
-    buff_ptr = buff;
-    while( 1 )  {
+  for( ssize_t getlineret = 0;;) {
 
-      if( ( found_phrease = strstr( buff_ptr, search_str ) ) == NULL )  {
+    getlineret = getline( &line, &linesize, stdin );
+    if( getlineret == -1 )  {
 
-        printf( "%s", buff_ptr );
+      if( ferror( stdin ) )
+        fail( "Failed on getline" );
+      return 0;
+
+    }
+
+    lineptr = line;
+    for(;;)  {
+
+      found_phrease = strstr( lineptr, searchstr );
+      if( found_phrease == NULL )  {
+
+        printf( "%s", lineptr );
 	break;
 
       }
 
-     *found_phrease = 0;
-     printf( "%s%s", buff_ptr, replace_str );
-     buff_ptr = found_phrease + search_str_len;
+     *found_phrease = '\0';
+     printf( "%s%s", lineptr, replacestr );
+     lineptr = found_phrease + searchstr_len;
 
     }
+    
+    free( line );
+    line = NULL;
+    linesize = 0;
 
   }
-
-  if( ferror( stdin ) )  fail( "Fail on read" );
-  return 0;
 
 }

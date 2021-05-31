@@ -65,6 +65,7 @@ int main( int argc, char *argv[] )  {
 
     free( linepointer );
     linepointer = NULL;
+    lp_size = 0;
 
   }
 

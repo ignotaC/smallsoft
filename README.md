@@ -82,8 +82,8 @@ A pack of my little unix programs.
                    all lines of first passed file after first different
                    line is met in other file.
 
-12. fstrswp - Swap one string in stream to other, only files with lines
-              shorter than 8192 for now. Perfect for some source fixing.
+12. fstrswp - Swap one string in stream to other. 
+              Perfect for some source fixing.
               For example when we need to swap malloc.h to stdlib.h.
               this would look like this:
               find src -type f -iname '*.c' -exec sh -c \
