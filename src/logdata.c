@@ -127,10 +127,11 @@ int main( int argc, char *argv[] )  {
   if( check_socket_path != NULL )
     fail( "File under socket name already exists." );
 
+  // This will still get NULL on existing unix socket 
+  // but further the error gets cought on socket creation.
   // since it is NULL we don't need to close it
-
-  PUTSDBG( "File with provided socket name"
-	   " does not exist" );
+  PUTSDBG( "File with provided socket name "
+	   "does not exist" );
   errno = 0; // clear errno
 
   struct sigaction sa;

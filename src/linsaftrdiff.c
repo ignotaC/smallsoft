@@ -42,27 +42,28 @@ int main( const int argc, char *const argv[] )  {
   if( argc != 3 )  fail( "Fail - must be two file names" );
 
   FILE *f_one = fopen( argv[1], "r" );
-  if( f_one == NULL )  fail( "Failed on opening f_one" );
+  if( f_one == NULL )  fail( "Failed on opening file one" );
   FILE *f_two = fopen( argv[2], "r" );
-  if( f_two == NULL )  fail( "Failed on opening f_two" );
+  if( f_two == NULL )  fail( "Failed on opening file two" );
 
-  size_t linesize = 0;
+  size_t linesize1 = 0;
+  size_t linesize2 = 0;
   char *line1 = NULL;
   char *line2 = NULL;
   for(;;)  {
 
-     if( getline( &line1, &linesize, f_one ) == -1 )  {
+     if( getline( &line1, &linesize1, f_one ) == -1 )  {
 
        if( ferror( f_one ) )
-         fail( "Failed on getline from f_one" );
+         fail( "Failed on getline from file one" );
        break;
      
      }
 
-     if( getline( &line2, &linesize, f_two ) == -1 )  {
+     if( getline( &line2, &linesize2, f_two ) == -1 )  {
 
        if( ferror( f_two ) )
-         fail( "Failed on getline from f_two" );
+         fail( "Failed on getline from file two" );
        printf( "%s", line1 );
        free( line1 );
        break;
@@ -84,20 +85,25 @@ int main( const int argc, char *const argv[] )  {
      line1 = NULL;
      line2 = NULL;
 
+     linesize1 = 0;
+     linesize2 = 0;
+
   }
 
   line1 = NULL;
   line2 = NULL;
+  linesize1 = 0;
 
-  while( getline( &line1, &linesize, f_one ) != -1 )  {
+  while( getline( &line1, &linesize1, f_one ) != -1 )  {
 
     printf( "%s", line1 );
     free( line1 );
     line1 = NULL;
+    linesize1 = 0;
 
   }
 
-  if( ferror( f_one ) )  fail( "Failed on f_one getline" );
+  if( ferror( f_one ) )  fail( "Failed on file one getline" );
 
   return 0;
 
