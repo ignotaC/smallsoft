@@ -28,7 +28,12 @@ A pack of my little unix programs.
              Creates .workout file in env HOME
 
 5. logtime - Logs time from stdin per line and
-             attaches it on stdout.
+             attaches it on stdout. format is
+             <seconds>.<miliseconds><space>
+             Example how to use:
+             echo 'black jews' | logtime
+             Output bill be similar to this:
+             18273553.746236 black jews
 
 6. recev - Record events from mouse and keyboard.
            It needs to work xinput, and xmodmap.

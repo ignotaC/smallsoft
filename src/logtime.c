@@ -20,11 +20,11 @@ OF THIS SOFTWARE.
 
 */
 
+#include <sys/time.h>
 
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 void fail( char *str_fail )  {
 
@@ -40,17 +40,21 @@ int main( void )  {
 
   char *line = NULL;
   size_t linesize = 0;
-  long long int cur_time;
+  struct timeval curtime = { 0 };
   while( getline( &line, &linesize, stdin ) != -1 )  {
 
-    cur_time = ( long long int ) time(NULL);
-    printf( "%lld %s", cur_time, line );
+    //this function should never fail
+    gettimeofday( &curtime, NULL ); 
+    printf( "%lld.%.6lld %s",
+      ( long long int )curtime.tv_sec,
+      (long long int )curtime.tv_usec,  line );
     free( line );
     line = NULL;
 
   }
   
-  if( ferror( stdin ) )  fail( "Failed on getline function" );
+  if( ferror( stdin ) )
+    fail( "Failed on getline function" );
   return 0;
 
 }
