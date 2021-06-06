@@ -221,6 +221,8 @@ A pack of my little unix programs.
              This will have sooner or later update. But since it works than I am putting it up here.
              Expect broken behavior. It was intended to be able log multiply servers. So next S in 
              config file should merit new network.
+             Each channel gets it's own file where stuff gets logged in the directory where you 
+             started the program. <networkname><channame> <- something like this
 
 How to install?
 Run make in makefile directory.
