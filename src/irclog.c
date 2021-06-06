@@ -40,8 +40,14 @@ ssize_t write_msg( const int fd, void *const passed_buff, size_t passed_buff_siz
         
       }
 
-      if( errno == EINTR ) continue;
-      return write_return;
+      if( errno == EINTR )  {
+	
+	i++      
+        continue;
+
+      }
+
+      return -1;
       
     }
     
@@ -113,17 +119,14 @@ void thread_fail( struct network *const ircnet_ptr,  const char *const str_fail 
 
 }
 
-
-
 int setfd_cloexec( const int fd )  {
 
   int flags = fcntl( fd, F_GETFL );
   if( flags == -1 )  return -1;
-  if( fcntl( fd, F_SETFL, flags | O_CLOEXEC ) == -1 )  return -1;
+  if( fcntl( fd, F_SETFL, flags | FD_CLOEXEC ) == -1 )  return -1;
   return 0;
 
 }
-
 
 void closelogs( struct network *const ircnet, const size_t size_to_close )  {
 
