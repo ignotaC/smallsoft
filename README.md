@@ -200,6 +200,28 @@ A pack of my little unix programs.
 
 22. miodpitny - program tells you MEAD proportions. 
 
+23. irclog - program to log irc. It's old code. Not too proud of it but I needed to log
+             some stuff recently and it worked. So I am adding it here for now.
+             Will try to reread it in future for detecting some bugs and other crap.
+             How to use: create a file in directory where you will start the irclog program
+             The only accepted file name is: log_serv_data
+             Else error.
+             Contents example:
+             Sirc.liberapriviligeslgbtcrap.chat 6667
+             MNICK dicky 
+             MUSER dicky ** :Philip_DICK
+             C##channel_1
+             C#devchannel_2
+             C##channel_3
+             
+             Now, S is for server where you pass domain port
+             M is for first message you provide at start up, irc proto
+             C is for channel you want to join
+             There is also I for identication string. I rememebr ages ago it worked but now?
+             This will have sooner or later update. But since it works than I am putting it up here.
+             Expect broken behavior. It was intended to be able log multiply servers. So next S in 
+             config file should merit new network.
+
 How to install?
 Run make in makefile directory.
 Compiled programs will go to the bin directory
