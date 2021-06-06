@@ -207,7 +207,7 @@ A pack of my little unix programs.
              The only accepted file name is: log_serv_data
              Else error.
              Contents example:
-             Sirc.liberapriviligeslgbtcrap.chat 6667
+             Sirc.liberapriviligesqwertycrap.chat 6667
              MNICK dicky 
              MUSER dicky ** :Philip_DICK
              C##channel_1
