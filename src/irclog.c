@@ -161,12 +161,17 @@ int openlogs( struct network *const ircnet )  {
     snprintf( tempbuff, tempbuff_size - 1,  "%s:%s_logs", ircnet->host, ircnet->channels[i] );
     puts( tempbuff );
     ircnet->logfiles[i] = fopen( tempbuff, "a" );
-    if( setfd_cloexec( fileno( ircnet->logfiles[i] ) ) == -1 )  return -1;
-
     if( ircnet->logfiles[i] == NULL )   {
 
       closelogs( ircnet, i );
       thread_fail( ircnet, "Fail on opening file" );
+
+    }
+
+    if( setfd_cloexec( fileno( ircnet->logfiles[i] ) ) == -1 )  {
+
+      closelogs( ircnet, i );
+      thread_fail( ircnet, "Fail on setting fd to close on exec" );
 
     }
 
@@ -195,7 +200,7 @@ int irc_connect( struct network *ircnet )  {
   struct addrinfo *ai_ret;
   
   int gai_ret;
-  if( ( gai_ret = getaddrinfo( ircnet->host, NULL, &hint, &ai_ret ) ) < 0 )  {
+  if( ( gai_ret = getaddrinfo( ircnet->host, NULL, &hint, &ai_ret ) ) != 0 )  {
 
     perror(  gai_strerror( gai_ret ) );
     return -1;
@@ -216,11 +221,13 @@ int irc_connect( struct network *ircnet )  {
     switch( ai_ret->ai_family )  {
 
     case AF_INET:
-      ( ( struct sockaddr_in* )ai_ret->ai_addr )->sin_port = htons( ircnet->port );
+      ( ( struct sockaddr_in* )ai_ret->ai_addr )->sin_port =
+         htons( ircnet->port );
       break;
 
     case AF_INET6:
-      ( ( struct sockaddr_in6* )ai_ret->ai_addr )->sin6_port = htons( 6667 );
+      ( ( struct sockaddr_in6* )ai_ret->ai_addr )->sin6_port =
+        htons( ircnet->port );
       break;
 
     default:
@@ -229,13 +236,16 @@ int irc_connect( struct network *ircnet )  {
 
     }
     
-    if( ( ircnet->sockfd = socket( ai_ret->ai_family, SOCK_STREAM, 0 ) ) < 0 )  continue; 
-    if( connect( ircnet->sockfd, ( struct sockaddr* ) ai_ret->ai_addr, ai_ret->ai_addrlen ) < 0 )  {
+    if( ( ircnet->sockfd = socket( ai_ret->ai_family,
+        SOCK_STREAM, 0 ) ) == -1 )  continue; 
+    if( connect( ircnet->sockfd, ( struct sockaddr* ) ai_ret->ai_addr,
+        ai_ret->ai_addrlen ) == -1 )  {
       
       close( ircnet->sockfd );
       continue;
       
     }   
+
     family = ai_ret->ai_family;     
     
   }
@@ -327,7 +337,7 @@ int write_err_check( struct network *ircnet )  {
 
 }
 
-
+////   <------------ stop
 // get msg
 ssize_t get_msg_line( char **const buff_pp, size_t *const buff_left_size, ssize_t *const read_size,
 		      char *line_buff, size_t line_buff_size )  {

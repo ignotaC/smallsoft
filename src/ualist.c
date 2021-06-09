@@ -82,12 +82,9 @@ int extract_ua( char *filename, char *buff ) {
   errno = 0;
   while( fgets( buff, BUFF_SIZE, webpage ) != NULL )  {
 
-    char *start = strstr( buff, "class=\"useragent\"><a href=" );
+    char *start = strstr( buff, "class=\"useragent\">" );
     if( start == NULL )  continue;
 
-    start = strchr( start, '>' );
-    if( start == NULL )  continue;
-    start++;
     start = strchr( start, '>' );
     if( start == NULL )  continue;
     start++;
