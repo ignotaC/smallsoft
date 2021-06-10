@@ -305,10 +305,17 @@ void decode_base64( char* word )  {
 int remove_garbage( char *filename )  {
 
   int count_garbage = 0;
-  char *temp_name = tmpnam( NULL );
+  
+  char temp_name[] = "/tmp/tmpfileXXXXXXXX";
+  int tempfd = mkstemp( temp_name );
+  if( tempfd == -1 )  err();
+  close( tempfd );
 
   FILE *old = fopen( filename, "r" );
   FILE *new = fopen( temp_name, "w" ); 
+
+  if( old == NULL )  err();
+  if( new == NULL )  err();
 
   const size_t buff_size = 1024;
   char buff[ buff_size ];

@@ -42,7 +42,7 @@ ssize_t write_msg( const int fd, void *const passed_buff, size_t passed_buff_siz
 
       if( errno == EINTR )  {
 	
-	i++      
+	i++;  
         continue;
 
       }

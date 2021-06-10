@@ -108,8 +108,10 @@ int main( int argc, char *argv[]  )  {
 
   if( argc != 2 )  fail( "You must provide ip:port string" );
 
-  char *tempname = tmpnam( NULL );
-  if( tempname == NULL )  fail( "Could not get temp name" );
+  char tempname[] = "/tmp/tmpuaXXXXXXXX";
+  int tmpfd = mkstemp( tempname );
+  if( tmpfd == -1 )  fail( "Could not get temp name" );
+  close( tmpfd );
 
   char buff[ BUFF_SIZE ];
   memset( buff, 0, BUFF_SIZE );

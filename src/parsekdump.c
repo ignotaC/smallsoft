@@ -506,12 +506,17 @@ int ret_call( struct proc_data *pd,
 int main( void )  {
 
   char cmd_buff[ CMD_SIZE ];
-  char tmpname_1[ PATH_MAX + 10 ];
-  if( tmpnam( tmpname_1 ) == NULL )
+  char tmpname_1[] = "/tmp/tmpkdump1XXXXXXXX";
+  int tmpfd = mkstemp( tmpname_1 );
+  if( tmpfd == -1 )
     fail( "Could not get temporary file name 1" );
-  char tmpname_2[ PATH_MAX + 10 ];
-  if( tmpnam( tmpname_2 ) == NULL )
+  close( tmpfd );
+
+  char tmpname_2[] = "/tmp/tmpkdump2XXXXXXXX";
+  tmpfd = mkstemp( tmpname_2 );
+  if( tmpfd == -1 )
     fail( "Could not get temporary file name 2" ); 
+  close( tmpfd );
 
   //  Get kdump readable output
   if( sprintf( cmd_buff, "kdump -TH > %s", tmpname_1 )

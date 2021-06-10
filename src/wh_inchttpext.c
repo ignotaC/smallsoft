@@ -136,7 +136,11 @@ int main( int argc, char *argv[]  )  {
   int sysret = 0;
   while( start_num <= end_num )  {
 
-    char *tmpfile_name = tmpnam( NULL );
+    char tmpfile_name[] = "/tmp/tmpincXXXXXXXX";
+    int tmpfd = mkstemp( tmpfile_name );
+    if( tmpfd == -1 )  fail( "Failed on mkstemp" );
+    close( tmpfd );
+
     if( sprintf( buff, httplink, tmpfile_name, start_num ) < 0 )
       fail( "Failed on sprintf command" );
 
