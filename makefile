@@ -4,6 +4,7 @@ SRC=src
 BIN=bin
 
 make:
+	mkdir -p bin
 	${CC} ${SRC}/coin.c -o ${BIN}/coin
 	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies
 	${CC} ${SRC}/novena.c -o ${BIN}/novena
@@ -26,7 +27,7 @@ make:
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
-	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/miodpitny
+	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/irclog
 
 clearbin:
 	rm ${BIN}/*
