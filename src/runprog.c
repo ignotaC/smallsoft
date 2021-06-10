@@ -177,9 +177,7 @@ int main( int argc, char *argv[] )  {
 	   " does not exist" );
   errno = 0; // clear errno
 
-  struct sigaction sa;
-  sa.sa_mask = 0;
-  sa.sa_flags = 0;
+  struct sigaction sa = { 0 };
   sa.sa_handler = sigint_handler;
 
   if( sigaction( SIGINT, &sa, NULL ) == -1 )
