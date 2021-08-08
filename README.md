@@ -223,6 +223,23 @@ A pack of my little unix programs.
              config file should merit new network.
              Each channel gets it's own file where stuff gets logged in the directory where you 
              started the program. <networkname><channame> <- something like this
+24. faddlines - Program merges files. pritnf on stdout added lines like this:
+             line 1 file 1 + space + line 1 file 2\n
+             If one file reached eof it gets ignored
+             after all files reach EOF - program finishes.
+             Where I use it:
+
+             Let us imagine we have y(t) and x(t);
+             We want to plot it in gnuplot;
+             We could also have already data files out there.
+             Taken from some sensor.
+
+             echo 'for(i=0.1; i < 100; i+=0.1) { i-5 }' | bc > file1
+             echo 'for(i=0.1; i < 100; i+=0.1) { i+5 }' | bc > file2
+             faddlines file1 file2 > ans;
+             After that I can plot x,y points with gnuplot to see how it looks.
+
+             This program can take multiply files. 
 
 How to install?
 Run make in makefile directory.

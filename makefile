@@ -28,6 +28,7 @@ make:
 	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/irclog
+	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
 
 clearbin:
 	rm ${BIN}/*
