@@ -29,9 +29,7 @@ OF THIS SOFTWARE.
 #include <string.h>
 #include <unistd.h>
 
-#define USER_AGENT "--user-agent='Mozilla/5.0" \
-" (Windows NT 10.0; Win64; x64; " \
-"rv:79.0) Gecko/20100101 Firefox/79.0'"
+#define USER_AGENT "'--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'"
 
 #define WGET "torsocks wget " USER_AGENT "-q -O"
 

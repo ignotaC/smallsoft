@@ -237,9 +237,14 @@ A pack of my little unix programs.
              echo 'for(i=0.1; i < 100; i+=0.1) { i-5 }' | bc > file1
              echo 'for(i=0.1; i < 100; i+=0.1) { i+5 }' | bc > file2
              faddlines file1 file2 > ans;
-             After that I can plot x,y points with gnuplot to see how it looks.
+             ## After that I can plot x,y points with gnuplot to see how it looks.
+             gnuplot
+             >> p ans
 
              This program can take multiply files. 
+
+25. cutfile - program stdouts lines after meeting in line some expression.
+              For help run cutfile without any arguments
 
 How to install?
 Run make in makefile directory.
