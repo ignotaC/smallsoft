@@ -30,6 +30,7 @@ make:
 	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/irclog
 	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
 	${CC} ${SRC}/cutfile.c -o ${BIN}/cutfile
+	${CC} ${SRC}/htmlentities.c -o ${BIN}/htmlentities
 
 clearbin:
 	rm ${BIN}/*

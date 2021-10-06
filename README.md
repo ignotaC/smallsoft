@@ -246,6 +246,12 @@ A pack of my little unix programs.
 25. cutfile - program stdouts lines after meeting in line some expression.
               For help run cutfile without any arguments
 
+26. htmlentities - decode or encode html entities, only some are supported.
+                   suported: '<' '>' ' ' '\'' '"' '&' . Rets is treated as errror.
+                   honestly I dislike utf8. Let it rot. 
+                   How to use -> invoke without any arguments. Still little example:
+                   cat urllinksfromhtmlpage | htmlentities -d > proper_url_links
+
 How to install?
 Run make in makefile directory.
 Compiled programs will go to the bin directory
