@@ -252,6 +252,10 @@ A pack of my little unix programs.
                    How to use -> invoke without any arguments. Still little example:
                    cat urllinksfromhtmlpage | htmlentities -d > proper_url_links
 
+27. httphb_split - Splits http server answers to http header or the rest ( body )
+                   For help simply run it without any arguments.
+                   Example: http_serber_answer | httphb_split -h > httpheader_file
+
 How to install?
 Run make in makefile directory.
 Compiled programs will go to the bin directory

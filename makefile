@@ -31,6 +31,7 @@ make:
 	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
 	${CC} ${SRC}/cutfile.c -o ${BIN}/cutfile
 	${CC} ${SRC}/htmlentities.c -o ${BIN}/htmlentities
+	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
 
 clearbin:
 	rm ${BIN}/*
