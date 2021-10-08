@@ -57,7 +57,7 @@ int check_args( const int argc, const char *const argv[] )  {
 
       switch( argv[i][j] )  {
 
-        case 'w':
+        case 'f':
 	 OPTION_F = 1;
 	 option_count++;
 	 break;
@@ -83,8 +83,8 @@ int check_args( const int argc, const char *const argv[] )  {
 
   // we can\t have both 0 or both 1
   // one must be true one must be false
-  if( OPTION_A == OPTION_B )  return -1;
 
+  if( OPTION_A == OPTION_B )  return -1;
   return 0;
 
 }
@@ -98,6 +98,7 @@ int main( const int argc, const char *const argv[] )  {
     fprintf( stderr, "%s\n", "-a 'str' <- stdout file after string in line" );
     fprintf( stderr, "%s\n", "-b 'str' <- stdout file untill string in line" );
     fprintf( stderr, "%s\n", "-f <- print with found line containing string" );
+    fprintf( stderr, "%s\n", "Option f must be used with a or b option." );
     return -1;
 
   }
