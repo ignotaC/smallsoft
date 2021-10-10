@@ -1,0 +1,100 @@
+/*
+
+Copyright (c) 2021 Piotr Trzpil  p.trzpil@protonmail.com
+
+Permission to use, copy, modify, and distribute 
+this software for any purpose with or without fee
+is hereby granted, provided that the above copyright
+notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR
+DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
+OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+OF THIS SOFTWARE.
+
+*/
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void fail( const char *const estr )  {
+
+  perror( estr );
+  exit( EXIT_FAILURE );
+
+}
+
+int main( const int argc, const char *const argv[] )  {
+
+  if( argc != 2 )
+    fail( "Wrong! This xarg takes no options, "
+          "only program name for argument feed" );
+
+  char *linestr = NULL;
+  size_t linesize = 0;
+
+  size_t argsize = strlen(  argv[1] );
+  size_t keep_argsize = argsize + 1 ;
+  char *arg = realloc( NULL, keep_argsize );
+  strncat( arg, argv[1], argsize );
+  arg[ argsize ] = ' ';
+  argsize = keep_argsize;
+
+  if( arg == NULL )  fail( "Failed on first realloc" );
+
+  for(;;)  {
+
+    if( getline( &linestr, &linesize, stdin ) == -1 )  {
+
+      if( ferror( stdin ) )  fail( "Failed on getline" );
+      break;
+
+    }
+
+    for( size_t i = 0; i < linesize; i++ )  {
+
+      if( linestr[i] == '\n' )  {
+
+        linesize = i;
+	break;
+
+      }
+
+    }
+
+    //  bytes: "'linesize' "
+    argsize += 1 + linesize + 1 + 1;
+    arg = realloc( arg, argsize );
+    if( arg == NULL )  fail( "Realloc fail" );
+    arg[ keep_argsize ] = '\'';
+    memcpy( arg + keep_argsize + 1, linestr, linesize );
+    arg[ keep_argsize + linesize + 1 ] = '\'';
+    arg[ keep_argsize + linesize + 2 ] = ' ';
+    keep_argsize = argsize;
+
+    free( linestr );
+    linestr = NULL;
+    linesize = 0;
+
+  }
+
+  arg = realloc( arg, keep_argsize + 1 );
+  if( arg == NULL )  fail( "Failed on reallocing nul" );
+  arg[ keep_argsize ] = 0;
+
+  puts( arg );
+
+  int retval = system( arg );
+  free( arg );
+
+  return retval;
+
+}

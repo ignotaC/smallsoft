@@ -255,6 +255,10 @@ A pack of my little unix programs.
 27. httphb_split - Splits http server answers to http header or the rest ( body )
                    For help simply run it without any arguments.
                    Example: http_serber_answer | httphb_split -h > httpheader_file
+28. fixedxarg - Program closly performs same task as xargs, BUT PROPERLY.
+                Each new line separates new argument. Empty lines creates ''
+                Which normal xarg fails to catch. No options. Example:
+                echo  "a\nb\nc\nd\n" | fixedxarg echo
 
 How to install?
 Run make in makefile directory.
