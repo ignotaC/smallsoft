@@ -20,11 +20,13 @@ OF THIS SOFTWARE.
 
 */
 
-
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <limits.h>
 #include <poll.h>
@@ -61,15 +63,41 @@ int getsock( char *name )  {
   if( sockfd == -1 )  return -1;
 
   if( bind( sockfd, ( struct sockaddr* ) &sun, SUN_LEN( &sun ) )
-      == -1 )  goto sockfail;
+      == -1 )  goto usockfail;
 
   // bigger since if no place instant drop
   if( listen( sockfd, 8192 ) == -1 )
-    goto sockfail;
+    goto usockfail;
 
   return sockfd;
 
-  sockfail:
+  usockfail:
+  close( sockfd );
+  return -1;
+
+}
+
+
+// TODO set reuseaddr sock option
+int getnetsock( unsigned short port )  {
+
+  struct sockaddr_in sin = {0};
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = htonl( INADDR_ANY );
+  sin.sin_port = htons( port );
+
+  int sockfd = socket( AF_INET, SOCK_STREAM, 0 );
+  if( sockfd == -1 )  return -1;
+
+  if( bind( sockfd, ( struct sockaddr* ) &sin, sizeof( sin ) ) == -1 )
+    goto netsockfail;
+
+  if( listen( sockfd, 8192 ) == -1 )
+    goto netsockfail;
+
+  return sockfd;
+
+  netsockfail:
   close( sockfd );
   return -1;
 
@@ -119,71 +147,252 @@ int setperm( const char *const permstr )  {
 
 }
 
+// Syntax possibilities
+// -u 'sockname'
+// -n 'ip range accepted'  'port'
+
+enum {
+
+  UNIXSOCK,
+  INETSOCK
+
+};
+
+
 int main( int argc, char *argv[] )  {
 
   PUTSDBG( "Program start" );
 
-  if( argc != 2 )  {
+  if( argc < 2 )  {
 
-    fail( "You need to pass socket name, \n"
-      "Each line on stdin will be passed per connection" ); 
- 
+    fail( "How to use:\n"
+      "Each line on stdin will be passed per connection\n"
+      "Either you start a unix socket or netsocket\n"
+      "-u unixsocketname\n"
+      "-n IPrangetoaccept port\n" );
+
   }
 
-  char *sockname = argv[1];
 
-  PUTSDBG( "Passed path:" );
-  PUTSDBG( argv[1] );
+  if( argv[1][0] != '-' )
+    fail( "Option was not provided" );
+
+  int socktype = 0;
+  switch( argv[1][1] ) {
+
+    case 'u':
+      socktype = UNIXSOCK;
+      if( argc != 3 ) fail( "Brokne arguments" );
+      break;
+    case 'n':
+      socktype = INETSOCK;
+      if( argc != 4 ) fail( "Broken arguments" );
+      break;
+    default:
+      fail( "There is no such option" );
+
+  }
   
-  const size_t sockname_size = 
-    strlen( sockname ) + sizeof( *sockname );
-  if( sockname_size > PATH_MAX )
-     fail( "Socket name too long." );
+  
+  if( socktype == UNIXSOCK )  {
+	  
+    char *sockname = argv[2];
 
-  {
+      PUTSDBG( "Passed path:" );
+      PUTSDBG( argv[2] );
+  
+    const size_t sockname_size = 
+      strlen( sockname ) + sizeof( *sockname );
+    if( sockname_size > PATH_MAX )
+      fail( "Socket name too long." );
 
-    struct sockaddr_un sun;
-    size_t sunpath_size = sizeof( sun.sun_path );
-    if( sockname_size > sunpath_size )  {
+    {
 
-      fprintf( stderr,
-        "Your max unix socket name path is %zu\n",
-        sunpath_size );
-      fail( "Unix socket path is "
-	    "too small for your socket name path" );
+      struct sockaddr_un sun;
+      size_t sunpath_size = sizeof( sun.sun_path );
+      if( sockname_size > sunpath_size )  {
+
+        fprintf( stderr,
+          "Your max unix socket name path is %zu\n",
+          sunpath_size );
+        fail( "Unix socket path is "
+  	      "too small for your socket name path" );
+
+      }
+
+      PUTSDBG( "Provided socket path is fine." );
 
     }
 
-    PUTSDBG( "Provided socket path is fine." );
+    PUTSDBG( "Checking socket path" );
+    FILE *check_socket_path = fopen( sockname, "r" );
+    if( check_socket_path != NULL )
+      fail( "File under socket name already exists." );
+
+    // since it is NULL we don't need to close it
+
+    PUTSDBG( "File with provided socket name"
+  	   " does not exist" );
+    errno = 0; // clear errno
+
+    struct sigaction sa = { 0 };
+    sa.sa_handler = sigint_handler;
+
+    if( sigaction( SIGINT, &sa, NULL ) == -1 )
+      fail( "Could not set signal handler" );
+
+    int sockfd = getsock( sockname );
+    if( sockfd == -1 ) fail( "Could not create socket." );
+
+    int poll_ms_timeout = 50;
+    const size_t pfd_len = 1;
+    struct pollfd pfd[ pfd_len ];
+    pfd[0].fd = sockfd;
+    pfd[0].events = POLLIN;
+
+    for(;;)  {
+
+      PUTSDBG( "Poll loop start" );
+      if( exit_interrupt )  {
+
+        close( sockfd );
+        fprintf( stderr, "Exiting on sigint - gentle fin." );
+        return 0;
+
+      }
+
+      int ret = poll( pfd, pfd_len, poll_ms_timeout );
+      if( ret == -1 )  {
+
+        switch( errno )  {
+
+          case EINTR:
+          case EAGAIN:
+	    errno = 0;  // clear errno
+	    continue;
+	  default:
+	    fail( "Fail on poll call" );
+
+        }
+
+      } else if( ret == 0 )  continue;
+
+      // there is connection.- probably.
+    
+      // Bad device - should not happen.
+      // As for error on device let's just reset it
+      if( pfd[0].revents == POLLNVAL )  {
+
+        close( sockfd );
+        sockfd = getsock( sockname );
+        if( sockfd == -1 )
+          fail( "Could not create socket" );
+        pfd[0].fd = sockfd;
+        continue;
+
+      }
+
+      // Error on device - read to see what happened.
+      if( pfd[0].revents & ( POLLERR | POLLIN ) )  {
+
+        int newsock = accept( sockfd, NULL, NULL  );
+        if( newsock == -1 )  {
+
+          perror( "Error on new sock creation" );
+  	  continue;
+
+        }
+
+
+        char *linestr = NULL;
+        size_t linesize = 0;
+        for( int leaveloop = 0; ! leaveloop;)  {
+
+ 	  PUTSDBG( "NOW WAIT WE PASS LINE" );
+	
+	  errno = 0;
+	  if( getline( &linestr, &linesize, stdin ) ==
+            -1 )  {
+
+	    if( errno )
+	      fail( "Error on getting line in stdin" );
+
+	    shutdown( newsock, SHUT_RDWR );
+	    close( newsock );
+	    return 0;
+
+  	  }
+
+	  char *linestr_pos = linestr;
+	  size_t bytes = strlen( linestr );
+	  for( ssize_t writeret = 0; bytes;)  {
+
+	    writeret = write( newsock, linestr_pos, bytes );
+	    if( writeret < 0 )  {
+
+	      switch( errno )  {
+
+	        case EINTR:
+	         continue;
+	      
+	        case EPIPE:
+	        case ENETDOWN:
+	         goto finish;
+              
+	        default:	  
+	         fail( "Write error" );  
+
+	      }
+
+	    }
+
+	    bytes -= ( size_t ) writeret;
+	    linestr_pos += ( size_t ) writeret;
+
+  	  }
+
+	  shutdown( newsock, SHUT_RDWR );
+         finish:
+	  free( linestr );
+	  linestr = NULL;
+	  close( newsock );
+	  break;
+
+        }
+
+      }
+
+    }
 
   }
 
-  PUTSDBG( "Checking socket path" );
-  FILE *check_socket_path = fopen( sockname, "r" );
-  if( check_socket_path != NULL )
-    fail( "File under socket name already exists." );
+  PUTSDBG( "PICKED UNIX NET SOCKET" );
 
-  // since it is NULL we don't need to close it
+  char *iprange = argv[2];
 
-  PUTSDBG( "File with provided socket name"
-	   " does not exist" );
-  errno = 0; // clear errno
-
+  PUTSDBG( "Passed IPRANGE:" );
+  PUTSDBG( argv[2] );
+  
   struct sigaction sa = { 0 };
   sa.sa_handler = sigint_handler;
-
   if( sigaction( SIGINT, &sa, NULL ) == -1 )
     fail( "Could not set signal handler" );
 
-  int sockfd = getsock( sockname );
+  PUTSDBG( "Port:" );
+  PUTSDBG( argv[3] );
+  unsigned short port = 0;
+  if( sscanf( argv[3], "%hu", &port ) != 1 )
+    fail( "Could not load port from arguments with scanf" );
+  
+  int sockfd = getnetsock( port );
   if( sockfd == -1 ) fail( "Could not create socket." );
 
-  int poll_ms_timeout = 50;
+  int poll_ms_timeout = 5000;
   const size_t pfd_len = 1;
   struct pollfd pfd[ pfd_len ];
   pfd[0].fd = sockfd;
   pfd[0].events = POLLIN;
-
+    
   for(;;)  {
 
     PUTSDBG( "Poll loop start" );
@@ -218,7 +427,7 @@ int main( int argc, char *argv[] )  {
     if( pfd[0].revents == POLLNVAL )  {
 
       close( sockfd );
-      sockfd = getsock( sockname );
+      sockfd = getnetsock( port );
       if( sockfd == -1 )
         fail( "Could not create socket" );
       pfd[0].fd = sockfd;
@@ -229,14 +438,16 @@ int main( int argc, char *argv[] )  {
     // Error on device - read to see what happened.
     if( pfd[0].revents & ( POLLERR | POLLIN ) )  {
 
+      PUTSDBG( "We have a connection" );
+
+      // TODO -> check the ip range if not in - drop connection
       int newsock = accept( sockfd, NULL, NULL  );
       if( newsock == -1 )  {
 
         perror( "Error on new sock creation" );
-	continue;
+  	continue;
 
       }
-
 
       char *linestr = NULL;
       size_t linesize = 0;
@@ -246,16 +457,16 @@ int main( int argc, char *argv[] )  {
 	
 	errno = 0;
 	if( getline( &linestr, &linesize, stdin ) ==
-          -1 )  {
+            -1 )  {
 
 	  if( errno )
 	    fail( "Error on getting line in stdin" );
 
 	  shutdown( newsock, SHUT_RDWR );
 	  close( newsock );
-	  break;
+	  return 0;
 
-	}
+  	}
 
 	char *linestr_pos = linestr;
 	size_t bytes = strlen( linestr );
@@ -270,23 +481,23 @@ int main( int argc, char *argv[] )  {
 	       continue;
 	      
 	      case EPIPE:
-	      case ENETDOWN:
-	       goto finish;
+              case ENETDOWN:
+	       goto finishnet;
               
 	      default:	  
 	       fail( "Write error" );  
 
 	    }
-
+      	
 	  }
 
 	  bytes -= ( size_t ) writeret;
 	  linestr_pos += ( size_t ) writeret;
 
-	}
+  	}
 
-	shutdown( newsock, SHUT_RDWR );
-       finish:
+        shutdown( newsock, SHUT_RDWR );
+       finishnet:
 	free( linestr );
 	linestr = NULL;
 	close( newsock );
