@@ -387,7 +387,7 @@ int main( int argc, char *argv[] )  {
   int sockfd = getnetsock( port );
   if( sockfd == -1 ) fail( "Could not create socket." );
 
-  int poll_ms_timeout = 5000;
+  int poll_ms_timeout = 50;
   const size_t pfd_len = 1;
   struct pollfd pfd[ pfd_len ];
   pfd[0].fd = sockfd;
