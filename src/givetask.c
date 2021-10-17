@@ -252,7 +252,6 @@ int main( int argc, char *argv[] )  {
 
     for(;;)  {
 
-      PUTSDBG( "Poll loop start" );
       if( exit_interrupt )  {
 
         close( sockfd );
@@ -303,17 +302,22 @@ int main( int argc, char *argv[] )  {
 
         }
 
+        
+        char *linestr;
+        size_t linesize;
+	ssize_t bytes;
 
-        char *linestr = NULL;
-        size_t linesize = 0;
-        for( int leaveloop = 0; ! leaveloop;)  {
+	for(;;)  {
 
  	  PUTSDBG( "NOW WAIT WE PASS LINE" );
-	
-	  errno = 0;
-	  if( getline( &linestr, &linesize, stdin ) ==
-            -1 )  {
+	  
+	  linestr = NULL;
+	  linesize = 0;
 
+	  bytes = getline( &linestr, &linesize, stdin );
+	  if( bytes == -1 ) {
+
+            PUTSDBG( "ERROR" );
 	    if( errno )
 	      fail( "Error on getting line in stdin" );
 
@@ -323,8 +327,9 @@ int main( int argc, char *argv[] )  {
 
   	  }
 
+	  PUTSDBG( linestr );
+
 	  char *linestr_pos = linestr;
-	  size_t bytes = strlen( linestr );
 	  for( ssize_t writeret = 0; bytes;)  {
 
 	    writeret = write( newsock, linestr_pos, bytes );
@@ -346,7 +351,7 @@ int main( int argc, char *argv[] )  {
 
 	    }
 
-	    bytes -= ( size_t ) writeret;
+	    bytes -= writeret;
 	    linestr_pos += ( size_t ) writeret;
 
   	  }
@@ -395,7 +400,6 @@ int main( int argc, char *argv[] )  {
     
   for(;;)  {
 
-    PUTSDBG( "Poll loop start" );
     if( exit_interrupt )  {
 
       close( sockfd );
@@ -451,14 +455,16 @@ int main( int argc, char *argv[] )  {
 
       char *linestr = NULL;
       size_t linesize = 0;
+      ssize_t bytes = 0;
       for( int leaveloop = 0; ! leaveloop;)  {
 
  	PUTSDBG( "NOW WAIT WE PASS LINE" );
 	
 	errno = 0;
-	if( getline( &linestr, &linesize, stdin ) ==
-            -1 )  {
+	bytes = getline( &linestr, &linesize, stdin);
+	if( bytes == -1 )  {
 
+	  PUTSDBG( "ERROR ON LINE" );
 	  if( errno )
 	    fail( "Error on getting line in stdin" );
 
@@ -467,10 +473,11 @@ int main( int argc, char *argv[] )  {
 	  return 0;
 
   	}
+        
+        PUTSDBG( linestr );
 
 	char *linestr_pos = linestr;
-	size_t bytes = strlen( linestr );
-	for( ssize_t writeret = 0; bytes;)  {
+	for( ssize_t writeret = 0; bytes > 0;)  {
 
 	  writeret = write( newsock, linestr_pos, bytes );
 	  if( writeret < 0 )  {
@@ -491,7 +498,7 @@ int main( int argc, char *argv[] )  {
       	
 	  }
 
-	  bytes -= ( size_t ) writeret;
+	  bytes -= writeret;
 	  linestr_pos += ( size_t ) writeret;
 
   	}

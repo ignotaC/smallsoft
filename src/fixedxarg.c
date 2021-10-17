@@ -40,6 +40,7 @@ int main( const int argc, const char *const argv[] )  {
 
   char *linestr = NULL;
   size_t linesize = 0;
+  ssize_t bytes = 0;
 
   size_t argsize = strlen(  argv[1] );
   size_t keep_argsize = argsize + 1 ;
@@ -52,18 +53,20 @@ int main( const int argc, const char *const argv[] )  {
 
   for(;;)  {
 
-    if( getline( &linestr, &linesize, stdin ) == -1 )  {
-
+    bytes = getline( &linestr, &linesize, stdin );
+    if( bytes == -1 )  {
+ 
       if( ferror( stdin ) )  fail( "Failed on getline" );
       break;
 
     }
 
-    for( size_t i = 0; i < linesize; i++ )  {
+    linesize = ( ssize_t )bytes;  // protection against no LF
+    for( ssize_t i = 0; i < bytes; i++ )  {
 
       if( linestr[i] == '\n' )  {
 
-        linesize = i;
+        linesize = ( size_t )i;
 	break;
 
       }

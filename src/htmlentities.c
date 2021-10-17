@@ -25,6 +25,9 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+// TODO despite this working properly. There is a bug here
+// it produces nuls  each after new line
+
 // globs = 0
 int OPTION_D;
 int OPTION_E;
@@ -119,9 +122,10 @@ int main( const int argc, const char *const argv[] )  {
 
   char *lineptr = NULL;
   size_t linesize = 0;
+  ssize_t bytes = 0;
   for(;;)  {
 
-    if( getline( &lineptr, &linesize, stdin ) == -1 )  {
+    if( ( bytes = getline( &lineptr, &linesize, stdin ) ) == -1 )  {
 
       if( ferror( stdin ) )  fail( "Failed on stdin stream" );
       break;
@@ -130,7 +134,7 @@ int main( const int argc, const char *const argv[] )  {
 
     if( OPTION_E )  {
 
-      for( size_t i = 0; i < linesize; i++ )  {
+      for( ssize_t i = 0; i < bytes; i++ )  {
 
         switch( lineptr[i] )  {
 
@@ -169,15 +173,15 @@ int main( const int argc, const char *const argv[] )  {
     }  else  {
 
       char *keeppos = NULL;
-      for( size_t i = 0; i < linesize; i++ )  {
+      for( ssize_t i = 0; i < bytes; i++ )  {
 
         switch( lineptr[i] ) {
 
 	  case '&':
 	    keeppos = &lineptr[i];
-	    for( size_t j = i + 1; j < linesize; j++ )  {  
+	    for( ssize_t j = i + 1; j < bytes; j++ )  {  
 
-	       // kind of broken but lets say we meet & again.
+	       // kind of broken - should not happen but lets say we meet & again.
 	       if( lineptr[j] == '&' )  {
 
 	         for(; i != j; i++ )  putchar( lineptr[i] );

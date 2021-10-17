@@ -1003,7 +1003,7 @@ int main( int argc, char *argv[] )  {
 
 	size_t garbage = 0;	
 	errno = 0;
-
+// TODO Check if this does not leak
 	if( getline( &( ( *string_ptr )[ *count_ptr ] ), &garbage, serv_data_file ) < 0 )  {
 	    
 	  if( errno )  fail( "Fail on getline" );

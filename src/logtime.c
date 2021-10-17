@@ -50,6 +50,7 @@ int main( void )  {
       (long long int )curtime.tv_usec,  line );
     free( line );
     line = NULL;
+    linesize = 0;
 
   }
   
