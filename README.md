@@ -64,15 +64,7 @@ A pack of my little unix programs.
                This mean you need to install torsocks.
                Program will guide you how to use it.
 
-9. wh_inchttpext - Program will go through specified
-                   link incrementing http link each time,
-                   in position you point like http://xxx.xx/%lld.
-                   In the %lld will be put number. just run program
-                   without arguments and it will guid you how to
-                   use it. The program was made for extracting data
-                   from websites. I find it sometimes useful.
-                   It will try to find phrase in downloaded web
-                   page source. 
+9. wh_inchttpext - this program is removed. Something else will jump in here soon
 
 10. wh_httpext - In general it's a string extractor form a file.
                  It has three basic commands. Pass to pass file

@@ -1,19 +1,36 @@
 CC=cc -Wall -Wextra -pedantic \
    -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
+CCOBJ=${CC} -c
+AR=ar rcs
 SRC=src
 BIN=bin
+IG=ignota/src
+IG_OBJ=ignota_obj
+LIBIG_OBJ=-Lignota_obj
 
 make:
+
+	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
+	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
+
+	${CCOBJ} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
+	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
+
 	mkdir -p bin
+
 	${CC} ${SRC}/coin.c -o ${BIN}/coin
-	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies
+
+	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies # TODO huge revision for future remove wget crap etc
+
 	${CC} ${SRC}/novena.c -o ${BIN}/novena
-	${CC} ${SRC}/workout.c -o ${BIN}/workout
+
+	${CCOBJ} ${SRC}/workout.c -o ${BIN}/workout.o
+	${CC} ${BIN}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
+
 	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
 	${CC} ${SRC}/recev.c -o ${BIN}/recev
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
 	${CC} ${SRC}/wh_frktcp.c -o ${BIN}/wh_frktcp
-	${CC} ${SRC}/wh_inchttpext.c -o ${BIN}/wh_inchttpext
 	${CC} ${SRC}/wh_httpext.c -o ${BIN}/wh_httpext
 	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
@@ -34,5 +51,6 @@ make:
 	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
 	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
 
-clearbin:
-	rm ${BIN}/*
+clear:
+	rm -f ${BIN}/*
+	rm -f ${IG_OBJ}/*

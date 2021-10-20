@@ -20,7 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
-
+#include "../ignota/src/ig_fileio/igf_write.c"
+#include "../ignota/src/ig_fileio/igf_read.c"
 
 #include <sys/stat.h>
 
@@ -548,72 +549,11 @@ void free_we( struct workout_entries *we )  {
 }
 
 
-ssize_t writefd( const int fd, void *buff, size_t write_size )  {
-
-  dmsg( "Entering writefd" );
-  uint8_t *buff_ptr = buff;
-  while( write_size )  {
-    
-    ssize_t writeret = write( fd, buff_ptr, write_size );
-    drun( fprintf( stderr, "Read characters: %zd\n", writeret ) );
-    if( writeret == -1 ) {
-
-      switch( errno )  {
-
-        case EINTR:
-          continue;
-	default:
-	  return -1;
-
-      }
-
-    }
-
-    if( writeret == 0 )  sleep( 1 );
-
-    buff_ptr += writeret;
-    write_size -= ( ssize_t )writeret;
-
-  }
-
-  return 0;
-
-}
-
-
-
 ssize_t readfd( const int fd, void *buff, size_t read_size )  {
 
-  dmsg( "Entering readfd" );
-  uint8_t *buff_ptr = buff;
-  size_t read_count = 0;
-  size_t keep_read_size = read_size;
-  while( read_size )  {
-    
-    ssize_t readret = read( fd, buff_ptr, read_size );
-    drun( fprintf( stderr, "Read characters: %zd\n", readret ) );
-    if( readret == -1 ) {
-
-      switch( errno )  {
-
-        case EINTR:
-          continue;
-	default:
-	  return -1;
-
-      }
-
-    }
-
-    if( readret == 0 )  break;
-
-    buff_ptr += readret;
-    read_size -= ( ssize_t )readret;
-    read_count += readret;
-
-  }
-  
-  if( keep_read_size != read_count )  {
+  ssize_t igf_ret = igf_read( fd, buff, read_size );
+  if( igf_ret == -1 )  return -1;
+  if( read_size != ( size_t )igf_ret )  {
 
     dmsg( "We did not read full data" );
     errno = 0;
@@ -640,7 +580,7 @@ int write_ee( struct exercise_entry *ee, int binfile_fd )  {
   data[ data_pos++ ] = ee->how_hard;
   data[ data_pos++ ] = ee->exer_types_count;
 
-  return writefd( binfile_fd, data, sizeof data );
+  return igf_write( binfile_fd, data, sizeof data );
 
 }
 
@@ -650,10 +590,10 @@ int write_we( struct workout_entries *we, char *workout_file_name )  {
   if( binfile_fd == -1 )  return -1;
 
   uint32_t ee_count = we->ee_count;
-  if( writefd( binfile_fd, &ee_count, sizeof ee_count ) == -1 )  goto failexit;
+  if( igf_write( binfile_fd, &ee_count, sizeof ee_count ) == -1 )  goto failexit;
   
   for( size_t i = 0; i < ee_count; i++ )
-    if( writefd( binfile_fd, &( we->ee[i] ), sizeof *( we->ee ) ) == -1 )  goto failexit;
+    if( igf_write( binfile_fd, &( we->ee[i] ), sizeof *( we->ee ) ) == -1 )  goto failexit;
 
   close( binfile_fd );
   return 0;
