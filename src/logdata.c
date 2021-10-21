@@ -20,6 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
+#include "../ignota/src/ig_net/ign_unixsock.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -41,35 +42,7 @@ OF THIS SOFTWARE.
  #define PUTSDBG(WRD)
 #endif
 
-#ifndef SUN_LEN
-  #define SUN_LEN(sun) ( sizeof( *( sun ) ) \
-    - sizeof( ( sun )->sun_path ) \
-    + strlen( ( sun )->sun_path  ) )
-#endif
-
-int getsock( char *name )  {
-
-  struct sockaddr_un sun = { 0 };
-  sun.sun_family = AF_UNIX;
-  strcpy( sun.sun_path, name );
-
-  int sockfd = socket( AF_UNIX, SOCK_STREAM, 0 );
-  if( sockfd == -1 )  return -1;
-
-  if( bind( sockfd, ( struct sockaddr* ) &sun, SUN_LEN( &sun ) )
-      == -1 )  goto sockfail;
-
-  // bigger since if no place instant drop
-  if( listen( sockfd, 8192 ) == -1 )
-    goto sockfail;
-
-  return sockfd;
-
-  sockfail:
-  close( sockfd );
-  return -1;
-
-}
+#define LISTEN_QUEUE 8192
 
 void fail( const char *const error_str )  {
 
@@ -140,7 +113,7 @@ int main( int argc, char *argv[] )  {
   if( sigaction( SIGINT, &sa, NULL ) == -1 )
     fail( "Could not set signal handler" );
 
-  int sockfd = getsock( sockname );
+  int sockfd = ign_getsun( sockname, LISTEN_QUEUE );
   if( sockfd == -1 ) fail( "Could not create socket." );
 
   const size_t buff_size = 8192;
@@ -186,7 +159,7 @@ int main( int argc, char *argv[] )  {
     if( pfd[0].revents == POLLNVAL )  {
 
       close( sockfd );
-      sockfd = getsock( sockname );
+      sockfd = ign_getsun( sockname, LISTEN_QUEUE );
       if( sockfd == -1 )
         fail( "Could not create socket" );
       pfd[0].fd = sockfd;
@@ -210,7 +183,7 @@ int main( int argc, char *argv[] )  {
 	PUTSDBG( "Loop start" );
 
 	// -1 because i might need last one for nul
-	ssize_t read_size = 
+	ssize_t read_size =
 	  read( newsock, buff, buff_size - 1 );      
         if( read_size == -1 )  {
 

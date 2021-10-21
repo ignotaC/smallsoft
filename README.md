@@ -70,9 +70,7 @@ A pack of my little unix programs.
              Ofc loop will end with eof at stdin. Pass nothing
              and help will be printed.
 
-11. linsaftrdiff - You pass two file names. Program prints on stdout
-                   all lines of first passed file after first different
-                   line is met in other file.
+11. linsaftrdiff - Program removed, being very useless.
 
 12. fstrswp - Swap one string in stream to other. 
               Perfect for some source fixing.
@@ -253,3 +251,5 @@ Compiled programs will go to the bin directory
 inside the directory of your makefile.
 In the end you just copy what ever you like
 to your env PATH
+
+To clear stuff run make clear  ( it removes objects and binary )

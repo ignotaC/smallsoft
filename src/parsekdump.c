@@ -36,7 +36,7 @@ OF THIS SOFTWARE.
 #define KDUMP_FNAME "ktrace.out"
 
 // debug function
-void stop( char * problem  )  {
+void stop( char *problem  )  {
 
   puts( problem );
   exit( EXIT_SUCCESS );
@@ -751,5 +751,5 @@ int main( void )  {
   }
 
   // then free
-
+// TODO ^
 }  

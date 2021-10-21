@@ -8,8 +8,11 @@ BIN=bin
 IG=ignota/src
 IG_OBJ=ignota_obj
 LIBIG_OBJ=-Lignota_obj
+OBJ=obj
 
 make:
+
+	mkdir -p ${IG_OBJ}
 
 	${CCOBJ_ND} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
 	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
@@ -17,7 +20,11 @@ make:
 	${CCOBJ_ND} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
 	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
 
-	mkdir -p bin
+	${CCOBJ_ND} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
+	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
+
+	mkdir -p ${BIN}
+	mkdir -p ${OBJ}
 
 	${CC} ${SRC}/coin.c -o ${BIN}/coin
 
@@ -25,8 +32,8 @@ make:
 
 	${CC} ${SRC}/novena.c -o ${BIN}/novena
 
-	${CCOBJ} ${SRC}/workout.c -o ${BIN}/workout.o
-	${CC} ${BIN}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
+	${CCOBJ} ${SRC}/workout.c -o ${OBJ}/workout.o
+	${CC} ${OBJ}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
 
 	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
 
@@ -36,12 +43,17 @@ make:
 
 	${CC} ${SRC}/strext.c -o ${BIN}/strext
 
-	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
-	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
-	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
-	${CC} ${SRC}/ualist.c -o ${BIN}/ualist
+	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp 
+
+	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump # TODO - add whole summary of forks and threads
+
+	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I belive this stopped working recently. Will need some investigation
+
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
-	${CC} ${SRC}/logdata.c -o ${BIN}/logdata
+	
+	${CCOBJ} ${SRC}/logdata.c -o ${OBJ}/logdata.o # TODO add net socket support
+	${CC} ${OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
+
 	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
@@ -57,4 +69,5 @@ make:
 
 clear:
 	rm -f ${BIN}/*
+	rm -f ${OBJ}/*
 	rm -f ${IG_OBJ}/*
