@@ -28,6 +28,7 @@ make:
 	${CC} ${BIN}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
 
 	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
+
 	${CC} ${SRC}/recev.c -o ${BIN}/recev
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
 	${CC} ${SRC}/wh_frktcp.c -o ${BIN}/wh_frktcp

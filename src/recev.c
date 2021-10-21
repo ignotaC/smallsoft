@@ -56,6 +56,8 @@ OF THIS SOFTWARE.
 
 #ifdef IMPLEMENT_PURGE
 
+// It is not precisely fpurge but it throws out stuff blocked for reading in stream
+
   int fpurge( FILE *stream )  {
 
     char *pbuff[ BUFF_SIZE ];
@@ -112,12 +114,12 @@ OF THIS SOFTWARE.
 
   #define CASE_EBLOCK \
     case EAGAIN: \
-    case EWOULDBLOCK:
+    case EWOULDBLOCK
 
 #else
 
   #define CASE_EBLOCK \
-    case EAGAIN:
+    case EAGAIN
 
 #endif
 
@@ -151,7 +153,7 @@ int clearfile( FILE *file_to_clear )  {
       switch( errno )  {
 
         case EINTR:  continue;
-	CASE_EBLOCK
+        CASE_EBLOCK:
 	errno = 0;
         ret = 0;  // we will spoof it's eof so it leaves loop 
 	break;
@@ -211,15 +213,6 @@ int findkey( FILE *shfile )  {
 
   if( ferror( shfile ) )  clearerr( shfile );
   return -1;
-
-}
-
-int sleep_msec( long long int msec )  {
-
-  struct timespec ts;
-  ts.tv_sec = 0;
-  ts.tv_nsec = msec * 1000000;
-  return nanosleep( &ts, NULL );
 
 }
 
@@ -298,7 +291,7 @@ char *get_name( void )  {
 
   }
 
-  if( lf_to_nul( name_buff ) == -1 )  puts( "Your long name has been cuta to fit size" );
+  if( lf_to_nul( name_buff ) == -1 )  puts( "Your long name has been cut to fit size" );
   return name_buff;
 
 }
