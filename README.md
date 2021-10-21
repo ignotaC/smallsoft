@@ -57,24 +57,19 @@ A pack of my little unix programs.
             play event loop and *z* is time
             between every event record replaying.
 
-8. wh_frktcp - Program sets up chosen ammoun of
-               processess that will run an internet
-               command using tcp. It will use torsocks
-               all times. So we keep privacy.
-               This mean you need to install torsocks.
-               Program will guide you how to use it.
+8. wh_frktcp - This program is removed. Something else will jump here. Later than sooner. And better.
 
 9. wh_inchttpext - this program is removed. Something else will jump in here soon
 
-10. wh_httpext - In general it's a string extractor form a file.
-                 It has three basic commands. Pass to pass file
-                 untill a string is met. Cut that find strings
-                 in line and outputs on stdout string between them.
-                 last command is loop. It will loop for ever last
-                 command. Only has sens to use after cut command.
-                 Ofc loop will end with eof at stdin. If you 
+10. strext - In general it's a string extractor form a file.
+             It has three basic commands. Pass to pass file
+             untill a string is met. Cut that find strings
+             in line and outputs on stdout string between them.
+             last command is loop. It will loop for ever last
+             command. Only has sens to use after cut command.
+             Ofc loop will end with eof at stdin. Pass nothing
+             and help will be printed.
 
-                 don't pass any command *help prompt* will appear. 
 11. linsaftrdiff - You pass two file names. Program prints on stdout
                    all lines of first passed file after first different
                    line is met in other file.

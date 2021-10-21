@@ -1,6 +1,7 @@
 CC=cc -Wall -Wextra -pedantic \
    -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
 CCOBJ=${CC} -c
+CCOBJ_ND=${CCOBJ} -DNDEBUG
 AR=ar rcs
 SRC=src
 BIN=bin
@@ -10,10 +11,10 @@ LIBIG_OBJ=-Lignota_obj
 
 make:
 
-	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
+	${CCOBJ_ND} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
 	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
+	${CCOBJ_ND} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
 	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
 
 	mkdir -p bin
@@ -30,9 +31,11 @@ make:
 	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
 
 	${CC} ${SRC}/recev.c -o ${BIN}/recev
+
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
-	${CC} ${SRC}/wh_frktcp.c -o ${BIN}/wh_frktcp
-	${CC} ${SRC}/wh_httpext.c -o ${BIN}/wh_httpext
+
+	${CC} ${SRC}/strext.c -o ${BIN}/strext
+
 	${CC} ${SRC}/linsaftrdiff.c -o ${BIN}/linsaftrdiff
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump
