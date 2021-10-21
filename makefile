@@ -1,5 +1,4 @@
-CC=cc -Wall -Wextra -pedantic \
-   -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
+CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
 CCOBJ=${CC} -c
 CCOBJ_ND=${CCOBJ} -DNDEBUG
 AR=ar rcs
@@ -8,13 +7,12 @@ BIN=bin
 IG=ignota/src
 IG_OBJ=ignota_obj
 LIBIG_OBJ=-Lignota_obj
-OBJ=obj
-
+SS_OBJ=ss_obj
 make:
 
 	mkdir -p ${IG_OBJ}
 
-	${CCOBJ_ND} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
+	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
 	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
 
 	${CCOBJ_ND} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
@@ -24,16 +22,16 @@ make:
 	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
 
 	mkdir -p ${BIN}
-	mkdir -p ${OBJ}
+	mkdir -p ${SS_OBJ}
 
-	${CC} ${SRC}/coin.c -o ${BIN}/coin
+	${CC} ./${SRC}/coin.c -o ./${BIN}/coin
 
 	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies # TODO huge revision for future remove wget crap etc
 
 	${CC} ${SRC}/novena.c -o ${BIN}/novena
 
-	${CCOBJ} ${SRC}/workout.c -o ${OBJ}/workout.o
-	${CC} ${OBJ}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
+	${CCOBJ} ${SRC}/workout.c -o ${SS_OBJ}/workout.o
+	${CC} ${SS_OBJ}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
 
 	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
 
@@ -51,8 +49,8 @@ make:
 
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 	
-	${CCOBJ} ${SRC}/logdata.c -o ${OBJ}/logdata.o # TODO add net socket support
-	${CC} ${OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
+	${CCOBJ} ${SRC}/logdata.c -o ${SS_OBJ}/logdata.o # TODO add net socket support
+	${CC} ${SS_OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
 
 	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
@@ -69,5 +67,5 @@ make:
 
 clear:
 	rm -f ${BIN}/*
-	rm -f ${OBJ}/*
+	rm -f ${SS_OBJ}/*
 	rm -f ${IG_OBJ}/*
