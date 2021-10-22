@@ -52,10 +52,15 @@ make:
 	${CCOBJ} ${SRC}/logdata.c -o ${SS_OBJ}/logdata.o # TODO add net socket support
 	${CC} ${SS_OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
 
-	${CC} ${SRC}/runprog.c -o ${BIN}/runprog
+	${CCOBJ} ${SRC}/runprog.c -o ${SS_OBJ}/runprog.o # TODO add net socket support
+	${CC} ${SS_OBJ}/runprog.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/runprog
+
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
+
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
+
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
+
 	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/irclog

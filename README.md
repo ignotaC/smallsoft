@@ -129,11 +129,13 @@ A pack of my little unix programs.
               -N option is a must. Socket must sent FIN else the connection stales.
               SIGINT logdata for gentle close when not anymore needed!
 
-17. runprog - Program opens unix socket and runs with system C syscall
-              command we pass at it start up. It runs the command when
+17. runprog - Program opens unix socket and runs program
+              or script we pass at it start up. It runs the command when
               there is opened connection. It ignores sent data.  You can either
               not even wait for the program to finish running the command
               or wait.
+              I decided that there is no sens for inet socket type feature.
+              Unix socket is better fit for IPC without outside interferation.
               Example: ./runprog '/tmp/sun' './runthisscript';
               Than ask it to run it but don't wait for it to finish: nc -Uz '/tmp/sun'
               Or ask it to run it and wait till it finish: nc -Ud '/tmp/sun'

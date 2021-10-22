@@ -33,7 +33,7 @@ void fail( const char *const errstr )  {
 
 }
 
-int isurlcode( char chrin )  {
+int noturlcode( char chrin )  {
 
   if( isalnum( chrin ) )
     return 0;
@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )  {
 
 	}
 
-        if( ! isurlcode( chrin ) )  {
+        if( ! noturlcode( chrin ) )  {
 
 	  if( putc( chrin, stdout ) == EOF )
 	    fail( "Failed on putc" );
@@ -158,7 +158,7 @@ int main( int argc, char *argv[] )  {
         for( size_t i = 0; i < arglen; i+=1 )  {
 
 	  chrin = argstr[i];
-	  if( ! isurlcode( chrin ) )  {
+	  if( ! noturlcode( chrin ) )  {
 
 	    if( putc( chrin, stdout ) == EOF )
 	      fail( "Failed on putc" );
