@@ -70,7 +70,9 @@ A pack of my little unix programs.
              Ofc loop will end with eof at stdin. Pass nothing
              and help will be printed.
 
-11. linsaftrdiff - Program removed, being very useless.
+11. getlimits - Program prints current soft and hard limits
+             for user. CPU, stack, data segment etc.
+             See for your self simply run it, no arguments.
 
 12. fstrswp - Swap one string in stream to other. 
               Perfect for some source fixing.

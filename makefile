@@ -21,6 +21,9 @@ make:
 	${CCOBJ_ND} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
 	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
 
+	${CCOBJ_ND} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
+	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
+
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
 
@@ -40,6 +43,9 @@ make:
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
 
 	${CC} ${SRC}/strext.c -o ${BIN}/strext
+
+	${CCOBJ} ${SRC}/getlimits.c -o ${SS_OBJ}/getlimits.o
+	${CC} ${SS_OBJ}/getlimits.o ${LIBIG_OBJ} -ligp_double -o ${BIN}/getlimits
 
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp 
 
