@@ -20,7 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignota/src/ig_print/igp_double.h"
+#include "../ignotalib/src/ig_print/igp_double.h"
 
 #include <sys/resource.h>
 

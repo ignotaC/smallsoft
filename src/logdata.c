@@ -20,7 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignota/src/ig_net/ign_unixsock.h"
+#include "../ignotalib/src/ig_net/ign_unixsock.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
