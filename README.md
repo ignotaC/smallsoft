@@ -5,6 +5,8 @@ Prise Saint Maria, mother of God.
 
 A pack of my little unix programs.
 
+HOW TO COMPILE: go to end of this file
+
 1. coin - Program lets you find an answer
           to a 0/1 problem.
 
@@ -248,6 +250,12 @@ A pack of my little unix programs.
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
                 echo  "a\nb\nc\nd\n" | fixedxarg echo
+
+Before we install, if you got this from github for example...
+Cloning is not enought, instead do this:
+git clone 'url'
+git submodule init
+git submodule update
 
 How to install?
 Run make in makefile directory.
