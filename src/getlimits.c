@@ -170,7 +170,7 @@ int main( void )  {
   type = BYTES;
   getlimit_data( RLIMIT_DATA, &rls );
   printstr( "Max size of data segment for a process,"
-    "including memory allocated data via malloc, mmap\n" );
+    " including memory allocated data via malloc, mmap\n" );
   print_rls( &rls );
 
   type = BYTES;
@@ -239,7 +239,7 @@ int main( void )  {
   type = NONE;
   getlimit_data( RLIMIT_NICE, &rls );
   printstr( "Max value of process priority"
-    "we can set it for example with nice\n" );
+    " we can set it for example with nice\n" );
   print_rls( &rls );
 
   type = NONE;
@@ -258,13 +258,13 @@ int main( void )  {
   getlimit_data( RLIMIT_RTTIME, &rls );
   printstr( "Time limit in microseconds on the"
     " amount on CPU a process scheduled"
-    "under real-time sheduling policy\n" );
+    " under real-time sheduling policy\n" );
   print_rls( &rls );
 
   type = NONE;
   getlimit_data( RLIMIT_SIGPENDING, &rls );
   printstr( "Limit for signals queued for process"
-    "this is for both, standard and real-time\n" );
+    " this is for both, standard and real-time\n" );
   print_rls( &rls );
 
   #endif
