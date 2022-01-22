@@ -154,6 +154,8 @@ int main( void )  {
 
   struct rlimit rls = {0};
 
+  // POSIX
+
   type = BYTES;
   getlimit_data( RLIMIT_CORE, &rls );
   printstr( "Max size of core file\n" );
@@ -161,12 +163,14 @@ int main( void )  {
 
   type = SECONDS;
   getlimit_data( RLIMIT_CPU, &rls );
-  printstr( "Max ammount of CPU time used by each process\n" );
+  printstr( "Max ammount of CPU time used"
+    " by each process\n" );
   print_rls( &rls );
 
   type = BYTES;
   getlimit_data( RLIMIT_DATA, &rls );
-  printstr( "Max size of data segment for a process, including memory allocated data via malloc, mmap\n" );
+  printstr( "Max size of data segment for a process,"
+    "including memory allocated data via malloc, mmap\n" );
   print_rls( &rls );
 
   type = BYTES;
@@ -174,31 +178,96 @@ int main( void )  {
   printstr( "Max size of a file, that can be created\n" );
   print_rls( &rls );
 
-  type = BYTES;
-  getlimit_data( RLIMIT_MEMLOCK, &rls );
-  printstr( "Max size process can lock in memory using mlock\n" );
-  print_rls( &rls );
-
   type = NONE;
   getlimit_data( RLIMIT_NOFILE, &rls );
-  printstr( "Max number of file descriptos process can open\n" );
-  print_rls( &rls );
-
-  type = NONE;
-  getlimit_data( RLIMIT_NPROC, &rls );
-  printstr( "Max number of processes for this user id that could run simultaneously\n" );
-  print_rls( &rls );
-
-  type = BYTES;
-  getlimit_data( RLIMIT_RSS, &rls );
-  printstr( "Max number to which process size can grow in ram ( resident set size ), it's supposed to be not used anymore\n" );
+  printstr( "Max number of file descriptos"
+    " process can open\n" );
   print_rls( &rls );
 
   type = BYTES;
   getlimit_data( RLIMIT_STACK, &rls );
-  printstr( "Max size process stack can take, defines how far the stack can be extended\n" );
+  printstr( "Max size process stack can take,"
+    " defines how far the stack can be extended\n" );
   print_rls( &rls );
 
+  // openbsd bug
+  #ifndef __OpenBSD__
+
+  type = BYTES;
+  getlimit_data( RLIMIT_AS, &rls );
+  printstr( "Mximum size in bytes of totall avilable"
+    " memory for a process, if this limit is passed,"
+    " malloc, mmap shall fail. Also stack can't grow\n" );
+  print_rls( &rls );
+
+  #endif
+
+  // END OF POSIX
+
+  // NON PORTABLE
+
+  #ifdef __OpenBSD__
+
+  type = BYTES;
+  getlimit_data( RLIMIT_MEMLOCK, &rls );
+  printstr( "Max size process can lock in memory"
+    " using mlock\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_NPROC, &rls );
+  printstr( "Max number of processes for this"
+  " user id that could run simultaneously\n" );
+  print_rls( &rls );
+
+  #endif
+
+  #ifdef __linux__
+
+  type = BYTES;
+  getlimit_data( RLIMIT_MEMLOCK, &rls );
+  printstr( "Max size in bytesprocess can lock in memory"
+    " using mlock\n" );
+  print_rls( &rls );
+
+  type = BYTES;
+  getlimit_data( RLIMIT_MSGQUEUE, &rls );
+  printstr( "Max size in bytes that can be allocated"
+    " by POSIX message queue\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_NICE, &rls );
+  printstr( "Max value of process priority"
+    "we can set it for example with nice\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_NPROC, &rls );
+  printstr( "Max number of processes for this"
+    " user id that could run simultaneously\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_RTPRIO, &rls );
+  printstr( "Maximum value for real time priority" );
+    " it can be set with for example shed_setparam\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_RTTIME, &rls );
+  printstr( "Time limit in microseconds on the"
+    " amount on CPU a process scheduled"
+    "under real-time sheduling policy\n" );
+  print_rls( &rls );
+
+  type = NONE;
+  getlimit_data( RLIMIT_SIGPENDING, &rls );
+  printstr( "Limit for signals queued for process"
+    "this is for both, standard and real-time\n" );
+  print_rls( &rls );
+
+  #endif
 
   return 0;
 
