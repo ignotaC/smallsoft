@@ -250,7 +250,7 @@ int main( void )  {
 
   type = NONE;
   getlimit_data( RLIMIT_RTPRIO, &rls );
-  printstr( "Maximum value for real time priority" );
+  printstr( "Maximum value for real time priority"
     " it can be set with for example shed_setparam\n" );
   print_rls( &rls );
 
