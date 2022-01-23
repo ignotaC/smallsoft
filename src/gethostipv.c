@@ -135,8 +135,15 @@ new_hint_restart:
   error = getaddrinfo( domain_name, NULL, &hint, &aidata );
   if( error != 0 )  {
 
-    if( error == EAI_NODATA )  {
+    if( error == EAI_AGAIN )  goto new_hint_restart;
 
+ // fix to unix borthel
+#ifdef EAI_NODATA
+    if( ( error == EAI_NODATA ) 
+      || ( error == EAI_NONAME ) ) {
+#else   
+    if( error == EAI_NONAME )  {
+#endif
       if( hint.ai_family == AF_UNSPEC )  return 0;
       if( check_count == 1 )  return 0;
 
