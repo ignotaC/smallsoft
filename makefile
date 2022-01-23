@@ -10,6 +10,7 @@ LIBIG_OBJ=-Lignota_obj
 SS_OBJ=ss_obj
 make:
 
+#compile external static libs
 	mkdir -p ${IG_OBJ}
 
 	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
@@ -24,6 +25,7 @@ make:
 	${CCOBJ_ND} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
 	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
 
+#compile and link external libs
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
 
@@ -41,6 +43,8 @@ make:
 	${CC} ${SRC}/recev.c -o ${BIN}/recev
 
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
+
+	${CC} ${SRC}/gethostipv.c -o ${BIN}/gethostipv
 
 	${CC} ${SRC}/strext.c -o ${BIN}/strext
 

@@ -59,7 +59,18 @@ HOW TO COMPILE: go to end of this file
             play event loop and *z* is time
             between every event record replaying.
 
-8. wh_frktcp - This program is removed. Something else will jump here. Later than sooner. And better.
+8. gethostipv - use system resolver tools to get the ip of the domain.
+            Ip version we can't connect to ( because we only have ipv4
+            and server is on only ipv6 ) is not returned.
+            how to use: gethostip [-command] [domain]
+            Order does not matter but there can be only one command string
+            In the end you can pass these kind of commands:
+            none - just return what ever ip will work, if none - nothign is returned
+            -6  - check only for ipv6 if no support nothing will be returned
+            -4  - check only for ipv4 if no support nothing will be returned
+            -46 - check first for support for ipv4 than for ipv6
+            -64 - check first for support for ipv6 than for ipv4
+            all other commands will puke an error.
 
 9. wh_inchttpext - this program is removed. Something else will jump in here soon
 
