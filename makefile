@@ -46,6 +46,8 @@ make:
 
 	${CC} ${SRC}/gethostipv.c -o ${BIN}/gethostipv
 
+	${CC} ${SRC}/repeatstr.c -o ${BIN}/repeatstr
+
 	${CC} ${SRC}/strext.c -o ${BIN}/strext
 
 	${CCOBJ} ${SRC}/getlimits.c -o ${SS_OBJ}/getlimits.o

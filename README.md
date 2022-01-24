@@ -72,7 +72,8 @@ HOW TO COMPILE: go to end of this file
             -64 - check first for support for ipv6 than for ipv4
             all other commands will puke an error.
 
-9. wh_inchttpext - this program is removed. Something else will jump in here soon
+9. repeatstr - Extreamly basic program to repeate on stdout phrase.
+            example: repeatestr 100 'stuff happened'
 
 10. strext - In general it's a string extractor form a file.
              It has three basic commands. Pass to pass file
