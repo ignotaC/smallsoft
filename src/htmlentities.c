@@ -25,9 +25,6 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-// TODO despite this working properly. There is a bug here
-// it produces nuls  each after new line
-
 // globs = 0
 int OPTION_D;
 int OPTION_E;
@@ -112,7 +109,7 @@ int main( const int argc, const char *const argv[] )  {
     fprintf( stderr, "%s\n", "You must provide one option. Example:" );
     fprintf( stderr, "%s\n", "-d  <- encode url entities" );
     fprintf( stderr, "%s\n", "-e  <- decode url entities" );
-    fprintf( stderr, "%s\n", "data | urlentities -d <- this writes to stdout" );
+    fprintf( stderr, "%s\n", "cat data | urlentities -d     writes output to stdout" );
 
     return -1;
 
@@ -172,13 +169,11 @@ int main( const int argc, const char *const argv[] )  {
 
     }  else  {
 
-      char *keeppos = NULL;
       for( ssize_t i = 0; i < bytes; i++ )  {
 
         switch( lineptr[i] ) {
 
 	  case '&':
-	    keeppos = &lineptr[i];
 	    for( ssize_t j = i + 1; j < bytes; j++ )  {  
 
 	       // kind of broken - should not happen but lets say we meet & again.
