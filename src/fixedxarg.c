@@ -36,7 +36,7 @@ int main( const int argc, const char *const argv[] )  {
 
   if( argc != 2 )
     fail( "Wrong! This xarg takes no options, "
-          "only program name for argument feed" );
+          "only program name for argument feed." );
 
   char *linestr = NULL;
   size_t linesize = 0;
@@ -49,14 +49,14 @@ int main( const int argc, const char *const argv[] )  {
   arg[ argsize ] = ' ';
   argsize = keep_argsize;
 
-  if( arg == NULL )  fail( "Failed on first realloc" );
+  if( arg == NULL )  fail( "Failed on first realloc." );
 
   for(;;)  {
 
     bytes = getline( &linestr, &linesize, stdin );
     if( bytes == -1 )  {
  
-      if( ferror( stdin ) )  fail( "Failed on getline" );
+      if( ferror( stdin ) )  fail( "Failed on getline." );
       break;
 
     }
@@ -76,7 +76,7 @@ int main( const int argc, const char *const argv[] )  {
     //  bytes: "'linesize' "
     argsize += 1 + linesize + 1 + 1;
     arg = realloc( arg, argsize );
-    if( arg == NULL )  fail( "Realloc fail" );
+    if( arg == NULL )  fail( "Realloc fail." );
     arg[ keep_argsize ] = '\'';
     memcpy( arg + keep_argsize + 1, linestr, linesize );
     arg[ keep_argsize + linesize + 1 ] = '\'';
@@ -90,7 +90,7 @@ int main( const int argc, const char *const argv[] )  {
   }
 
   arg = realloc( arg, keep_argsize + 1 );
-  if( arg == NULL )  fail( "Failed on reallocing nul" );
+  if( arg == NULL )  fail( "Failed on reallocing nul." );
   arg[ keep_argsize ] = 0;
 
   int retval = system( arg );
