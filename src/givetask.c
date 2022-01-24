@@ -374,6 +374,8 @@ int main( int argc, char *argv[] )  {
   PUTSDBG( "PICKED UNIX NET SOCKET" );
 
   char *iprange = argv[2];
+  ( void ) iprange;
+  // TODO temp fix for compiler ^
 
   PUTSDBG( "Passed IPRANGE:" );
   PUTSDBG( argv[2] );

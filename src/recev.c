@@ -20,6 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
+// TODO this is broken completly - needs fixing
+
 #include <sys/time.h>
 
 #include <fcntl.h>
@@ -228,7 +230,7 @@ int choose_key( void )  {
   if( snprintf( sec_buff, SMALL_IN_SIZ, "%%%ds", SMALL_IN_SIZ ) < 0 )
     return -1;
   if( scanf( sec_buff, buff ) != 1 )  return -1;
-  if( sprintf( sec_buff, "(%.*s)", ( int ) SMALL_IN_SIZ, buff ) < 0 ) // tu jest błąd
+  if( sprintf( sec_buff, "(%.*s)", ( int ) SMALL_IN_SIZ, buff ) < 0 )
     return -1;
   strncpy( buff, sec_buff, SMALL_IN_SIZ );
   

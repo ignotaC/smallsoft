@@ -193,7 +193,6 @@ int main( int argc, char *argv[] )  {
 	      errno = 0; // clear errno
 	      continue;
 	    default:  
-	      // will it know  about things after ? 
 	      perror( "Unusuall error on read" );
 	    case ECONNRESET:
 	    case ENOTCONN:
