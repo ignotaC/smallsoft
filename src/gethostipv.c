@@ -179,7 +179,7 @@ new_hint_restart:
       ipname, ipname_size );
     if( ans == NULL ) fail( "failed on inet_ntop" );
 
-    printf( "%s\n", ans );
+    if( ans[0] != '\0' ) printf( "%s\n", ans );
     if( aipos->ai_next == NULL )  break;
     aipos = aipos->ai_next;
 
