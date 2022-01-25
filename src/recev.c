@@ -20,13 +20,12 @@ OF THIS SOFTWARE.
 
 */
 
-// TODO this is broken completly - needs fixing
-
 #include <sys/time.h>
 
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stddef.h>
@@ -47,69 +46,6 @@ OF THIS SOFTWARE.
 #define BUTTON_PRESS 15
 #define BUTTON_RELEASE 16
 #define MOTION 6
-
-#ifdef _POSIX_C_SOURCE
-  #define IMPLEMENT_PURGE
-#endif
-
-#ifndef __unix__
-  #define IMPLEMENT_PURGE
-#endif
-
-#ifdef IMPLEMENT_PURGE
-
-// It is not precisely fpurge but it throws out stuff blocked for reading in stream
-
-  int fpurge( FILE *stream )  {
-
-    char *pbuff[ BUFF_SIZE ];
-
-    int streamfd = fileno( stream );
-    int keepflag = fcntl( streamfd, F_GETFL );
-    if( keepflag == -1 )  return EOF;
-
-    if( fcntl( streamfd, F_SETFL, keepflag | O_NONBLOCK ) == -1 )
-      return EOF;
-
-    ssize_t readret = 0;
-    for(;;)  {
-
-      readret = read( streamfd, pbuff, BUFF_SIZE );
-      if( readret == -1 )  {
-
-	switch( errno )  {
-
-          case EINTR:
-	    continue;
-	  
-         #ifdef EAGAIN
-	  case EAGAIN:
-	    break;
-	 #else
-          case EWOULDBLOCK:
-            break;
-	 #endif
-
-	  default:
-	    return EOF;
-
-	}
-        if( errno != EINTR )  return EOF;
-	continue;
-
-      }
-      else if( readret == 0 )  break;
-
-    }
-
-    if( fcntl( streamfd, F_SETFL, keepflag ) == -1 )
-      return EOF;
-
-    return 0;
-
-  }
-
-#endif
 
 // macro to remove compiler  *dupicate case* rambling
 #if( EWOULDBLOCK != EAGAIN )
@@ -132,20 +68,24 @@ char sec_buff[ BUFF_SIZE ];
 
 void fail( char *str_error )  {
 
+  assert( str_error != NULL );
+
   perror( str_error );
   exit( EXIT_FAILURE );
 
 }
 
 int clearfile( FILE *file_to_clear )  {
- 
+
+  assert( file_to_clear != NULL );
+
   int std_fd = fileno( file_to_clear );
 
   // set stdin as nonblocking.
   int flag = fcntl( std_fd, F_GETFL );
-  if( flag == -1 )  fail( "Fail on fcntl get flag" );
+  if( flag == -1 )  return -1;
   if( fcntl( std_fd, F_SETFL, flag | O_NONBLOCK ) == -1 )
-    fail( "Fail on fcntl set flag" );
+    return -1;
 
   for(;;)  {
 
@@ -159,7 +99,7 @@ int clearfile( FILE *file_to_clear )  {
 	errno = 0;
         ret = 0;  // we will spoof it's eof so it leaves loop 
 	break;
-	default:  return -1;
+	default: return -1;
 
       }
 
@@ -170,20 +110,21 @@ int clearfile( FILE *file_to_clear )  {
 
   getchar(), getchar(), getchar(); // sometimes one lone char will prevail somewhere.
   if( fcntl( std_fd, F_SETFL, flag ) == -1 )  return -1;
-  if( fpurge( file_to_clear ) != 0 )  return -1; // additional atempt to clear stuff
   return 0;
 
 }
 
 
 int clearstdin( void )  {
-
+ 
   return clearfile( stdin );
 
 }
   
 
 int findkey( FILE *shfile )  {
+
+  assert( shfile != NULL );
 
   char *line = NULL;
   size_t linelen = 0;
@@ -221,7 +162,7 @@ int findkey( FILE *shfile )  {
 int choose_key( void )  {
   
   errno = 0; // if errno 0 and -1 we can relook for key
-  system ( "clear" );
+  system ( "tput clear" );
   puts( "Type in key name that will be used to stop recording events" );
   puts( "Example key names: Escape, h, O, 0, plus, F8, etc." );
   puts( "You can find them with xev program" );
@@ -256,6 +197,8 @@ int ask_isok( void )  {
 }
 
 int lf_to_nul( char *str )  {
+
+  assert( str != NULL );
 
   while( *str != '\0' )  {
 
@@ -301,6 +244,10 @@ char *get_name( void )  {
 
 void fgets_rec( char *buff, size_t buff_size, FILE *file_rec ) {
 
+  assert( buff != NULL );
+  assert( buff_size != 0 );
+  assert( file_rec != NULL );
+
   if( fgets( buff, buff_size, file_rec ) == NULL )  {
 
     if( feof( file_rec ) )  errno = 0;
@@ -312,6 +259,10 @@ void fgets_rec( char *buff, size_t buff_size, FILE *file_rec ) {
 
 
 char* fgets_rec2( char *buff, size_t buff_size, FILE *file_rec ) {
+
+  assert( buff != NULL );
+  assert( buff_size != 0 );
+  assert( file_rec != NULL );
 
   if( fgets( buff, buff_size, file_rec ) == NULL )  {
 
@@ -332,6 +283,8 @@ char* fgets_rec2( char *buff, size_t buff_size, FILE *file_rec ) {
 
 
 void mv_toalp( char **strpos )  {
+
+  assert( strpos != NULL );
 
   while( ! isspace( **strpos ) )  {
 
@@ -368,6 +321,11 @@ int check_ev_num( int ev_num )  {
 // get us ptr to searched value
 char *readf_tillstr( char *buff, size_t buff_size, FILE *ftoread, char *str_stop )  {
 
+  assert( buff != NULL );
+  assert( buff_size != 0 );
+  assert( ftoread != NULL );
+  assert( str_stop != NULL );
+
   for(;;)  {
  
     if( fgets_rec2( buff, buff_size, ftoread ) == NULL )
@@ -381,6 +339,9 @@ char *readf_tillstr( char *buff, size_t buff_size, FILE *ftoread, char *str_stop
 
 
 FILE *rmvlines_str( FILE* oldfile, char *str_todel )  {
+
+  assert( oldfile != NULL );
+  assert( str_todel != NULL );
 
   FILE *newfile = tmpfile();
   if( newfile == NULL )  goto failure;
@@ -408,6 +369,8 @@ FILE *rmvlines_str( FILE* oldfile, char *str_todel )  {
 }
 
 FILE *rmvmouse_sametime( FILE *oldfile )  {
+
+  assert( oldfile != NULL );
 
   FILE *newfile = tmpfile();
   if( newfile == NULL )  goto failure;
@@ -495,6 +458,9 @@ FILE *rmvmouse_sametime( FILE *oldfile )  {
 
 int save_recev( FILE *oldfile, char *filename )  {
  
+  assert( oldfile != NULL );
+  assert( filename != NULL );
+
   FILE *proper_file = fopen( filename, "w" );
   if( proper_file == NULL )  goto failure;
 

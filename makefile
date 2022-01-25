@@ -1,6 +1,6 @@
-CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L
+DBGFLG=-DNDDEBUG
+CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBGFLG}
 CCOBJ=${CC} -c
-CCOBJ_ND=${CCOBJ} -DNDEBUG
 AR=ar rcs
 SRC=src
 BIN=bin
@@ -16,13 +16,13 @@ make:
 	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
 	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
 
-	${CCOBJ_ND} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
+	${CCOBJ} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
 	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
 
-	${CCOBJ_ND} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
+	${CCOBJ} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
 	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
 
-	${CCOBJ_ND} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
+	${CCOBJ} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
 	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
 
 #compile and link external libs
