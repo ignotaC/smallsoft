@@ -74,6 +74,7 @@ HOW TO COMPILE: go to end of this file
 
 9. repeatstr - Extreamly basic program to repeate on stdout phrase.
             example: repeatestr 100 'stuff happened'
+            supported character sequances: \\ \r \n \t \v \f \b \a
 
 10. strext - In general it's a string extractor form a file.
              It has three basic commands. Pass to pass file

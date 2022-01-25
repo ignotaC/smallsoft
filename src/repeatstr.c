@@ -25,6 +25,7 @@ OF THIS SOFTWARE.
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void fail( const char *const estr )  {
 
@@ -53,7 +54,59 @@ int main( const int argc, const char *const argv[]  )  {
   if( *endptr != '\0' )  fail( "Broken number string" );
   if( errno ) perror( "Conversion fail" );
 
-  while( repeate_count-- )  printf( "%s", argv[ STR_POS ] );
+  char *resolvestr = malloc( strlen( argv[ STR_POS ] ) + 1 );
+  if( resolvestr == NULL )  
+    fail( "Failed to malloc resolved sequances string." );
+  // resolve char sequances
+   
+  // TODO  this can be moved to ignota + add \000 support backspace and rest ;-)
+  for( size_t i = 0, j = 0;; i++, j++)   {
+
+    if( argv[ STR_POS ][i] == '\\' )  {
+
+      i++;
+      switch( argv[ STR_POS ][i] )  {
+
+        case 'r':
+	  resolvestr[j] = '\r';
+	  continue;
+	case 'n':
+	  resolvestr[j] = '\n';
+	  continue;
+	case '\\':
+	  resolvestr[j] = '\\';
+	  continue;
+	case 't':
+	  resolvestr[j] = '\t';
+	  continue;
+	case 'v':
+	  resolvestr[j] = '\v';
+	  continue;
+	case 'f':
+	  resolvestr[j] = '\f';
+	  continue;
+	case 'b':
+	  resolvestr[j] = '\b';
+	  continue;
+	case 'a':
+	  resolvestr[j] = '\a';
+	  continue;
+	default:
+	  resolvestr[j] = '\\';
+	  j++;
+	  break; // now go down and take the last character
+
+      }
+
+    }
+
+    resolvestr[j] = argv[ STR_POS ][i];
+    if( resolvestr[j] == '\0' )  break;
+
+  }
+
+  while( repeate_count-- )  printf( "%s", resolvestr );
+  free( resolvestr );
 
   return 0;
 
