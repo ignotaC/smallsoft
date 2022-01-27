@@ -91,6 +91,9 @@ int main( const int argc, const char *const argv[]  )  {
 	case 'a':
 	  resolvestr[j] = '\a';
 	  continue;
+/*        case '0':
+	  resolvestr[j] = '\0';
+	  continue;    TODO*/  
 	default:
 	  resolvestr[j] = '\\';
 	  j++;
