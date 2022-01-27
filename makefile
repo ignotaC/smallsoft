@@ -19,6 +19,15 @@ make:
 	${CCOBJ} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
 	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
 
+	${CCOBJ} ${IG}/ig_fileio/igf_readword.c -o ${IG_OBJ}/igf_readword.o
+	${AR} ${IG_OBJ}/libigf_readword.a ${IG_OBJ}/igf_readword.o
+
+	${CCOBJ} ${IG}/ig_fileio/igf_openfd.c -o ${IG_OBJ}/igf_openfd.o
+	${AR} ${IG_OBJ}/libigf_openfd.a ${IG_OBJ}/igf_openfd.o
+
+	${CCOBJ} ${IG}/ig_fileio/igf_fdoffset.c -o ${IG_OBJ}/igf_fdoffset.o
+	${AR} ${IG_OBJ}/libigf_fdoffset.a ${IG_OBJ}/igf_fdoffset.o
+
 	${CCOBJ} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
 	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
 
@@ -81,6 +90,9 @@ make:
 	${CC} ${SRC}/htmlentities.c -o ${BIN}/htmlentities
 	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
 	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
+
+	${CC} ${SRC}/listwords.c -o ${BIN}/listwords
+
 
 clear:
 	rm -f ${BIN}/*
