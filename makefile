@@ -91,7 +91,10 @@ make:
 	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
 	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
 
-	${CC} ${SRC}/listwords.c -o ${BIN}/listwords
+	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
+	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_read\
+		-ligf_openfd -ligf_fdoffset -ligf_readword\
+		-o ${BIN}/listwords
 
 
 clear:

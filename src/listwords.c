@@ -20,10 +20,10 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignotalib/src/ig_fileio/igf_openfd.c"
-#include "../ignotalib/src/ig_fileio/igf_fdoffset.c"
-#include "../ignotalib/src/ig_fileio/igf_read.c"
-#include "../ignotalib/src/ig_fileio/igf_readword.c"
+#include "../ignotalib/src/ig_fileio/igf_openfd.h"
+#include "../ignotalib/src/ig_fileio/igf_fdoffset.h"
+#include "../ignotalib/src/ig_fileio/igf_read.h"
+#include "../ignotalib/src/ig_fileio/igf_readword.h"
 
 #include <stdio.h>
 #include <stdlib.h>

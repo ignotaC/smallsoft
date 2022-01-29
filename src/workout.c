@@ -20,8 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignotalib/src/ig_fileio/igf_write.c"
-#include "../ignotalib/src/ig_fileio/igf_read.c"
+#include "../ignotalib/src/ig_fileio/igf_write.h"
+#include "../ignotalib/src/ig_fileio/igf_read.h"
 
 #include <sys/stat.h>
 
