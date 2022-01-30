@@ -5,7 +5,7 @@ Prise Saint Maria, mother of God.
 
 A pack of my little unix programs.
 
-INSTALLATION:
+##INSTALLATION:
 
 1) downloading
 Before we install, we need to suck this up:
@@ -15,13 +15,13 @@ Now enter the newly created directory:
 Download submodules:
   sh code_update.sh
 
-2) compilation
+###2) compilation
 Run make in makefile:
   make
 Compiled programs will go to the newly created
 bin directory inside smallsoft.
 
-3) installastion ( binary managment )
+###3) installastion ( binary managment )
 You do it by your self, You might no want to
 use some of the software this pack provides
 simply copy what ever you want to one of the
@@ -30,7 +30,7 @@ after running env command. Since I added
 ~/bin to my PATH, I simply take all by doing:
 cp bin/* ~/bin
 
-4) cleanup
+###4) cleanup
 This simply removes stuff make created
 make clear
 
@@ -40,19 +40,19 @@ to your env PATH
 
 To clear stuff run make clear  ( it removes objects and binary )
 
-Program list:
+##Program list:
 
-1. coin - Program lets you find an answer
++ coin - Program lets you find an answer
           to a 0/1 problem.
 
-2. getproxies - Program filters few webpages
++ getproxies - Program filters few webpages
                 to suck up proxies, also checks
                 if they work properly. Data is
                 saved to file "proxylist" in work dir.
                 Program uses wget, so it is needed
                 to work.
 
-3. novena - It will save file in home directory
++ novena - It will save file in home directory
             and track with it day of novena.
             All you need to do is enter the name
             of current novena, also you can
@@ -60,11 +60,11 @@ Program list:
             ago the prayer - still will work fine.
             Creates .novena file in env HOME
 
-4. workout - Program generates workout entries
++ workout - Program generates workout entries
              for each day. Keep training!
              Creates .workout file in env HOME
 
-5. logtime - Logs time from stdin per line and
++ logtime - Logs time from stdin per line and
              attaches it on stdout. format is
              <seconds>.<miliseconds><space>
              Example how to use:
@@ -72,7 +72,7 @@ Program list:
              Output bill be similar to this:
              18273553.746236 black jews
 
-6. recev - Record events from mouse and keyboard.
++ recev - Record events from mouse and keyboard.
            It needs to work xinput, and xmodmap.
            Also xev might be useful. Record before
            processing (all happen in one run) 
@@ -82,7 +82,7 @@ Program list:
            the record. To play recorded events
            use playev program from this list.
 
-7. playev - Program playes events saved in file
++ playev - Program playes events saved in file
             created by recev program. In general
             you just use it like this:
             playev recev_file x y z
@@ -94,7 +94,7 @@ Program list:
             play event loop and *z* is time
             between every event record replaying.
 
-8. gethostipv - use system resolver tools to get the ip of the domain.
++ gethostipv - use system resolver tools to get the ip of the domain.
             Ip version we can't connect to ( because we only have ipv4
             and server is on only ipv6 ) is not returned.
             how to use: gethostip [-command] [domain]
@@ -107,11 +107,11 @@ Program list:
             -64 - check first for support for ipv6 than for ipv4
             all other commands will puke an error.
 
-9. repeatstr - Extreamly basic program to repeate on stdout phrase.
++ repeatstr - Extreamly basic program to repeate on stdout phrase.
             example: repeatestr 100 'stuff happened'
             supported character sequances: \\ \r \n \t \v \f \b \a
 
-10. strext - In general it's a string extractor form a file.
++ strext - In general it's a string extractor form a file.
              It has three basic commands. Pass to pass file
              untill a string is met. Cut that find strings
              in line and outputs on stdout string between them.
@@ -120,11 +120,11 @@ Program list:
              Ofc loop will end with eof at stdin. Pass nothing
              and help will be printed.
 
-11. getlimits - Program prints current soft and hard limits
++ getlimits - Program prints current soft and hard limits
              for user. CPU, stack, data segment etc.
              See for your self simply run it, no arguments.
 
-12. fstrswp - Swap one string in stream to other. 
++ fstrswp - Swap one string in stream to other. 
               Perfect for some source fixing.
               For example when we need to swap malloc.h to stdlib.h.
               this would look like this:
@@ -133,7 +133,7 @@ Program list:
                    '| tmpfile; mv tmpfile {}' \;
               Could be without '\'' but what if we have spaces or worse?
 
-13. parsekdump - This is wrote for openbsd ktrace output. Not sure how it
++ parsekdump - This is wrote for openbsd ktrace output. Not sure how it
                  would work on other oses. Anyway you ktrace your program
                  eventualy to keep track of forks ktrace -i program.
                  Than run parsekdump and it will try to turn kdump output
@@ -147,7 +147,7 @@ Program list:
                  last one takes recording time as first and last appearance
                  of CALL or RET.
 
-14. ualist - Program will output little list of user agents to stdout.
++ ualist - Program will output little list of user agents to stdout.
              You use it like this: ualist proxyip:proxyport > my_list.
              It uses torsocks wget to download specific webpage
              Torsocks is only for not getting real IP banned.
@@ -163,14 +163,14 @@ Program list:
              change the proxy. The owner of page we get UA is a bit dramatic.
              So you need to be stealthy.
 
-15. randstr - Program generates using pseudorandom generator ( C rand() )
++ randstr - Program generates using pseudorandom generator ( C rand() )
               Randomn string. You must pass number of bytes to generate.
               Also you can force to output onlu uppercase letters, lowercase
               and digits. With commands -u -l -d.
               Example: randstr -u 124 -ld. This will generate 124 bytes
               that in asci code appear as lowercase uppercase or digits.
 
-16. logdata - Program opens unix socket and prints all data sent to it.
++ logdata - Program opens unix socket and prints all data sent to it.
               Example of using it:
               We start it: logdata unix_socket_name_we_pass > savehere
               Now we need to send some data using netcat.
@@ -181,7 +181,7 @@ Program list:
               -N option is a must. Socket must sent FIN else the connection stales.
               SIGINT logdata for gentle close when not anymore needed!
 
-17. runprog - Program opens unix socket and runs program
++ runprog - Program opens unix socket and runs program
               or script we pass at it start up. It runs the command when
               there is opened connection. It ignores sent data.  You can either
               not even wait for the program to finish running the command
@@ -198,7 +198,7 @@ Program list:
               unix socket. So if you need root to execute something simple user
               can call it via this socket to do the job.
 
-18. httpreq_addcrlf - Program adds after new line of each entry CRLF creating
++ httpreq_addcrlf - Program adds after new line of each entry CRLF creating
               proper http request. On the end it makes passes one more CRLF.
               Empty lines are being ignored. Example of usage, we have file httpreq:
               
@@ -208,12 +208,12 @@ Program list:
               We use it this way:
               cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
 
-19. flinemem - program loads stdin line to memory and searches if passed arguments
++ flinemem - program loads stdin line to memory and searches if passed arguments
 	      exist in line. Line is printed to stdout only if all strings exist in line.
               No need for regular expression when you simply need to find static patterns.
               Example fo using:  cat file | flinemem 'pattern1' 'pattern2' 'pattern3' 
 
-20. urlcode - at the moment we have 3 options, encode (-e), decode (-d)  and
++ urlcode - at the moment we have 3 options, encode (-e), decode (-d)  and
               'make post body' (-p). How to use:
               echo 'string to @#$ encode" | urlcode -e | urlcode -d
               This will encode irl string and than decode it. Now the post part is a bit tricky.
@@ -233,13 +233,13 @@ Program list:
               # Hope this is clear. The last line shows nc with passing traffic via tor
               # for server with https.
 
-21. givetask - Simple program, opens unix socket from first argument. And outputs each line
++ givetask - Simple program, opens unix socket from first argument. And outputs each line
                from stdin per connection. Then shutdowns and closes each socket. Example:
                cat file | givetask /tmp/some; nc -U /tmp/some 
 
-22. miodpitny - program tells you MEAD proportions. 
++ miodpitny - program tells you MEAD proportions. 
 
-23. irclog - program to log irc. It's old code. Not too proud of it but I needed to log
++ irclog - program to log irc. It's old code. Not too proud of it but I needed to log
              some stuff recently and it worked. So I am adding it here for now.
              Will try to reread it in future for detecting some bugs and other crap.
              How to use: create a file in directory where you will start the irclog program
@@ -262,7 +262,7 @@ Program list:
              config file should merit new network.
              Each channel gets it's own file where stuff gets logged in the directory where you 
              started the program. <networkname><channame> <- something like this
-24. faddlines - Program merges files. pritnf on stdout added lines like this:
++ faddlines - Program merges files. pritnf on stdout added lines like this:
              line 1 file 1 + space + line 1 file 2\n
              If one file reached eof it gets ignored
              after all files reach EOF - program finishes.
@@ -282,21 +282,21 @@ Program list:
 
              This program can take multiply files. 
 
-25. cutfile - program stdouts lines after meeting in line some expression.
++ cutfile - program stdouts lines after meeting in line some expression.
               For help run cutfile without any arguments
 
-26. htmlentities - decode or encode html entities, only some are supported.
++ htmlentities - decode or encode html entities, only some are supported.
                    suported: '<' '>' ' ' '\'' '"' '&' . Rets is treated as errror.
                    honestly I dislike utf8. Let it rot. 
                    How to use -> invoke without any arguments. Still little example:
                    cat urllinksfromhtmlpage | htmlentities -d > proper_url_links
 
-27. httphb_split - Splits http server answers to http header or the rest ( body )
++ httphb_split - Splits http server answers to http header or the rest ( body )
                    For help simply run it without any arguments.
                    Example: http_serber_answer | httphb_split -h > httpheader_file
-28. fixedxarg - Program closly performs same task as xargs, BUT PROPERLY.
++ fixedxarg - Program closly performs same task as xargs, BUT PROPERLY.
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
                 echo  "a\nb\nc\nd\n" | fixedxarg echo
-29. listwords - 
++ listwords - 
 
