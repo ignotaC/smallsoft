@@ -56,13 +56,15 @@ inside the directory of your makefile.
   >`coin` 
 
 2.  **getproxies** `[ word ]`  
-  Program filters few webpages to suck up proxies,  
-  also checks  if they work properly. Data is saved  
-  to a file named  "proxylist" inside working directory.  
-  Slow proxies that do not respond quick enought and  
-  resoults that repeated are removed.  
-  The file will contain each uploaded proxy data per line.  
-  Lines will be formated like this:  
+  >  
+
+    Program filters few webpages to suck up proxies,  
+    also checks  if they work properly. Data is saved  
+    to a file named  "proxylist" inside working directory.  
+    Slow proxies that do not respond quick enought and  
+    resoults that repeated are removed.  
+    The file will contain each uploaded proxy data per line.  
+    Lines will be formated like this:  
   >`<IP> <port> <country> <anonimyty type> <http or https support>`
 
     Program takes arguments. If line contains any  
@@ -83,16 +85,18 @@ inside the directory of your makefile.
     your IP if for example user-ganet wil
 
 3. **novena**
-  Program will save file in home directory and track what  
-  current day of novena we have. Program does not take any  
-  arguments. It will either tell you the current novena  
-  day (novena lasts 9 days always). Or it will ask you  
-  for new novena name. Program creates in user home  
-  directory taken from enviroment list .novena file. Where  
-  it keeps data. If 9 days pass program will inform you  
-  the novena has ended.  
-  Dependencies: none  
-  Example of using it:  
+  >  
+
+    Program will save file in home directory and track what  
+    current day of novena we have. Program does not take any  
+    arguments. It will either tell you the current novena  
+    day (novena lasts 9 days always). Or it will ask you  
+    for new novena name. Program creates in user home  
+    directory taken from enviroment list .novena file. Where  
+    it keeps data. If 9 days pass program will inform you  
+    the novena has ended.  
+    Dependencies: none  
+    Example of using it:  
   >`novena`  
 
 4. **workout** - Program generates workout entries
