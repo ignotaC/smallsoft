@@ -5,7 +5,42 @@ Prise Saint Maria, mother of God.
 
 A pack of my little unix programs.
 
-HOW TO COMPILE: go to end of this file
+INSTALLATION:
+
+1) downloading
+Before we install, we need to suck this up:
+  git clone 'https://github.com/ignotaC/smallsoft'
+Now enter the newly created directory:
+  cd smallsoft
+Download submodules:
+  sh code_update.sh
+
+2) compilation
+Run make in makefile:
+  make
+Compiled programs will go to the newly created
+bin directory inside smallsoft.
+
+3) installastion ( binary managment )
+You do it by your self, You might no want to
+use some of the software this pack provides
+simply copy what ever you want to one of the
+preffered PATH directory which you can see
+after running env command. Since I added
+~/bin to my PATH, I simply take all by doing:
+cp bin/* ~/bin
+
+4) cleanup
+This simply removes stuff make created
+make clear
+
+inside the directory of your makefile.
+In the end you just copy what ever you like
+to your env PATH
+
+To clear stuff run make clear  ( it removes objects and binary )
+
+Program list:
 
 1. coin - Program lets you find an answer
           to a 0/1 problem.
@@ -263,18 +298,5 @@ HOW TO COMPILE: go to end of this file
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
                 echo  "a\nb\nc\nd\n" | fixedxarg echo
+29. listwords - 
 
-Before we install, if you got this from github for example...
-Cloning is not enought, instead do this:
-git clone 'url'
-git submodule init
-git submodule update
-
-How to install?
-Run make in makefile directory.
-Compiled programs will go to the bin directory
-inside the directory of your makefile.
-In the end you just copy what ever you like
-to your env PATH
-
-To clear stuff run make clear  ( it removes objects and binary )
