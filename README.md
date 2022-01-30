@@ -46,7 +46,7 @@ inside the directory of your makefile.
 
 ## Program list:
 
-1. >**coin**  
+1.  >**coin**  
 
     Program lets you find an answer to a 0/1 problem.  
     Program does not take any arguments.  
@@ -66,20 +66,20 @@ inside the directory of your makefile.
 
     Program takes arguments. If line contains any  
     of the passed words, the line will be removed.  
-  The search is case insensetive. So passing  
-  'http' or 'HTTP' will remove any line that contains 'http'  
-  Dependencies: **wget**  
-  Example of using it:  
+    The search is case insensetive. So passing  
+    'http' or 'HTTP' will remove any line that contains 'http'  
+    Dependencies: **wget**  
+    Example of using it:  
   >`getproxies china`  
 
     This will create the 'proxylist' file with resoults but  
-  without lines containing word 'china'. Upper or  
-  lower cases won't matter. So line contaning 'chINA'  
-  will also be removed. China proxies most times are garbage,  
-  so you want them removed. Other type of use would be  
-  getting rid 'transparet' proxies.  Altho you should never  
-  trust anonimity type of proxy. Some servers will pass  
-  your IP if for example user-ganet wil
+    without lines containing word 'china'. Upper or  
+    lower cases won't matter. So line contaning 'chINA'  
+    will also be removed. China proxies most times are garbage,  
+    so you want them removed. Other type of use would be  
+    getting rid 'transparet' proxies.  Altho you should never  
+    trust anonimity type of proxy. Some servers will pass  
+    your IP if for example user-ganet wil
 
 3. **novena**
   Program will save file in home directory and track what  
