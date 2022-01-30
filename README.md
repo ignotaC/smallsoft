@@ -46,7 +46,8 @@ inside the directory of your makefile.
 
 ## Program list:
 
-1. **coin**  
+1. **coin**
+
     Program lets you find an answer to a 0/1 problem.  
     Program does not take any arguments.  
     Dependencies: none  
@@ -64,7 +65,7 @@ inside the directory of your makefile.
   >`<IP> <port> <country> <anonimyty type> <http or https support>`
 
     Program takes arguments. If line contains any  
-  of the passed words, the line will be removed.  
+    of the passed words, the line will be removed.  
   The search is case insensetive. So passing  
   'http' or 'HTTP' will remove any line that contains 'http'  
   Dependencies: **wget**  
