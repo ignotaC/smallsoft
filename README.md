@@ -6,7 +6,7 @@ Prise Saint Maria, mother of God.
 A pack of my little unix programs.  
 
 You can either read this file as plain text  
-And still understand 100% of what is this read me about )  
+( and still understand 100% of what is this read me about ).  
 Or you can use your browser to read using webbrowser:  
 >`firefox readme.html`  
 
@@ -47,10 +47,10 @@ inside the directory of your makefile.
 ## Program list:
 
 1. **coin**  
-  Program lets you find an answer to a 0/1 problem.  
-  Program does not take any arguments.  
-  Dependencies: none  
-  Example of using it:  
+    Program lets you find an answer to a 0/1 problem.  
+    Program does not take any arguments.  
+    Dependencies: none  
+    Example of using it:  
   >`coin` 
 
 2.  **getproxies** `[ word ]`  
