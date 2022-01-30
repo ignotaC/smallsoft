@@ -46,7 +46,7 @@ inside the directory of your makefile.
 
 ## Program list:
 
-1. **coin**
+1. >**coin**  
 
     Program lets you find an answer to a 0/1 problem.  
     Program does not take any arguments.  
