@@ -7,7 +7,7 @@ A pack of my little unix programs.
 
 You can either read this file as plain text  
 ( and still understand 100% of what is this read me about ).  
-Or you can use your browser to read using webbrowser:  
+Or you can use your webbrowser to read it:  
 >`firefox readme.html`  
 
 ## INSTALLATION:
@@ -55,7 +55,7 @@ inside the directory of your makefile.
     Example of using it:  
   >`coin` 
 
-2.  **getproxies** `[ word ]`  
+2.  **getproxies** `[ string ]`  
   >  
 
     Program filters few webpages to suck up proxies,  
@@ -99,39 +99,83 @@ inside the directory of your makefile.
     Example of using it:  
   >`novena`  
 
-4. **workout** - Program generates workout entries
-             for each day. Keep training!
-             Creates .workout file in env HOME
+4. **workout**
+  >  
 
-5. **logtime** - Logs time from stdin per line and
-             attaches it on stdout. format is
-             <seconds>.<miliseconds><space>
-             Example how to use:
-             echo 'black jews' | logtime
-             Output bill be similar to this:
-             18273553.746236 black jews
+    Program generates workout entries for each day. Entries  
+    are stored inside .workout file in enviroment home  
+    directory. Program does not take any arguments.  
+    The file is generated automatically when program is run.  
+    For current day it shall output:  
 
-6. **recev** - Record events from mouse and keyboard.
-           It needs to work xinput, and xmodmap.
-           Also xev might be useful. Record before
-           processing (all happen in one run) 
-           might make a big file. You tell the
-           program key you choose to start/stop
-           recording and file where he saves
-           the record. To play recorded events
-           use playev program from this list.
+    * exercise type,  
+    * weight level - how much load you will lift   
+    * series count per exercise  
+    * Hardness - how many times repeate per one series  
+    * Count of exercise type  
 
-7. **playev** - Program playes events saved in file
-            created by recev program. In general
-            you just use it like this:
-            playev recev_file x y z
-            Where ofc first arg is file name of
-            event file, *x* is how many times
-            you want to repeat playing event
-            record, 0 means repeat forever.
-            The *y* is time before starting to
-            play event loop and *z* is time
-            between every event record replaying.
+    Dependencies: none  
+    Example of using it::  
+  >`workout`  
+    
+
+5. **logtime**
+  >  
+
+    Program logs time per each line  that appears at stdin.  
+    Output format:  
+  >`<seconds>.<miliseconds><space><passed line>`  
+
+    Dependencies: none  
+    Example of using it:  
+  >`program | logtime`  
+
+    You should rememer that | is buffered and will not  
+    pass everything immediatly always. So the real time  
+    will can be different than the loged one.  
+
+6. **recev**
+  >
+
+    Program creates a record of pressed mouse buttons,  
+    keyboard keys and mouse moves. Program at start  
+    will ask you are you ready. After that you will  
+    need to decide what key will start and stop recording.  
+    You can chose only single keys. Combinations do not  
+    work. You need to type the key so for example  
+    it could be 'F8' or h. After the key is picked,  
+    you must provide a filenmae, where the event data  
+    gets recorded. File will be placed in working  
+    directory. Events that do not matter and repeated  
+    mousemoves are removed to shrint at least a bit the  
+    file where events get saved.  Since it can grow quite  
+    big. This program does not take any arguments.  
+    Aditionaly **xenv** program can help with finding key name.  
+    Dependencies:  **xmodmap**, **xinput**  
+    Example of using it:  
+  >`recev`
+
+7. **playev** `[ file name ] [ number ] [ seconds ] [ seconds ]`
+  >
+
+    Program playes events from file created by recev program.  
+    Program needs four arguments:  
+
+    * file name - it is the file created by recev.  
+    * number of times event gets repeated, 0 causes  
+    to be repeated infinite times.  
+    * seconds to wait before playing events loop  
+    * seconds to wait between instance of recorded events.  
+    
+    Dependencies: **xmodmap**  
+    Example of using it:  
+  >`playev recorded_file 100 10 1  
+
+    This will play event recorded in passed file name  
+    100 times. Program will start playing events after  
+    10 seconds and each time all events in recorded  
+    file are played, it will wait 1 second and replay the  
+    events. Untill reached the expected repeated number.  
 
 8. **gethostipv** - use system resolver tools to get the ip of the domain.
             Ip version we can't connect to ( because we only have ipv4

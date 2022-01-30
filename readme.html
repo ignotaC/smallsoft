@@ -5,7 +5,7 @@ Prise Saint Maria, mother of God.  </p>
 <p>A pack of my little unix programs.  </p>
 <p>You can either read this file as plain text<br />
 ( and still understand 100% of what is this read me about ).<br />
-Or you can use your browser to read using webbrowser:  </p>
+Or you can use your webbrowser to read it:  </p>
 <blockquote>
 <p><code>firefox readme.html</code>  </p>
 </blockquote>
@@ -61,7 +61,7 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>getproxies</strong> <code>[ word ]</code>  </p>
+<p><strong>getproxies</strong> <code>[ string ]</code>  </p>
 <blockquote></blockquote>
 <p>Program filters few webpages to suck up proxies,<br />
 also checks  if they work properly. Data is saved<br />
@@ -109,42 +109,88 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>workout</strong> - Program generates workout entries
-             for each day. Keep training!
-             Creates .workout file in env HOME</p>
+<p><strong>workout</strong></p>
+<blockquote></blockquote>
+<p>Program generates workout entries for each day. Entries<br />
+are stored inside .workout file in enviroment home<br />
+directory. Program does not take any arguments.<br />
+The file is generated automatically when program is run.<br />
+For current day it shall output:  </p>
+<ul>
+<li>exercise type,  </li>
+<li>weight level - how much load you will lift   </li>
+<li>series count per exercise  </li>
+<li>Hardness - how many times repeate per one series  </li>
+<li>Count of exercise type  </li>
+</ul>
+<p>Dependencies: none<br />
+Example of using it::  </p>
+<blockquote>
+<p><code>workout</code>  </p>
+</blockquote>
 </li>
 <li>
-<p><strong>logtime</strong> - Logs time from stdin per line and
-             attaches it on stdout. format is
-             <seconds>.<miliseconds><space>
-             Example how to use:
-             echo 'black jews' | logtime
-             Output bill be similar to this:
-             18273553.746236 black jews</p>
+<p><strong>logtime</strong></p>
+<blockquote></blockquote>
+<p>Program logs time per each line  that appears at stdin.<br />
+Output format:  </p>
+<blockquote>
+<p><code>&lt;seconds&gt;.&lt;miliseconds&gt;&lt;space&gt;&lt;passed line&gt;</code>  </p>
+</blockquote>
+<p>Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>program | logtime</code>  </p>
+</blockquote>
+<p>You should rememer that | is buffered and will not<br />
+pass everything immediatly always. So the real time<br />
+will can be different than the loged one.  </p>
 </li>
 <li>
-<p><strong>recev</strong> - Record events from mouse and keyboard.
-           It needs to work xinput, and xmodmap.
-           Also xev might be useful. Record before
-           processing (all happen in one run) 
-           might make a big file. You tell the
-           program key you choose to start/stop
-           recording and file where he saves
-           the record. To play recorded events
-           use playev program from this list.</p>
+<p><strong>recev</strong></p>
+<blockquote></blockquote>
+<p>Program creates a record of pressed mouse buttons,<br />
+keyboard keys and mouse moves. Program at start<br />
+will ask you are you ready. After that you will<br />
+need to decide what key will start and stop recording.<br />
+You can chose only single keys. Combinations do not<br />
+work. You need to type the key so for example<br />
+it could be 'F8' or h. After the key is picked,<br />
+you must provide a filenmae, where the event data<br />
+gets recorded. File will be placed in working<br />
+directory. Events that do not matter and repeated<br />
+mousemoves are removed to shrint at least a bit the<br />
+file where events get saved.  Since it can grow quite<br />
+big. This program does not take any arguments.<br />
+Aditionaly <strong>xenv</strong> program can help with finding key name.<br />
+Dependencies:  <strong>xmodmap</strong>, <strong>xinput</strong><br />
+Example of using it:  </p>
+<blockquote>
+<p><code>recev</code></p>
+</blockquote>
 </li>
 <li>
-<p><strong>playev</strong> - Program playes events saved in file
-            created by recev program. In general
-            you just use it like this:
-            playev recev_file x y z
-            Where ofc first arg is file name of
-            event file, <em>x</em> is how many times
-            you want to repeat playing event
-            record, 0 means repeat forever.
-            The <em>y</em> is time before starting to
-            play event loop and <em>z</em> is time
-            between every event record replaying.</p>
+<p><strong>playev</strong> <code>[ file name ] [ number ] [ seconds ] [ seconds ]</code></p>
+<blockquote></blockquote>
+<p>Program playes events from file created by recev program.<br />
+Program needs four arguments:  </p>
+<ul>
+<li>file name - it is the file created by recev.  </li>
+<li>number of times event gets repeated, 0 causes<br />
+to be repeated infinite times.  </li>
+<li>seconds to wait before playing events loop  </li>
+<li>seconds to wait between instance of recorded events.  </li>
+</ul>
+<p>Dependencies: <strong>xmodmap</strong><br />
+Example of using it:  </p>
+<blockquote>
+<p>`playev recorded_file 100 10 1  </p>
+</blockquote>
+<p>This will play event recorded in passed file name<br />
+100 times. Program will start playing events after<br />
+10 seconds and each time all events in recorded<br />
+file are played, it will wait 1 second and replay the<br />
+events. Untill reached the expected repeated number.  </p>
 </li>
 <li>
 <p><strong>gethostipv</strong> - use system resolver tools to get the ip of the domain.

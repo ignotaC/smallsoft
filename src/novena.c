@@ -20,7 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
-
+// TODO change the outputed format so it looks *better*
 
 #include <stdio.h>
 #include <stdlib.h>

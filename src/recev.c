@@ -164,7 +164,7 @@ int choose_key( void )  {
   errno = 0; // if errno 0 and -1 we can relook for key
   system ( "tput clear" );
   puts( "Type in key name that will be used to stop recording events" );
-  puts( "Example key names: Escape, h, O, 0, plus, F8, etc." );
+  puts( "Example key names: Escape, h, O, 0, F8, etc." );
   puts( "You can find them with xev program" );
   puts( "Note you can't use big letters, shift + something, vide any key combinations." );
   if( clearstdin() == -1 )  return -1;
