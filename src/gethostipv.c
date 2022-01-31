@@ -137,7 +137,7 @@ new_hint_restart:
 
     if( error == EAI_AGAIN )  goto new_hint_restart;
 
- // fix to unix borthel
+ // fix to bsd chaos.
 #ifdef EAI_NODATA
     if( ( error == EAI_NODATA ) 
       || ( error == EAI_NONAME ) ) {

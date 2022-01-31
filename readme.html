@@ -89,7 +89,8 @@ will also be removed. China proxies most times are garbage,<br />
 so you want them removed. Other type of use would be<br />
 getting rid 'transparet' proxies.  Altho you should never<br />
 trust anonimity type of proxy. Some servers will pass<br />
-your IP if for example user-ganet wil</p>
+your IP if for example user-ganet will not fit their<br />
+expectations.  </p>
 </li>
 <li>
 <p><strong>novena</strong></p>
@@ -193,18 +194,42 @@ file are played, it will wait 1 second and replay the<br />
 events. Untill reached the expected repeated number.  </p>
 </li>
 <li>
-<p><strong>gethostipv</strong> - use system resolver tools to get the ip of the domain.
-            Ip version we can't connect to ( because we only have ipv4
-            and server is on only ipv6 ) is not returned.
-            how to use: gethostip [-command] [domain]
-            Order does not matter but there can be only one command string
-            In the end you can pass these kind of commands:
-            none - just return what ever ip will work, if none - nothign is returned
-            -6  - check only for ipv6 if no support nothing will be returned
-            -4  - check only for ipv4 if no support nothing will be returned
-            -46 - check first for support for ipv4 than for ipv6
-            -64 - check first for support for ipv6 than for ipv4
-            all other commands will puke an error.</p>
+<p><strong>gethostipv</strong> <code>[ -46 ] [ domain ]</code></p>
+<blockquote></blockquote>
+<p>Program uses system resolver tools to get the ip<br />
+of the domain. Program expects at least the domain name<br />
+argument. Order of arguments does not matter. But at<br />
+maximum there can be only two arguments. So the options<br />
+must not be separated like this: <code>-4 -6</code><br />
+Instead it should look like this: <code>-46</code><br />
+So we have four possibilities of passing options:  </p>
+<blockquote>
+<p><code>-4 or -6 or -46 or -64</code>  </p>
+</blockquote>
+<p>Options:  </p>
+<p><code>-4</code><br />
+Look only for IPv4 address  </p>
+<p><code>-6</code><br />
+Look only for  IPv6 address  </p>
+<p>Address shall only be outputted to stdout if it is possible<br />
+to connect to it. Mapping ipv4 to ipv6 is not checked.<br />
+So if the host has ipv6 and ipv4  but we can't connect to ipv6<br />
+and instead we need to use ipv4. When flag <code>-46</code> was passed,<br />
+ipv4 will be shown.  But if we passed option<code>-6</code>.<br />
+Nothing shall be outputted. If host has more addresses,<br />
+and we can connect to each of them.<br />
+All will be outputted. Passsing <code>-46</code> means - check first for<br />
+ipv4, than for ipv6. If <code>-64</code> vice versa.<br />
+If we pass domain name without options. Both ipv4 and ipv6<br />
+are checked, but the order is undefined.
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>gethostipv -64 www.dom.com</code>  </p>
+</blockquote>
+<p>In which we ask to output first ipv6 possible addresses<br />
+that we could connect to and than ipv4. For the<br />
+www.dom.com domain.  </p>
 </li>
 <li>
 <p><strong>repeatstr</strong> - Extreamly basic program to repeate on stdout phrase.

@@ -82,7 +82,8 @@ inside the directory of your makefile.
     so you want them removed. Other type of use would be  
     getting rid 'transparet' proxies.  Altho you should never  
     trust anonimity type of proxy. Some servers will pass  
-    your IP if for example user-ganet wil
+    your IP if for example user-ganet will not fit their  
+    expectations.  
 
 3. **novena**
   >  
@@ -177,18 +178,44 @@ inside the directory of your makefile.
     file are played, it will wait 1 second and replay the  
     events. Untill reached the expected repeated number.  
 
-8. **gethostipv** - use system resolver tools to get the ip of the domain.
-            Ip version we can't connect to ( because we only have ipv4
-            and server is on only ipv6 ) is not returned.
-            how to use: gethostip [-command] [domain]
-            Order does not matter but there can be only one command string
-            In the end you can pass these kind of commands:
-            none - just return what ever ip will work, if none - nothign is returned
-            -6  - check only for ipv6 if no support nothing will be returned
-            -4  - check only for ipv4 if no support nothing will be returned
-            -46 - check first for support for ipv4 than for ipv6
-            -64 - check first for support for ipv6 than for ipv4
-            all other commands will puke an error.
+8. **gethostipv** `[ -46 ] [ domain ]`
+  >
+
+    Program uses system resolver tools to get the ip  
+    of the domain. Program expects at least the domain name  
+    argument. Order of arguments does not matter. But at  
+    maximum there can be only two arguments. So the options  
+    must not be separated like this: `-4 -6`  
+    Instead it should look like this: `-46`  
+    So we have four possibilities of passing options:  
+  >`-4 or -6 or -46 or -64`  
+
+    Options:  
+
+    `-4`  
+    Look only for IPv4 address  
+
+    `-6`  
+    Look only for  IPv6 address  
+
+    Address shall only be outputted to stdout if it is possible  
+    to connect to it. Mapping ipv4 to ipv6 is not checked.  
+    So if the host has ipv6 and ipv4  but we can't connect to ipv6  
+    and instead we need to use ipv4. When flag `-46` was passed,  
+    ipv4 will be shown.  But if we passed option`-6`.  
+    Nothing shall be outputted. If host has more addresses,  
+    and we can connect to each of them.  
+    All will be outputted. Passsing `-46` means - check first for  
+    ipv4, than for ipv6. If `-64` vice versa.  
+    If we pass domain name without options. Both ipv4 and ipv6  
+    are checked, but the order is undefined.
+    Dependencies: none  
+    Example of using it:  
+  >`gethostipv -64 www.dom.com`  
+
+    In which we ask to output first ipv6 possible addresses  
+    that we could connect to and than ipv4. For the  
+    www.dom.com domain.  
 
 9. **repeatstr** - Extreamly basic program to repeate on stdout phrase.
             example: repeatestr 100 'stuff happened'
