@@ -39,10 +39,10 @@ void fail( const char *const estr )  {
 
 int main( const int argc, const char *const argv[]  )  {
 
-  if( argc != 3 )
-    fail( "You need to pass number of times string"
-      "will be repeated and the string it self."
-      "Example: repeatestr 100 'some text'" );
+  if( argc != 3 )  // TODO  if no number passed - repeate string 1 time
+    fail( "You need to pass number of times string\n"
+      "will be repeated and the string it self.\n"
+      "Example: repeatestr 100 'some text'\n" );
 
   char *endptr = NULL;
 

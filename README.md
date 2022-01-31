@@ -217,9 +217,25 @@ inside the directory of your makefile.
     that we could connect to and than ipv4. For the  
     www.dom.com domain.  
 
-9. **repeatstr** - Extreamly basic program to repeate on stdout phrase.
-            example: repeatestr 100 'stuff happened'
-            supported character sequances: \\ \r \n \t \v \f \b \a
+9. **repeatstr** `[ number ] [ string ]`
+  >
+
+    Program repeats passed phrase specified number of times.  
+    There are always expected two arguments.  
+    First one is number of times string will be repeated.  
+    Second is the string it self that program will repeat.  
+    Supported character sequances:  
+    `\a` = bell  
+    `\b` = backspace  
+    `\f` = form feed  
+    `\n` = new line  
+    `\r` = carrige return  
+    `\t` = tab  
+    `\v` = vertical tab  
+    `\\` = backslash  
+    Dependencies: none  
+    Example of using it:  
+  >`repeatstr 100 'this gets repeated 100 times'`
 
 10. **strext** - In general it's a string extractor form a file.
              It has three basic commands. Pass to pass file

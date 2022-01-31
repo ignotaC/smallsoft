@@ -232,9 +232,26 @@ that we could connect to and than ipv4. For the<br />
 www.dom.com domain.  </p>
 </li>
 <li>
-<p><strong>repeatstr</strong> - Extreamly basic program to repeate on stdout phrase.
-            example: repeatestr 100 'stuff happened'
-            supported character sequances: \ \r \n \t \v \f \b \a</p>
+<p><strong>repeatstr</strong> <code>[ number ] [ string ]</code></p>
+<blockquote></blockquote>
+<p>Program repeats passed phrase specified number of times.<br />
+There are always expected two arguments.<br />
+First one is number of times string will be repeated.<br />
+Second is the string it self that program will repeat.<br />
+Supported character sequances:<br />
+<code>\a</code> = bell<br />
+<code>\b</code> = backspace<br />
+<code>\f</code> = form feed<br />
+<code>\n</code> = new line<br />
+<code>\r</code> = carrige return<br />
+<code>\t</code> = tab<br />
+<code>\v</code> = vertical tab<br />
+<code>\\</code> = backslash<br />
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>repeatstr 100 'this gets repeated 100 times'</code></p>
+</blockquote>
 </li>
 <li>
 <p><strong>strext</strong> - In general it's a string extractor form a file.
