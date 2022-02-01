@@ -170,7 +170,7 @@ inside the directory of your makefile.
     
     Dependencies: **xmodmap**  
     Example of using it:  
-  >`playev recorded_file 100 10 1  
+  >`playev recorded_file 100 10 1`
 
     This will play event recorded in passed file name  
     100 times. Program will start playing events after  
@@ -237,14 +237,35 @@ inside the directory of your makefile.
     Example of using it:  
   >`repeatstr 100 'this gets repeated 100 times'`
 
-10. **strext** - In general it's a string extractor form a file.
-             It has three basic commands. Pass to pass file
-             untill a string is met. Cut that find strings
-             in line and outputs on stdout string between them.
-             last command is loop. It will loop for ever last
-             command. Only has sens to use after cut command.
-             Ofc loop will end with eof at stdin. Pass nothing
-             and help will be printed.
+10. **strext** `[ option ] [ string ]`  
+  >
+
+    Program extracts strings form stdin. Don't pass any  
+    arguments to it and help will be outputed.  
+    For proper use, this program expects arguments.  
+    There are three options to chose from. 
+    Options:  
+
+    `-p _string_`  
+    Pass data untill _string_ is located.  
+
+    `-c _string1_ _string2_`  
+    Output data between _string1_ and _string2_  
+    Which both are on same line.  
+
+    `-l`  
+    Loop last command.  
+
+    After EOF is met - program ends.  
+    Dependencies: none  
+    Example of using it:  
+  >`cat datafile | strext -p 'dev' -c 'name="' '"' -l`  
+
+    This will read datafile from stdin untill 'dev' is met.  
+    After that program will look for data which lies between  
+    'name="' and '"' where both strings will be on the same line.  
+    Finally loop the last command, look for dara between  
+    specified strings untill EOF met on stdin.
 
 11. **getlimits** - Program prints current soft and hard limits
              for user. CPU, stack, data segment etc.

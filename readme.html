@@ -185,7 +185,7 @@ to be repeated infinite times.  </li>
 <p>Dependencies: <strong>xmodmap</strong><br />
 Example of using it:  </p>
 <blockquote>
-<p>`playev recorded_file 100 10 1  </p>
+<p><code>playev recorded_file 100 10 1</code></p>
 </blockquote>
 <p>This will play event recorded in passed file name<br />
 100 times. Program will start playing events after<br />
@@ -254,14 +254,31 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>strext</strong> - In general it's a string extractor form a file.
-             It has three basic commands. Pass to pass file
-             untill a string is met. Cut that find strings
-             in line and outputs on stdout string between them.
-             last command is loop. It will loop for ever last
-             command. Only has sens to use after cut command.
-             Ofc loop will end with eof at stdin. Pass nothing
-             and help will be printed.</p>
+<p><strong>strext</strong> <code>[ option ] [ string ]</code>  </p>
+<blockquote></blockquote>
+<p>Program extracts strings form stdin. Don't pass any<br />
+arguments to it and help will be outputed.<br />
+For proper use, this program expects arguments.<br />
+There are three options to chose from. 
+Options:  </p>
+<p><code>-p _string_</code><br />
+Pass data untill <em>string</em> is located.  </p>
+<p><code>-c _string1_ _string2_</code><br />
+Output data between <em>string1</em> and <em>string2</em><br />
+Which both are on same line.  </p>
+<p><code>-l</code><br />
+Loop last command.  </p>
+<p>After EOF is met - program ends.<br />
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>cat datafile | strext -p 'dev' -c 'name="' '"' -l</code>  </p>
+</blockquote>
+<p>This will read datafile from stdin untill 'dev' is met.<br />
+After that program will look for data which lies between<br />
+'name="' and '"' where both strings will be on the same line.<br />
+Finally loop the last command, look for dara between<br />
+specified strings untill EOF met on stdin.</p>
 </li>
 <li>
 <p><strong>getlimits</strong> - Program prints current soft and hard limits
