@@ -238,16 +238,18 @@ www.dom.com domain.  </p>
 There are always expected two arguments.<br />
 First one is number of times string will be repeated.<br />
 Second is the string it self that program will repeat.<br />
-Supported character sequances:<br />
-<code>\a</code> = bell<br />
-<code>\b</code> = backspace<br />
-<code>\f</code> = form feed<br />
-<code>\n</code> = new line<br />
-<code>\r</code> = carrige return<br />
-<code>\t</code> = tab<br />
-<code>\v</code> = vertical tab<br />
-<code>\\</code> = backslash<br />
-Dependencies: none<br />
+Supported character sequances:  </p>
+<ul>
+<li><code>\a</code> = bell  </li>
+<li><code>\b</code> = backspace  </li>
+<li><code>\f</code> = form feed  </li>
+<li><code>\n</code> = new line  </li>
+<li><code>\r</code> = carrige return  </li>
+<li><code>\t</code> = tab  </li>
+<li><code>\v</code> = vertical tab  </li>
+<li><code>\\</code> = backslash  </li>
+</ul>
+<p>Dependencies: none<br />
 Example of using it:  </p>
 <blockquote>
 <p><code>repeatstr 100 'this gets repeated 100 times'</code></p>
@@ -281,9 +283,26 @@ Finally loop the last command, look for dara between<br />
 specified strings untill EOF met on stdin.</p>
 </li>
 <li>
-<p><strong>getlimits</strong> - Program prints current soft and hard limits
-             for user. CPU, stack, data segment etc.
-             See for your self simply run it, no arguments.</p>
+<p><strong>getlimits</strong></p>
+<blockquote></blockquote>
+<p>Program prints system soft and hard resource consumption.<br />
+Basic are:  </p>
+<ul>
+<li>Maximum core file size  </li>
+<li>Maximum CPU time used by each process  </li>
+<li>Maximum size of data segment including allocations  </li>
+<li>Maximum size of file that can be created  </li>
+<li>Maximum number of file descriptors process can open  </li>
+<li>Maximum size of process stack  </li>
+<li>data segment etc.  </li>
+</ul>
+<p>Few other system dependant also are printed for linux and<br />
+OpenBSD.<br />
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>getlimits</code>  </p>
+</blockquote>
 </li>
 <li>
 <p><strong>fstrswp</strong> - Swap one string in stream to other. 

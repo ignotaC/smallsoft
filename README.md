@@ -225,14 +225,16 @@ inside the directory of your makefile.
     First one is number of times string will be repeated.  
     Second is the string it self that program will repeat.  
     Supported character sequances:  
-    `\a` = bell  
-    `\b` = backspace  
-    `\f` = form feed  
-    `\n` = new line  
-    `\r` = carrige return  
-    `\t` = tab  
-    `\v` = vertical tab  
-    `\\` = backslash  
+
+    * `\a` = bell  
+    * `\b` = backspace  
+    * `\f` = form feed  
+    * `\n` = new line  
+    * `\r` = carrige return  
+    * `\t` = tab  
+    * `\v` = vertical tab  
+    * `\\` = backslash  
+
     Dependencies: none  
     Example of using it:  
   >`repeatstr 100 'this gets repeated 100 times'`
@@ -267,9 +269,25 @@ inside the directory of your makefile.
     Finally loop the last command, look for dara between  
     specified strings untill EOF met on stdin.
 
-11. **getlimits** - Program prints current soft and hard limits
-             for user. CPU, stack, data segment etc.
-             See for your self simply run it, no arguments.
+11. **getlimits**
+  >
+
+    Program prints system soft and hard resource consumption.  
+    Basic are:  
+
+    * Maximum core file size  
+    * Maximum CPU time used by each process  
+    * Maximum size of data segment including allocations  
+    * Maximum size of file that can be created  
+    * Maximum number of file descriptors process can open  
+    * Maximum size of process stack  
+    * data segment etc.  
+
+    Few other system dependant also are printed for linux and  
+    OpenBSD.  
+    Dependencies: none  
+    Example of using it:  
+  >`getlimits`  
 
 12. **fstrswp** - Swap one string in stream to other. 
               Perfect for some source fixing.
