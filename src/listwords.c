@@ -21,7 +21,6 @@ OF THIS SOFTWARE.
 */
 
 #include "../ignotalib/src/ig_fileio/igf_openfd.h"
-#include "../ignotalib/src/ig_fileio/igf_fdoffset.h"
 #include "../ignotalib/src/ig_fileio/igf_read.h"
 #include "../ignotalib/src/ig_fileio/igf_readword.h"
 

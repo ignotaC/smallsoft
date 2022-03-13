@@ -25,8 +25,8 @@ make:
 	${CCOBJ} ${IG}/ig_fileio/igf_openfd.c -o ${IG_OBJ}/igf_openfd.o
 	${AR} ${IG_OBJ}/libigf_openfd.a ${IG_OBJ}/igf_openfd.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_fdoffset.c -o ${IG_OBJ}/igf_fdoffset.o
-	${AR} ${IG_OBJ}/libigf_fdoffset.a ${IG_OBJ}/igf_fdoffset.o
+	${CCOBJ} ${IG}/ig_fileio/igf_offset.c -o ${IG_OBJ}/igf_offset.o
+	${AR} ${IG_OBJ}/libigf_offset.a ${IG_OBJ}/igf_offset.o
 
 	${CCOBJ} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
 	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
@@ -93,7 +93,7 @@ make:
 
 	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
 	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_read\
-		-ligf_openfd -ligf_fdoffset -ligf_readword\
+		-ligf_openfd -ligf_offset -ligf_readword\
 		-o ${BIN}/listwords
 
 
