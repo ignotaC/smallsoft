@@ -239,7 +239,7 @@ inside the directory of your makefile.
     Example of using it:  
   >`repeatstr 100 'this gets repeated 100 times'`
 
-10. **strext** `[ option ] [ string ]`  
+10. **lext** `[ option ] [ string ]`  
   >
 
     Program extracts strings form stdin. Don't pass any  

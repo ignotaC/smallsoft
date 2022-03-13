@@ -57,7 +57,7 @@ make:
 
 	${CC} ${SRC}/repeatstr.c -o ${BIN}/repeatstr
 
-	${CC} ${SRC}/strext.c -o ${BIN}/strext
+	${CC} ${SRC}/lext.c -o ${BIN}/lext
 
 	${CCOBJ} ${SRC}/getlimits.c -o ${SS_OBJ}/getlimits.o
 	${CC} ${SS_OBJ}/getlimits.o ${LIBIG_OBJ} -ligp_double -o ${BIN}/getlimits
