@@ -13,19 +13,19 @@ make:
 #compile external static libs
 	mkdir -p ${IG_OBJ}
 
-	${CCOBJ} ${IG}/ig_fileio/igf_write.c -o ${IG_OBJ}/igf_write.o
+	${CCOBJ} ${IG}/ig_file/igf_write.c -o ${IG_OBJ}/igf_write.o
 	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_read.c -o ${IG_OBJ}/igf_read.o
+	${CCOBJ} ${IG}/ig_file/igf_read.c -o ${IG_OBJ}/igf_read.o
 	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_readword.c -o ${IG_OBJ}/igf_readword.o
+	${CCOBJ} ${IG}/ig_file/igf_readword.c -o ${IG_OBJ}/igf_readword.o
 	${AR} ${IG_OBJ}/libigf_readword.a ${IG_OBJ}/igf_readword.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_openfd.c -o ${IG_OBJ}/igf_openfd.o
-	${AR} ${IG_OBJ}/libigf_openfd.a ${IG_OBJ}/igf_openfd.o
+	${CCOBJ} ${IG}/ig_file/igf_open.c -o ${IG_OBJ}/igf_open.o
+	${AR} ${IG_OBJ}/libigf_open.a ${IG_OBJ}/igf_open.o
 
-	${CCOBJ} ${IG}/ig_fileio/igf_offset.c -o ${IG_OBJ}/igf_offset.o
+	${CCOBJ} ${IG}/ig_file/igf_offset.c -o ${IG_OBJ}/igf_offset.o
 	${AR} ${IG_OBJ}/libigf_offset.a ${IG_OBJ}/igf_offset.o
 
 	${CCOBJ} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
@@ -93,7 +93,7 @@ make:
 
 	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
 	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_read\
-		-ligf_openfd -ligf_offset -ligf_readword\
+		-ligf_open -ligf_offset -ligf_readword\
 		-o ${BIN}/listwords
 
 

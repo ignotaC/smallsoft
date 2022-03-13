@@ -20,9 +20,9 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignotalib/src/ig_fileio/igf_openfd.h"
-#include "../ignotalib/src/ig_fileio/igf_read.h"
-#include "../ignotalib/src/ig_fileio/igf_readword.h"
+#include "../ignotalib/src/ig_file/igf_open.h"
+#include "../ignotalib/src/ig_file/igf_read.h"
+#include "../ignotalib/src/ig_file/igf_readword.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ int main( int argc, char *argv[]  )  {
   const size_t buffsize = 8192;
   char buff[ buffsize ];
 
-  int fd = igf_openfd_rd( argv[ FILENAME_ARG ] );
+  int fd = igf_openrd( argv[ FILENAME_ARG ] );
   if( fd == -1 )  fail( "Could not open file" );
 
   for( char *word = NULL;;)  {
