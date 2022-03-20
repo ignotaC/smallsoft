@@ -21,14 +21,19 @@ OF THIS SOFTWARE.
 */
 
 #define BUFF_SIZE 8192
-#define BUFF_SIZE_STR #BUFF_SIZE
+#define BUFF_SIZE_STR( BUFF_SIZE ) #BUFF_SIZE 
 
-#include "../../ignotalib/src/ig_file/igf_open.h"
+#include "../ignotalib/src/ig_file/igf_offset.h"
+#include "../ignotalib/src/ig_file/igf_open.h"
+#include "../ignotalib/src/ig_file/igf_read.h"
+#include "../ignotalib/src/ig_file/igf_search.h"
+#include "../ignotalib/src/ig_file/igf_write.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 
 void fail( char *const estr )   {
@@ -42,7 +47,7 @@ void wrong( char *const wstr )  {
 
   errno = 0;
   fprintf( stderr, "%s", wstr );
-  exit( "EXIT_FAILURE" );
+  exit( EXIT_FAILURE );
 
 }
 
@@ -51,7 +56,7 @@ void manual( void )  {
   puts( "How to use this program:" );
   puts( "fext phrase1 phrase2 filename" );
   puts( "Program will extract data blocks between strings" );
-  printf( "%s", "Program uses buffor of "BUFF_SIZE_STR" size, so strings passed,\n" );
+  printf( "%s", "Program uses buffor of "BUFF_SIZE_STR( BUFF SIZE )" size, so strings passed,\n" );
   puts( "should have lower size / length" );
   exit( EXIT_SUCCESS );
 
@@ -75,12 +80,12 @@ int main( int ac, char *av[] )  {
   if( phrase1len >= BUFF_SIZE )
     wrong( "phrase1 length is too big\n"
            "it must be smaller than program "
-	   "buffor size"BUFF_SIZE_STR"\n" );
+	   "buffor size"BUFF_SIZE_STR( BUFF_SIZE )"\n" );
 
   if( phrase2len >= BUFF_SIZE )
     wrong( "phrase2 length is too big\n"
            "it must be smaller than program"
-	   " buffor size"BUFF_SIZE_STR"\n" );
+	   " buffor size"BUFF_SIZE_STR( BUFF_SIZE )"\n" );
 
   // Now try opening the file we search
   int fd = igf_openrd( av[3] );
@@ -110,7 +115,7 @@ int main( int ac, char *av[] )  {
     while( sizetoread != 0 )  {
 
       // set the buffread size depending on how much we must read
-      if( sizetoread >= buff_size )  buffread = buffsize;
+      if( sizetoread >= buffsize )  buffread = buffsize;
       else buffread = sizetoread;
       
       // read the fd, the starting offset is correct due to amidmem function
@@ -118,7 +123,7 @@ int main( int ac, char *av[] )  {
       // altho all was ok - for example we reached eof too early which is 
       // a bug
       errno = 0;
-      if( igf_read( fd, buff, buffread ) != buffread )
+      if( igf_read( fd, buff, buffread ) != ( ssize_t )buffread )
         fail( "Failed on igf_read" );
       // Write can only fail here or succeed.
       if( igf_write( fd, buff, buffread ) == -1 )

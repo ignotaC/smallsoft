@@ -22,6 +22,9 @@ make:
 	${CCOBJ} ${IG}/ig_file/igf_readword.c -o ${IG_OBJ}/igf_readword.o
 	${AR} ${IG_OBJ}/libigf_readword.a ${IG_OBJ}/igf_readword.o
 
+	${CCOBJ} ${IG}/ig_file/igf_search.c -o ${IG_OBJ}/igf_search.o
+	${AR} ${IG_OBJ}/libigf_search.a ${IG_OBJ}/igf_search.o
+
 	${CCOBJ} ${IG}/ig_file/igf_open.c -o ${IG_OBJ}/igf_open.o
 	${AR} ${IG_OBJ}/libigf_open.a ${IG_OBJ}/igf_open.o
 
@@ -95,6 +98,12 @@ make:
 	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_read\
 		-ligf_open -ligf_offset -ligf_readword\
 		-o ${BIN}/listwords
+
+	${CCOBJ} ${SRC}/fext.c -o ${SS_OBJ}/fext.o
+	${CC} ${SS_OBJ}/fext.o ${LIBIG_OBJ} -ligf_search\
+		-ligf_open -ligf_read -ligf_write -ligf_offset\
+		-o ${BIN}/fext
+
 
 
 clear:
