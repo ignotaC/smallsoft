@@ -289,14 +289,21 @@ inside the directory of your makefile.
     Example of using it:  
   >`getlimits`  
 
-12. **fstrswp** - Swap one string in stream to other. 
-              Perfect for some source fixing.
-              For example when we need to swap malloc.h to stdlib.h.
-              this would look like this:
-              find src -type f -iname '*.c' -exec sh -c \
-                   'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'' ' \
-                   '| tmpfile; mv tmpfile {}' \;
-              Could be without '\'' but what if we have spaces or worse?
+12. **fstrswp** `[ string ] [ string ]`
+  >
+
+    Program will read line and swap any found  string from first argument,  
+    to string in second argument. I use it for source fixing.  
+    Each line gets allocated to heap. After swapping is done  
+    output is sent to stdout anf line gets freed.  
+    Dependencies: none    
+    Example of using it:    
+  >`find src -type f -iname '*.c' -exec sh -c \`  
+  >`'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\`  
+  >`' | tmpfile; mv tmpfile {}' \;`  
+
+    This fixes gnuism crap left in code by some  
+    unexpiranced coder. Next run would scan `*.h`.  
 
 13. **parsekdump** - This is wrote for openbsd ktrace output. Not sure how it
                  would work on other oses. Anyway you ktrace your program

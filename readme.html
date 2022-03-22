@@ -256,7 +256,7 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>strext</strong> <code>[ option ] [ string ]</code>  </p>
+<p><strong>lext</strong> <code>[ option ] [ string ]</code>  </p>
 <blockquote></blockquote>
 <p>Program extracts strings form stdin. Don't pass any<br />
 arguments to it and help will be outputed.<br />
@@ -305,14 +305,21 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>fstrswp</strong> - Swap one string in stream to other. 
-              Perfect for some source fixing.
-              For example when we need to swap malloc.h to stdlib.h.
-              this would look like this:
-              find src -type f -iname '*.c' -exec sh -c \
-                   'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'' ' \
-                   '| tmpfile; mv tmpfile {}' \;
-              Could be without '\'' but what if we have spaces or worse?</p>
+<p><strong>fstrswp</strong> <code>[ string ] [ string ]</code></p>
+<blockquote></blockquote>
+<p>Program will read line and swap any found  string from first argument,<br />
+to string in second argument. I use it for source fixing.<br />
+Each line gets allocated to heap. After swapping is done<br />
+output is sent to stdout anf line gets freed.<br />
+Dependencies: none  <br />
+Example of using it:    </p>
+<blockquote>
+<p><code>find src -type f -iname '*.c' -exec sh -c \</code><br />
+<code>'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\</code><br />
+<code>' | tmpfile; mv tmpfile {}' \;</code>  </p>
+</blockquote>
+<p>This fixes gnuism crap left in code by some<br />
+unexpiranced coder. Next run would scan <code>*.h</code>.  </p>
 </li>
 <li>
 <p><strong>parsekdump</strong> - This is wrote for openbsd ktrace output. Not sure how it
