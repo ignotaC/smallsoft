@@ -22,6 +22,7 @@ OF THIS SOFTWARE.
 
 // TODO add a SUMMARY fo all the processes
 
+#include <stdbool.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -660,6 +661,49 @@ int main( void )  {
   printf( "System calls took  %.3f%% of "
           "recording time\n\n", calls_sum );
  
+  //TODO this needs sorting and printing.
+  // create a system call summary
+  struct syscall_data *sdsummary = NULL;
+  struct syscall_data *sdtemp = NULL;
+  size_t sdsummary_len = 0;
+  for( size_t i = 0; i < pd_len; i++ )  {
+
+    for( size_t sc_pos = 0;
+        sc_pos < pd[i].sd_len; sc_pos++ )  {
+
+      bool found_sc = 0;
+      sdtemp = pd[i].sd[ sc_pos ];
+      for( size_t j = 0; j < sdsummary_len; j++ )  {
+
+        if( ! strcmp( sdsummary[j].syscall, sdtemp->syscall ) )  {
+
+	  found_sc = 1;
+	  sdsummary[j].count += sdtemp->count;
+	  break;
+
+	}
+
+      }
+
+      // add new entry since not found
+      if( ! found_sc )  {
+
+        sdsummary = realloc( sdsummary,
+	  ( sdsummary_len + 1 ) * sizeof *sdsummary );
+	if( sdsummary == NULL )
+          fail( "Could not realloc for sdsummary" );
+	sdsummary[ sdsummary_len ].syscall = sdtemp->syscall;
+	sdsummary[ sdsummary_len ].count = sdtemp->count;
+	sdsummary_len++;
+
+      }
+
+    }
+
+  }
+
+  // TODO use qsort one day this program takes quite a lot of time
+  // so any little speedup is worth it.
   // Sort syscall data, max count on top.
   for( size_t i = 0; i < pd_len; i++ )  {
 
