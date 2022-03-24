@@ -311,8 +311,8 @@ Example of using it:  </p>
 to string in second argument. I use it for source fixing.<br />
 Each line gets allocated to heap. After swapping is done<br />
 output is sent to stdout anf line gets freed.<br />
-Dependencies: none  <br />
-Example of using it:    </p>
+Dependencies: none<br />
+Example of using it:  </p>
 <blockquote>
 <p><code>find src -type f -iname '*.c' -exec sh -c \</code><br />
 <code>'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\</code><br />
@@ -322,19 +322,27 @@ Example of using it:    </p>
 unexpiranced coder. Next run would scan <code>*.h</code>.  </p>
 </li>
 <li>
-<p><strong>parsekdump</strong> - This is wrote for openbsd ktrace output. Not sure how it
-                 would work on other oses. Anyway you ktrace your program
-                 eventualy to keep track of forks ktrace -i program.
-                 Than run parsekdump and it will try to turn kdump output
-                 into lists of system calls and their percent time.
-                 Basic PID/TID output makes one line per system call.
-                 line containes:
-                 1. System call
-                 2. How many times system call was called and returned
-                 3. Precent of all system calls times it took
-                 4. Precent it took compared to recording time.
-                 last one takes recording time as first and last appearance
-                 of CALL or RET.</p>
+<p><strong>parsekdump</strong></p>
+<blockquote></blockquote>
+<p>This program is openbsd ktrace output parser.<br />
+It shall count systemcalls and create a summary<br />
+of them. It outputs data per PID/TID and on the end<br />
+summary of all treads and forks.<br />
+Each basic data line will contain:  </p>
+<ul>
+<li>System call name </li>
+<li>Count of times it was called in the process </li>
+<li>Procent of system call summary compared to all system calls time</li>
+<li>Procent of system call summary to record time</li>
+</ul>
+<p>Dependencies: openbsd operating system<br />
+Example of using it:</p>
+<blockquote>
+<p><code>ktrace -i program</code><br />
+<code>parsekdump</code>  </p>
+</blockquote>
+<p>ktrace -i option is for tracking forks and threads. I advice to track all<br />
+else the output summary might be missleading.  </p>
 </li>
 <li>
 <p><strong>ualist</strong> - Program will output little list of user agents to stdout.

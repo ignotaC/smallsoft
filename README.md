@@ -296,8 +296,8 @@ inside the directory of your makefile.
     to string in second argument. I use it for source fixing.  
     Each line gets allocated to heap. After swapping is done  
     output is sent to stdout anf line gets freed.  
-    Dependencies: none    
-    Example of using it:    
+    Dependencies: none  
+    Example of using it:  
   >`find src -type f -iname '*.c' -exec sh -c \`  
   >`'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\`  
   >`' | tmpfile; mv tmpfile {}' \;`  
@@ -305,19 +305,27 @@ inside the directory of your makefile.
     This fixes gnuism crap left in code by some  
     unexpiranced coder. Next run would scan `*.h`.  
 
-13. **parsekdump** - This is wrote for openbsd ktrace output. Not sure how it
-                 would work on other oses. Anyway you ktrace your program
-                 eventualy to keep track of forks ktrace -i program.
-                 Than run parsekdump and it will try to turn kdump output
-                 into lists of system calls and their percent time.
-                 Basic PID/TID output makes one line per system call.
-                 line containes:
-                 1. System call
-                 2. How many times system call was called and returned
-                 3. Precent of all system calls times it took
-                 4. Precent it took compared to recording time.
-                 last one takes recording time as first and last appearance
-                 of CALL or RET.
+13. **parsekdump**
+  >
+
+    This program is openbsd ktrace output parser.  
+    It shall count systemcalls and create a summary  
+    of them. It outputs data per PID/TID and on the end  
+    summary of all treads and forks.  
+    Each basic data line will contain:  
+
+    * System call name 
+    * Count of times it was called in the process 
+    * Procent of system call summary compared to all system calls time
+    * Procent of system call summary to record time
+
+    Dependencies: openbsd operating system  
+    Example of using it:
+  >`ktrace -i program`  
+  >`parsekdump`  
+
+    ktrace -i option is for tracking forks and threads. I advice to track all  
+    else the output summary might be missleading.  
 
 14. **ualist** - Program will output little list of user agents to stdout.
              You use it like this: ualist proxyip:proxyport > my_list.
