@@ -1,8 +1,10 @@
 <h1>Small Soft pack</h1>
 <p>Made for God Glory.<br />
-Hail Supreame God one in great trinity.<br />
+Hail Supreame God one in Great Trinity.<br />
 Prise Saint Maria, mother of God.  </p>
-<p>A pack of my little unix programs.  </p>
+<p>A pack of my little unix programs.
+I do not mention dependencies like C compiler and posix system.
+None means you have the basic set.</p>
 <p>You can either read this file as plain text<br />
 ( and still understand 100% of what is this read me about ).<br />
 Or you can use your webbrowser to read it:  </p>
@@ -48,14 +50,14 @@ inside the directory of your makefile.  </p>
 <blockquote></blockquote>
 <p>Program lets you find an answer to a 0/1 problem.<br />
 Program does not take any arguments.<br />
-Dependencies: none<br />
+Dependencies: none
 Example of using it:  </p>
 <blockquote>
 <p><code>coin</code> </p>
 </blockquote>
 </li>
 <li>
-<p><strong>getproxies</strong> <code>[ string ]</code>  </p>
+<p><strong>getproxies</strong> <code>[ pattern ]</code>  </p>
 <blockquote></blockquote>
 <p>Program filters few webpages to suck up proxies,<br />
 also checks  if they work properly. Data is saved<br />
@@ -226,7 +228,7 @@ that we could connect to and than ipv4. For the<br />
 www.dom.com domain.  </p>
 </li>
 <li>
-<p><strong>repeatstr</strong> <code>[ number ] [ string ]</code></p>
+<p><strong>repeatstr</strong> <code>[ number ] [ pattern ]</code></p>
 <blockquote></blockquote>
 <p>Program repeats passed phrase specified number of times.<br />
 There are always expected two arguments.<br />
@@ -250,20 +252,20 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>lext</strong> <code>[ option ] [ string ]</code>  </p>
+<p><strong>lext</strong> <code>[ -clp ] [ pattern1 ] [ pattern2 ]</code>  </p>
 <blockquote></blockquote>
 <p>Program extracts strings form stdin. Don't pass any<br />
 arguments to it and help will be outputed.<br />
 For proper use, this program expects arguments.<br />
 There are three options to chose from. 
 Options:  </p>
-<p><code>-p _string_</code><br />
-Pass data untill <em>string</em> is located.  </p>
 <p><code>-c _string1_ _string2_</code><br />
 Output data between <em>string1</em> and <em>string2</em><br />
 Which both are on same line.  </p>
 <p><code>-l</code><br />
 Loop last command.  </p>
+<p><code>-p _string_</code><br />
+Pass data untill <em>string</em> is located.  </p>
 <p>After EOF is met - program ends.<br />
 Dependencies: none<br />
 Example of using it:  </p>
@@ -299,7 +301,7 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>fstrswp</strong> <code>[ string ] [ string ]</code></p>
+<p><strong>fstrswp</strong> <code>[ pattern1 ] [ pattern2 ]</code></p>
 <blockquote></blockquote>
 <p>Program will read line and swap any found  string from first argument,<br />
 to string in second argument. I use it for source fixing.<br />
@@ -345,7 +347,7 @@ else the output summary might be missleading.  </p>
 a server. Which I will soon do.</p>
 </li>
 <li>
-<p><strong>randstr</strong> <code>[ option ] [ number ]</code></p>
+<p><strong>randstr</strong> <code>[ -uld ] [ number ]</code></p>
 <blockquote></blockquote>
 <p>Program generates random string. It uses pseudorandom generator,<br />
 Deterministic C rand().<br />
@@ -372,16 +374,22 @@ options can be together and can repeate.  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>logdata</strong> - Program opens unix socket and prints all data sent to it.
-              Example of using it:
-              We start it: logdata unix_socket_name_we_pass &gt; savehere
-              Now we need to send some data using netcat.
-              Openbsd netcat can send to unix socket. 
-              Many linux distros have in their repository: openbsd-netcat
-              or something similar. So we can with nc:
-              echo "test" | nc -UN socket_name
-              -N option is a must. Socket must sent FIN else the connection stales.
-              SIGINT logdata for gentle close when not anymore needed!</p>
+<p><strong>logdata</strong>  <code>[ unix socket name ]</code></p>
+<blockquote></blockquote>
+<p>Program opens unix socket with name passed in argument.<br />
+All data send to the socket will be redirected to stdout.<br />
+Gentle way of exiting the program is sending SIGINT signal to it.<br />
+dependencies: none<br />
+Example of using it:</p>
+<blockquote>
+<p><code>logdata /tmp/sunXXX &gt; save_loged_data_here</code></p>
+</blockquote>
+<p>This will create unix socket file /tmp/sunXXX and save<br />
+all coming data to save_loged_data_here.<br />
+An example of sending test data would look like this:</p>
+<blockquote>
+<p><code>echo "test" | nc -UN /tmp/sunXXX</code></p>
+</blockquote>
 </li>
 <li>
 <p><strong>runprog</strong> - Program opens unix socket and runs program

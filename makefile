@@ -72,10 +72,11 @@ make:
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump # TODO - add whole summary of forks and threads
 
 # program removed
-#	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I belive this stopped working recently. Will need some investigation
+#	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I
 
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 	
+#  We need to remove the socket after gentle fin so it does not sleave shit in system	
 	${CCOBJ} ${SRC}/logdata.c -o ${SS_OBJ}/logdata.o # TODO add net socket support
 	${CC} ${SS_OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
 

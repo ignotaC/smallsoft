@@ -1,9 +1,11 @@
 # Small Soft pack
 Made for God Glory.  
-Hail Supreame God one in great trinity.  
+Hail Supreame God one in Great Trinity.  
 Prise Saint Maria, mother of God.  
 
-A pack of my little unix programs.  
+A pack of my little unix programs.
+I do not mention dependencies like C compiler and posix system.
+None means you have the basic set.
 
 You can either read this file as plain text  
 ( and still understand 100% of what is this read me about ).  
@@ -47,11 +49,11 @@ inside the directory of your makefile.
 
     Program lets you find an answer to a 0/1 problem.  
     Program does not take any arguments.  
-    Dependencies: none  
+    Dependencies: none
     Example of using it:  
   >`coin` 
 
-2.  **getproxies** `[ string ]`  
+2.  **getproxies** `[ pattern ]`  
   >  
 
     Program filters few webpages to suck up proxies,  
@@ -213,7 +215,7 @@ inside the directory of your makefile.
     that we could connect to and than ipv4. For the  
     www.dom.com domain.  
 
-9. **repeatstr** `[ number ] [ string ]`
+9. **repeatstr** `[ number ] [ pattern ]`
   >
 
     Program repeats passed phrase specified number of times.  
@@ -235,7 +237,7 @@ inside the directory of your makefile.
     Example of using it:  
   >`repeatstr 100 'this gets repeated 100 times'`
 
-10. **lext** `[ option ] [ string ]`  
+10. **lext** `[ -clp ] [ pattern1 ] [ pattern2 ]`  
   >
 
     Program extracts strings form stdin. Don't pass any  
@@ -244,15 +246,16 @@ inside the directory of your makefile.
     There are three options to chose from. 
     Options:  
 
-    `-p _string_`  
-    Pass data untill _string_ is located.  
-
     `-c _string1_ _string2_`  
     Output data between _string1_ and _string2_  
     Which both are on same line.  
 
     `-l`  
     Loop last command.  
+
+    `-p _string_`  
+    Pass data untill _string_ is located.  
+
 
     After EOF is met - program ends.  
     Dependencies: none  
@@ -285,7 +288,7 @@ inside the directory of your makefile.
     Example of using it:  
   >`getlimits`  
 
-12. **fstrswp** `[ string ] [ string ]`
+12. **fstrswp** `[ pattern1 ] [ pattern2 ]`
   >
 
     Program will read line and swap any found  string from first argument,  
@@ -329,7 +332,7 @@ inside the directory of your makefile.
     Program removed, it makes more sens to provide a list of useragents from  
     a server. Which I will soon do.
 
-15. **randstr** `[ option ] [ number ]`
+15. **randstr** `[ -uld ] [ number ]`
   >
 
     Program generates random string. It uses pseudorandom generator,  
@@ -357,16 +360,20 @@ inside the directory of your makefile.
     options can be together and can repeate.  
   >`randstr -d 50 -uuuud -udl`  
 
-16. **logdata** - Program opens unix socket and prints all data sent to it.
-              Example of using it:
-              We start it: logdata unix_socket_name_we_pass > savehere
-              Now we need to send some data using netcat.
-              Openbsd netcat can send to unix socket. 
-              Many linux distros have in their repository: openbsd-netcat
-              or something similar. So we can with nc:
-              echo "test" | nc -UN socket_name
-              -N option is a must. Socket must sent FIN else the connection stales.
-              SIGINT logdata for gentle close when not anymore needed!
+16. **logdata**  `[ unix socket name ]`
+  >
+
+    Program opens unix socket with name passed in argument.  
+    All data send to the socket will be redirected to stdout.  
+    Gentle way of exiting the program is sending SIGINT signal to it.  
+    dependencies: none  
+    Example of using it:
+  >`logdata /tmp/sunXXX > save_loged_data_here`
+
+    This will create unix socket file /tmp/sunXXX and save  
+    all coming data to save_loged_data_here.  
+    An example of sending test data would look like this:
+  >`echo "test" | nc -UN /tmp/sunXXX`
 
 17. **runprog** - Program opens unix socket and runs program
               or script we pass at it start up. It runs the command when
