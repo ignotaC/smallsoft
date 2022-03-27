@@ -15,22 +15,16 @@ Or you can use your webbrowser to read it:  </p>
 <blockquote>
 <p><code>git clone 'https://github.com/ignotaC/smallsoft'</code>  </p>
 </blockquote>
-<p>Now enter the newly created directory:  </p>
-<blockquote>
-<p><code>cd smallsoft</code>  </p>
-</blockquote>
-<p>Download submodules:  </p>
-<blockquote>
-<p><code>sh code_update.sh</code>  </p>
-</blockquote>
 <h3>2) compilation</h3>
 <p>Run make in makefile:  </p>
 <blockquote>
 <p><code>make</code>  </p>
 </blockquote>
-<p>Compiled programs will go to the newly created<br />
+<p>Make before compilation will upload<br />
+required submodules - ignotalib.<br />
+Compiled programs will go to the newly created<br />
 bin directory inside smallsoft.  </p>
-<h3>3) installastion ( binary managment )</h3>
+<h3>3) installation ( binary managment )</h3>
 <p>You do it by your self, You might no want to<br />
 use some of the software this pack provides.<br />
 Simply copy what ever you want to one of the<br />
@@ -41,7 +35,7 @@ I simply take all by doing:  </p>
 <blockquote>
 <p><code>cp bin/* ~/bin</code>  </p>
 </blockquote>
-<h3>4) cleanup</h3>
+<h3>4) clean up</h3>
 <p>This simply removes stuff make created<br />
 inside the directory of your makefile.  </p>
 <blockquote>
@@ -345,29 +339,37 @@ Example of using it:</p>
 else the output summary might be missleading.  </p>
 </li>
 <li>
-<p><strong>ualist</strong> - Program will output little list of user agents to stdout.
-             You use it like this: ualist proxyip:proxyport &gt; my_list.
-             It uses torsocks wget to download specific webpage
-             Torsocks is only for not getting real IP banned.
-             The page owner bans a lot so it's better to hide and
-             you should not trust proxies.
-             Anyway use getproxies and pass one of lister by it proxy ip port
-             or use your own.
-             CRUCIAL: use https proxies.
-             They will surely ban it after you use it.
-             So open free proxies are best thing. Since they will die out
-             in few days anyway.
-             Program sleeps a bit and is slow. If you stop getting output
-             change the proxy. The owner of page we get UA is a bit dramatic.
-             So you need to be stealthy.</p>
+<p><strong>ualist</strong></p>
+<blockquote></blockquote>
+<p>Program removed, it makes more sens to provide a list of useragents from<br />
+a server. Which I will soon do.</p>
 </li>
 <li>
-<p><strong>randstr</strong> - Program generates using pseudorandom generator ( C rand() )
-              Randomn string. You must pass number of bytes to generate.
-              Also you can force to output onlu uppercase letters, lowercase
-              and digits. With commands -u -l -d.
-              Example: randstr -u 124 -ld. This will generate 124 bytes
-              that in asci code appear as lowercase uppercase or digits.</p>
+<p><strong>randstr</strong> <code>[ option ] [ number ]</code></p>
+<blockquote></blockquote>
+<p>Program generates random string. It uses pseudorandom generator,<br />
+Deterministic C rand().<br />
+Without any options any bytes can appear.  So it can even generate nul.<br />
+To force more usefull output we have options which we can mix:  </p>
+<p><code>-u</code><br />
+Print out only upper case output.  </p>
+<p><code>-l</code><br />
+Print out only lower case output.  </p>
+<p><code>-d</code><br />
+Print out only digits  </p>
+<p>There is no expected order of arguments.<br />
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>randstr -uld 50</code>  </p>
+</blockquote>
+<p>In this example we generate 50 characers where each of them<br />
+must be a digit or an upper/lower case alphabet number.<br />
+Second example above does the same thing, as we can see,<br />
+options can be together and can repeate.  </p>
+<blockquote>
+<p><code>randstr -d 50 -uuuud -udl</code>  </p>
+</blockquote>
 </li>
 <li>
 <p><strong>logdata</strong> - Program opens unix socket and prints all data sent to it.

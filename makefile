@@ -71,7 +71,8 @@ make:
 
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump # TODO - add whole summary of forks and threads
 
-	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I belive this stopped working recently. Will need some investigation
+# program removed
+#	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I belive this stopped working recently. Will need some investigation
 
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 	

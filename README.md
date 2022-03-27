@@ -16,20 +16,16 @@ Or you can use your webbrowser to read it:
 Before we install, we need to suck this up:  
 >`git clone 'https://github.com/ignotaC/smallsoft'`  
 
-Now enter the newly created directory:  
->`cd smallsoft`  
-
-Download submodules:  
->`sh code_update.sh`  
-
 ### 2) compilation
 Run make in makefile:  
 >`make`  
 
+Make before compilation will upload  
+required submodules - ignotalib.  
 Compiled programs will go to the newly created  
 bin directory inside smallsoft.  
 
-### 3) installastion ( binary managment )
+### 3) installation ( binary managment )
 You do it by your self, You might no want to  
 use some of the software this pack provides.  
 Simply copy what ever you want to one of the  
@@ -39,7 +35,7 @@ after running env command. Since I add
 I simply take all by doing:  
 >`cp bin/* ~/bin`  
 
-### 4) cleanup
+### 4) clean up
 This simply removes stuff make created  
 inside the directory of your makefile.  
 >'make clear'
@@ -327,28 +323,39 @@ inside the directory of your makefile.
     ktrace -i option is for tracking forks and threads. I advice to track all  
     else the output summary might be missleading.  
 
-14. **ualist** - Program will output little list of user agents to stdout.
-             You use it like this: ualist proxyip:proxyport > my_list.
-             It uses torsocks wget to download specific webpage
-             Torsocks is only for not getting real IP banned.
-             The page owner bans a lot so it's better to hide and
-             you should not trust proxies.
-             Anyway use getproxies and pass one of lister by it proxy ip port
-             or use your own.
-             CRUCIAL: use https proxies.
-             They will surely ban it after you use it.
-             So open free proxies are best thing. Since they will die out
-             in few days anyway.
-             Program sleeps a bit and is slow. If you stop getting output
-             change the proxy. The owner of page we get UA is a bit dramatic.
-             So you need to be stealthy.
+14. **ualist**
+  >
 
-15. **randstr** - Program generates using pseudorandom generator ( C rand() )
-              Randomn string. You must pass number of bytes to generate.
-              Also you can force to output onlu uppercase letters, lowercase
-              and digits. With commands -u -l -d.
-              Example: randstr -u 124 -ld. This will generate 124 bytes
-              that in asci code appear as lowercase uppercase or digits.
+    Program removed, it makes more sens to provide a list of useragents from  
+    a server. Which I will soon do.
+
+15. **randstr** `[ option ] [ number ]`
+  >
+
+    Program generates random string. It uses pseudorandom generator,  
+    Deterministic C rand().  
+    Without any options any bytes can appear.  So it can even generate nul.  
+    To force more usefull output we have options which we can mix:  
+
+    `-u`  
+    Print out only upper case output.  
+
+    `-l`  
+    Print out only lower case output.  
+
+    `-d`  
+    Print out only digits  
+
+    There is no expected order of arguments.  
+    Dependencies: none  
+    Example of using it:  
+  >`randstr -uld 50`  
+
+    In this example we generate 50 characers where each of them  
+    must be a digit or an upper/lower case alphabet number.  
+    Second example above does the same thing, as we can see,  
+    options can be together and can repeate.  
+  >`randstr -d 50 -uuuud -udl`  
 
 16. **logdata** - Program opens unix socket and prints all data sent to it.
               Example of using it:
