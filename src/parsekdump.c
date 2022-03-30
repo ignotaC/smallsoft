@@ -146,6 +146,16 @@ void sd_init( struct syscall_data *sd, char *syscall ) {
 
 }
 
+
+int cmpsd( const void *sd1, const void *sd2 )  {
+
+  const struct syscall_data *sd1p = sd1, *sd2p = sd2;
+  if( sd1p->count == sd2p->count )  return 0;
+  return ( sd1p->count > sd2p->count ) ? 1 : -1;
+
+}
+
+
 struct pending_syscall  {
 
   char *syscall;
@@ -662,6 +672,7 @@ int main( void )  {
           "recording time\n\n", calls_sum );
  
   //TODO this needs sorting and printing.
+  //use qsort with cmpsd FUNCTION!!!
   // create a system call summary
   struct syscall_data *sdsummary = NULL;
   struct syscall_data *sdtemp = NULL;
@@ -702,6 +713,9 @@ int main( void )  {
 
   }
 
+  
+
+  // USE QSORT with cmpsd function
   // TODO use qsort one day this program takes quite a lot of time
   // so any little speedup is worth it.
   // Sort syscall data, max count on top.

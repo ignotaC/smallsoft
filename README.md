@@ -329,7 +329,7 @@ inside the directory of your makefile.
 14. **ualist**
   >
 
-    Program removed, it makes more sens to provide a list of useragents from  
+    PROGRAM REMOVED, it makes more sens to provide a list of useragents from  
     a server. Which I will soon do.
 
 15. **randstr** `[ -uld ] [ number ]`
