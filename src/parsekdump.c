@@ -151,7 +151,7 @@ int cmpsd( const void *sd1, const void *sd2 )  {
 
   const struct syscall_data *sd1p = sd1, *sd2p = sd2;
   if( sd1p->count == sd2p->count )  return 0;
-  return ( sd1p->count > sd2p->count ) ? 1 : -1;
+  return ( sd1p->count > sd2p->count ) ? -1 : 1;
 
 }
 
@@ -671,8 +671,6 @@ int main( void )  {
   printf( "System calls took  %.3f%% of "
           "recording time\n\n", calls_sum );
  
-  //TODO this needs sorting and printing.
-  //use qsort with cmpsd FUNCTION!!!
   // create a system call summary
   struct syscall_data *sdsummary = NULL;
   struct syscall_data *sdtemp = NULL;
@@ -682,13 +680,13 @@ int main( void )  {
     for( size_t sc_pos = 0;
         sc_pos < pd[i].sd_len; sc_pos++ )  {
 
-      bool found_sc = 0;
+      bool found_sc = false;
       sdtemp = pd[i].sd[ sc_pos ];
       for( size_t j = 0; j < sdsummary_len; j++ )  {
 
         if( ! strcmp( sdsummary[j].syscall, sdtemp->syscall ) )  {
 
-	  found_sc = 1;
+	  found_sc = true;
 	  sdsummary[j].count += sdtemp->count;
 	  break;
 
@@ -713,7 +711,19 @@ int main( void )  {
 
   }
 
-  
+  // now sort it
+  qsort( sdsummary, sdsummary_len, sizeof *sdsummary, cmpsd );
+  // and stdout ita
+  printf( "Summary of all calls in all threads and forks:\n" );
+  for( size_t sc_pos = 0;
+        sc_pos < sdsummary_len; sc_pos++ )  {
+
+      printf( "%15s %-8" PRIu64 "\n",
+        sdsummary[ sc_pos ].syscall,
+        sdsummary[ sc_pos ].count  );
+
+  } 
+  puts("");
 
   // USE QSORT with cmpsd function
   // TODO use qsort one day this program takes quite a lot of time
@@ -810,4 +820,6 @@ int main( void )  {
 
   // then free
 // TODO ^
+//  free calls using summary sd
+//  than free  each pd struct etc
 }  
