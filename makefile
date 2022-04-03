@@ -69,7 +69,7 @@ make:
 
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp 
 
-	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump # TODO - add whole summary of forks and threads
+	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump 
 
 # program removed
 #	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I

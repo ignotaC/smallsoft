@@ -155,6 +155,16 @@ int cmpsd( const void *sd1, const void *sd2 )  {
 
 }
 
+int cmpsd2( const void *sd1, const void *sd2 )  {
+
+  const struct syscall_data *sd1p = *( ( struct syscall_data** )sd1 ),
+		  *sd2p = *( ( struct syscall_data** )sd2 );
+  if( sd1p->count == sd2p->count )  return 0;
+  return ( sd1p->count > sd2p->count ) ? -1 : 1;
+
+}
+
+
 
 struct pending_syscall  {
 
@@ -465,6 +475,7 @@ int ret_call( struct proc_data *pd,
 
   }
 
+  // nothing found
   if( ps_pos == ( size_t ) -1 )  return 0;
 
   size_t sd_pos = ( size_t ) -1;
@@ -725,38 +736,9 @@ int main( void )  {
   } 
   puts("");
 
-  // USE QSORT with cmpsd function
-  // TODO use qsort one day this program takes quite a lot of time
-  // so any little speedup is worth it.
   // Sort syscall data, max count on top.
-  for( size_t i = 0; i < pd_len; i++ )  {
-
-    for( size_t sc_pos = 0;
-        sc_pos < pd[i].sd_len; sc_pos++ )  {
-
-      struct syscall_data **pos_1, **pos_2, *swap;
-      pos_1 = &( pd[i].sd[ sc_pos ] );
-
-      for( size_t j = sc_pos + 1; j < pd[i].sd_len; j++ )  {
-
-        pos_2 = &( pd[i].sd[j] );
-
-	if( ( *pos_1 )->count < ( *pos_2 )->count )  {
-
-	  swap = *pos_1;
-	  *pos_1 = *pos_2;
-	  *pos_2 = swap;
-
-	}
-
-      }
-
-
-    }
-
-  }
-
-
+  for( size_t i = 0; i < pd_len; i++ )
+    qsort(  pd[i].sd, pd[i].sd_len, sizeof ( pd[i].sd[0] ), cmpsd2 );
 
   for( size_t i = 0; i < pd_len; i++ )  {
 
@@ -818,7 +800,20 @@ int main( void )  {
 
   }
 
-  // then free
+  // cleanup
+  // all syscalls pointers are in summary so we free them
+  // and don't need to care about them after that
+  for( size_t i = 0; i < sdsummary_len; i++ )
+    free( sdsummary[i].syscall );
+  free( sdsummary );
+  for( size_t i = 0; i < pd_len; i++ )  {
+
+    free( pd[i].sd );
+    free( pd[i].ps );
+
+  }
+  free( pd );
+
 // TODO ^
 //  free calls using summary sd
 //  than free  each pd struct etc

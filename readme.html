@@ -320,14 +320,19 @@ unexpiranced coder. Next run would scan <code>*.h</code>.  </p>
 <li>
 <p><strong>parsekdump</strong></p>
 <blockquote></blockquote>
-<p>This program is openbsd ktrace output parser.<br />
-It shall count systemcalls and create a summary<br />
-of them. It outputs data per PID/TID and on the end<br />
+<p>This program is openbsd ktrace/kdump output parser.<br />
+It shall count system calls and create a summary<br />
+of them. It outputs data per PID/TID and on start<br />
 summary of all treads and forks.<br />
-Each basic data line will contain:  </p>
+Summary will contain:</p>
 <ul>
-<li>System call name </li>
-<li>Count of times it was called in the process </li>
+<li>System call name</li>
+<li>Count of times it was called in all forks and threads</li>
+</ul>
+<p>Each basic data line for PID/TID will contain:  </p>
+<ul>
+<li>System call name</li>
+<li>Count of times it was called in the process</li>
 <li>Procent of system call summary compared to all system calls time</li>
 <li>Procent of system call summary to record time</li>
 </ul>
@@ -343,7 +348,7 @@ else the output summary might be missleading.  </p>
 <li>
 <p><strong>ualist</strong></p>
 <blockquote></blockquote>
-<p>Program removed, it makes more sens to provide a list of useragents from<br />
+<p>PROGRAM REMOVED, it makes more sens to provide a list of useragents from<br />
 a server. Which I will soon do.</p>
 </li>
 <li>

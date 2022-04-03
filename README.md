@@ -307,14 +307,19 @@ inside the directory of your makefile.
 13. **parsekdump**
   >
 
-    This program is openbsd ktrace output parser.  
-    It shall count systemcalls and create a summary  
-    of them. It outputs data per PID/TID and on the end  
+    This program is openbsd ktrace/kdump output parser.  
+    It shall count system calls and create a summary  
+    of them. It outputs data per PID/TID and on start  
     summary of all treads and forks.  
-    Each basic data line will contain:  
+    Summary will contain:
 
-    * System call name 
-    * Count of times it was called in the process 
+    * System call name
+    * Count of times it was called in all forks and threads
+
+    Each basic data line for PID/TID will contain:  
+
+    * System call name
+    * Count of times it was called in the process
     * Procent of system call summary compared to all system calls time
     * Procent of system call summary to record time
 
