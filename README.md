@@ -331,11 +331,11 @@ inside the directory of your makefile.
     ktrace -i option is for tracking forks and threads. I advice to track all  
     else the output summary might be missleading.  
 
-14. **ualist**
+14. **rmvmb**
   >
 
-    PROGRAM REMOVED, it makes more sens to provide a list of useragents from  
-    a server. Which I will soon do.
+    Program removes multibyte characters from input.  
+    Rest stuff is flusshed to stdout. TODO - this readme needs more details.  
 
 15. **randstr** `[ -uld ] [ number ]`
   >

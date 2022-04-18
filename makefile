@@ -1,4 +1,4 @@
-DBGFLG=-DNDDEBUG
+DBGFLG=-DNDEBUG
 CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBGFLG}
 CCOBJ=${CC} -c
 AR=ar rcs
@@ -71,8 +71,7 @@ make:
 
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump 
 
-# program removed
-#	${CC} ${SRC}/ualist.c -o ${BIN}/ualist #TODO I
+	${CC} ${SRC}/rmvmb.c -o ${BIN}/rmvmb #TODO - turn allocations to simple buff
 
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 	
