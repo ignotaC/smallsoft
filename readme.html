@@ -349,7 +349,12 @@ else the output summary might be missleading.  </p>
 <p><strong>rmvmb</strong></p>
 <blockquote></blockquote>
 <p>Program removes multibyte characters from input.<br />
-Rest stuff is flusshed to stdout. TODO - this readme needs more details.  </p>
+Normal one byte characters are redirected to stdout.<br />
+Dependencies: none<br />
+Example of using it:</p>
+<blockquote>
+<p><code>echo "$string_with_multibytechars" | rmvmb</code>  </p>
+</blockquote>
 </li>
 <li>
 <p><strong>randstr</strong> <code>[ -uld ] [ number ]</code></p>

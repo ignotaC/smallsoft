@@ -335,7 +335,10 @@ inside the directory of your makefile.
   >
 
     Program removes multibyte characters from input.  
-    Rest stuff is flusshed to stdout. TODO - this readme needs more details.  
+    Normal one byte characters are redirected to stdout.  
+    Dependencies: none  
+    Example of using it:
+  >`echo "$string_with_multibytechars" | rmvmb`  
 
 15. **randstr** `[ -uld ] [ number ]`
   >
