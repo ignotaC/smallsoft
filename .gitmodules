@@ -1,0 +1,3 @@
+[submodule "ignotalib"]
+	path = ignotalib
+	url = https://github.com/ignotaC/ignotalib.git
