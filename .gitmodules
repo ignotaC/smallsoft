@@ -1,6 +1,0 @@
-[submodule "ignota"]
-	path = ignota
-	url = https://github.com/ignotaC/ignotalib.git
-[submodule "ignotalib"]
-	path = ignotalib
-	url = https://github.com/ignotaC/ignotalib.git
