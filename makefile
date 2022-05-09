@@ -39,6 +39,9 @@ make:
 	${CCOBJ} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
 	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
 
+	${CCOBJ} ${IG}/ig_memory/igm_search.c -o ${IG_OBJ}/igm_search.o
+	${AR} ${IG_OBJ}/libigm_search.a ${IG_OBJ}/igm_search.o
+
 #compile and link external libs
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
@@ -105,6 +108,7 @@ make:
 	${CCOBJ} ${SRC}/fext.c -o ${SS_OBJ}/fext.o
 	${CC} ${SS_OBJ}/fext.o ${LIBIG_OBJ} -ligf_search\
 		-ligf_open -ligf_read -ligf_write -ligf_offset\
+		-ligm_search\
 		-o ${BIN}/fext
 
 
