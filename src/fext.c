@@ -67,7 +67,7 @@ int main( int ac, char *av[] )  {
   // Program expects three arguments, everything other is wrong
   // phrases we will look for and output data found between
   // last is file we will search.
-  if( ac != 3 )  manual();
+  if( ac != 4 )  manual();
 
   // set the phrases length
   char *phrase1 = av[1];
@@ -126,7 +126,7 @@ int main( int ac, char *av[] )  {
       if( igf_read( fd, buff, buffread ) != ( ssize_t )buffread )
         fail( "Failed on igf_read" );
       // Write can only fail here or succeed.
-      if( igf_write( fd, buff, buffread ) == -1 )
+      if( igf_write( stdout_fd, buff, buffread ) == -1 )
         fail( "Failed on igf_write" );
 
       // subtrack sizetoread 
