@@ -114,7 +114,7 @@ int main( int ac, char *av[] )  {
 	 
 	 if( av[ av_pos + 2 ][0] == '\0' )  {
 
-	   puts( bptr );
+	   printf( "%s", bptr );
 	   bptr = NULL;
 	   break;
 
