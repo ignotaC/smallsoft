@@ -75,14 +75,16 @@ int chkarg( const int argc )  {
 
 }
 
-enum NMNAtalkerID {
+enum NMEAtalkerID {
 
   talkerINIT,
   talkerGA,
   talkerGB,
+  talkerGI,
   talkerGL,
   talkerGP,
-  talkerGN
+  talkerGN,
+  talkerGQ
 
 }
 
@@ -93,23 +95,31 @@ int print_talkerID( const int talkerID ) {
   switch( talkerID )  {
 
    case talkerGA:
-    printf( "Galileo navigation systems (EU).\n" );
+    printf( "Galileo Positioning navigation systems (EU).\n" );
     return 0;
 		  
    case talkerGB:
     printf( "BeiDou navigation systems (China).\n" );
     return 0;
-	
+
+   case talkerGI:
+    printf( "NavIC(IRNSS) navigation systems (India).\n" );
+    return 0;
+
    case talkerGL:
     printf( "GLONASS navigation systems (Russia).\n" );
     return 0;
 	
    case talkerGP:
-    printf( "GPS navigation systems (USA).\n" );
+    printf( "GPS navigation systems (US).\n" );
     return 0;
 	   
    case talkerGN:
-    printf( "GPS & GLONASS navigation systems (USA & Russia).\n" );
+    printf( "GNSS Global Navigation Satellite Systen ( any country ).\n" );
+    return 0;
+
+   case talkerGQ:
+    printf( "QZSS navigation systems ( Japan ).\n" );
     return 0;
 
    default:
@@ -119,15 +129,15 @@ int print_talkerID( const int talkerID ) {
 
 }
 
-enum NMNAmessageID {
+enum NMEAmessageID {
 
   messageINIT,
   messageGGA
 
 }
 
-// NMNA core struct
-struct NMNAent  {
+// NMEA core struct
+struct NMEAent  {
 
   const char *line
   int talkerID,
@@ -136,11 +146,13 @@ struct NMNAent  {
 
 };
 
-void init_nmna( struct *const NMNAent nmna )  {
+void init_nmea( struct *const NMEAent nmea,
+    const char *line )  {
 
-  nmna.talkerID = talkerINIT;
-  nmna.messagID = messageINIT;
-  nmna.data = NULL;
+  nmea->line = line;
+  nmea->talkerID = talkerINIT;
+  nmea->messagID = messageINIT;
+  nmea->data = NULL;
 
 }
 
@@ -167,17 +179,63 @@ struct GGAdata  {
 
 }
 
-int readnmna( struct NMNAent *const nmna,
-    const char *const nmnastr )  {
+// extract data from nmea line
+// this function sets null in buff
+int readmem( char **const nmealinep,
+    const char *const datastr, const size_t cplen )  {
 
-  nmna.line = nmnastr;
-  char *nmnapos = nmnastr;
-  // $ should always start NMNA line
-  if( nmnapos[0] != '$' )  return -1;
-  nmnapos++; // move forward, after $.
+  // Get it, then use it and set new location
+  char *nmealine = *nmealinep;
+  for( size_t i = 0; i < cplen; i++ )  {
 
-  const size_t nmnatalker_len = 2;  
-  char nmnatalker[ nmnatalker_len + 1 ];
+    // nul should never appear in data this function uses
+    if( nmealine[i] == '\0' )  {
+
+      errno = 0;
+      perror( "Reached nul too early, missign data" );
+      return -1;
+
+    }
+    buff[i] = nmealine[i];
+
+  }
+
+  // set nul
+  buff[i] = '\0';
+  // move to place where we finished coping data.
+  *nmealinep += cplen;
+  return 0;
+
+}
+
+int readnmea( struct NMEAent *const nmea )  {
+
+  char *nmealine = nmea->line;
+  // $ should always start NMEA line
+  if( nmeapos[0] != '$' )  {
+
+    errno = 0;
+    perror( "The nmea line has no $ at start" );
+    return -1;
+
+  }
+  nmeapos++; // move forward, after $.
+
+  const size_t nmeatalker_len = 2;  
+  char nmeatalker[ nmeatalker_len + 1 ];
+  // read data ( function will add nul 
+  if( readmem( &nmealine, nmeatalker, nmeatalker_len ) == -1 )
+    return -1;
+
+
+  // TODO snow update nmea talker type
+  const size_t nmeamessage_len = 3;
+  char nmeamessage[ nmeamessage_len + 1 ];
+  if( readmem( &nmealine, nmeamessage, nmeamessage_len ) == -1 )
+    return -1;
+
+  // TODO snow update nmea message type
+  //
   // TODO
   // finished here last time
 
@@ -202,15 +260,15 @@ int main( const int argc, const char *const argv[] )  {
 
   // output information of GPS data
 case 'i':
-  #define NMNAINFO_ARGPOS 2
+  #define NMEALINE_ARGPOS 2
 
-  // init nmna
-  struct NMNAent nmna;
-  init_nmna( &nmna );
+  // init nmea
+  struct NMEAent nmea;
+  init_nmea( &nmea, argv[ NMEALINE_ARGPOS ] );
 
-  // read nmna data
-  if( readNMNA( &nmna, argv[ NMNAINFO_ARGPOS ] ) == -1 )
-    fail( "Could not read NMNA entry" );
+  // read nmea data
+  if( readNMEA( &nmea ) == -1 )
+    fail( "Could not read NMEA entry" );
        	
   return 0;
 
