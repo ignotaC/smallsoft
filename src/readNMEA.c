@@ -26,6 +26,8 @@ OF THIS SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 
+
+// basic error funtion - finish program
 void fail( const char *const estr )  {
 
   perror( estr );
@@ -33,6 +35,8 @@ void fail( const char *const estr )  {
 
 }
 
+//////////////////////////////////////
+//  PROGRAM OPTIONS / ARGUMENTS FUNCTIONS
 
 // global option we set in chkoption
 unsigned char readgps_opt;
@@ -75,20 +79,120 @@ int chkarg( const int argc )  {
 
 }
 
+
+// END OF PROGRAM OPTIONS / ARGUMENTS FUNCTIONS
+////////////////////////////////////////////////
+//  CORE DEFINITIONS
+
+// it is used for keeping message ID or talker ID
+struct idname {
+
+  int id,
+  char name[8] 
+
+};
+
+// Talker list
+#define GENERATE_TALKER \
+  X( GA ), \
+  X( GB ), \
+  X( GI ), \
+  X( GL ), \
+  X( GP ), \
+  X( GN ), \
+  X( GQ )
+
+// generatea talker integer ID
 enum NMEAtalkerID {
 
   talkerINIT,
-  talkerGA,
-  talkerGB,
-  talkerGI,
-  talkerGL,
-  talkerGP,
-  talkerGN,
-  talkerGQ
+#define X( VARNAME ) talker##VARNAME
+  GENERATE_TALKER
+#undef X
+
+};
+
+struct idname talker_idname[] {
+
+#define X( VARNAME ) { talker##VARNAME, #VARNAME },
+  GENERATE_TALKER
+#undef X  
+
+};
+
+// message list
+#define GENERATE_MESSAGE \
+  X( GGA ), \
+  X( RMC )
+
+// generate message integer ID
+enum NMEAmessageID {
+
+  messageINIT,
+#define X( VARNAME ) message##VARNAME
+  GENERATE_MESSAGE
+#undef X
+
+};
+
+
+struct idname message_idname[] {
+
+#define X( VARNAME ) { talker##VARNAME, #VARNAME },
+  GENERATE_MESSAGE
+#undef X  
+
+};
+
+// END OF CORE DEFINITIONS
+//////////////////////////////////////////////////
+// NMEA STRUCTS AND INIT FUNCTIONS
+struct NMEAent  {
+
+  const char *line
+  struct idname talker,
+  struct idname message,
+  void *data
+
+};
+
+void init_nmea( struct *const NMEAent nmea,
+    const char *line )  {
+
+  nmea->line = line;
+  nmea->talkerID = talkerINIT;
+  nmea->messagID = messageINIT;
+  nmea->data = NULL;
 
 }
 
+// GGA = Global Positioning System Fix Data
+struct GGAdata  {
 
+  //  ss:mm:hh UTC  those are 13 bytes with nul
+  char time[16]
+
+  double latitude, // deg
+  char latitude_hemisphere,
+  double longtitude, // deg
+  char longtitude_hemisphere,
+  uint8_t typeoffix,  
+  int satelite_inview_number,
+  double horizontal_dilution,
+  double altitude,
+
+  // above WGS84 - elipsoid
+  double geoid_height,
+  int DGPS_lastupdate_time,
+  int station_ID,
+  int checksum
+
+} // TODO check this one last time
+
+
+// END OF NMEA STRUCTS AND INIT FUNCTIONS
+/////////////////////////////////////////////
+// PRINTING FUNCTIONS
 
 int print_talkerID( const int talkerID ) {
 
@@ -129,55 +233,9 @@ int print_talkerID( const int talkerID ) {
 
 }
 
-enum NMEAmessageID {
-
-  messageINIT,
-  messageGGA
-
-}
-
-// NMEA core struct
-struct NMEAent  {
-
-  const char *line
-  int talkerID,
-  int messageID,
-  void *data
-
-};
-
-void init_nmea( struct *const NMEAent nmea,
-    const char *line )  {
-
-  nmea->line = line;
-  nmea->talkerID = talkerINIT;
-  nmea->messagID = messageINIT;
-  nmea->data = NULL;
-
-}
-
-// GGA = Global Positioning System Fix Data
-struct GGAdata  {
-
-  //  ss:mm:hh UTC  those are 13 bytes with nul
-  char time[16]
-
-  double latitude, // deg
-  char latitude_hemisphere,
-  double longtitude, // deg
-  char longtitude_hemisphere,
-  uint8_t typeoffix,  
-  int satelite_inview_number,
-  double horizontal_dilution,
-  double altitude,
-
-  // above WGS84 - elipsoid
-  double geoid_height,
-  int DGPS_lastupdate_time,
-  int station_ID,
-  int checksum
-
-}
+// END OF PRINTING FUNCTIONS
+///////////////////////////////////////////////
+// READING FUNCTIONS AND DATA UPLOAD
 
 // extract data from nmea line
 // this function sets null in buff
@@ -227,7 +285,6 @@ int readnmea( struct NMEAent *const nmea )  {
   if( readmem( &nmealine, nmeatalker, nmeatalker_len ) == -1 )
     return -1;
 
-
   // TODO snow update nmea talker type
   const size_t nmeamessage_len = 3;
   char nmeamessage[ nmeamessage_len + 1 ];
@@ -242,10 +299,14 @@ int readnmea( struct NMEAent *const nmea )  {
 
 }
 
-#define OPT_POS 1
+
+// END OF  READING FUNCTIONS AND DATA UPLOAD
+///////////////////////////////////////////////////////////////
+//  MAINa PROGRAM
 
 int main( const int argc, const char *const argv[] )  {
 
+  #define OPT_POS 1
   // basic argument check, there must be something.
   if( argc < 2 )  fail( "Not enought arguments" );
   // Check the option and set it to the global value
