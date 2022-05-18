@@ -501,4 +501,7 @@ inside the directory of your makefile.
                 Which normal xarg fails to catch. No options. Example:
                 echo  "a\nb\nc\nd\n" | fixedxarg echo
 29. **listwords** - 
-
+30. **fext**
+31. **readNMEA**
+32. **findreserved**
+33. **version**
