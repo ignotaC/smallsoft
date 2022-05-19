@@ -3,9 +3,12 @@ Made for God Glory.
 Hail Supreame God one in Great Trinity.  
 Prise Saint Maria, mother of God.  
 
-A pack of my little unix programs.
-I do not mention dependencies like C compiler and posix system.
-None means you have the basic set.
+A pack of my little unix programs.  
+I do not mention dependencies like C compiler and posix system.  
+None means you have the basic set.  
+
+I wrote this code for my personal use.  
+Shell hacks for life. ;-)  
 
 You can either read this file as plain text  
 ( and still understand 100% of what is this read me about ).  
