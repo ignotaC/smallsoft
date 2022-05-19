@@ -85,12 +85,16 @@ int chkarg( const int argc )  {
 //  CORE DEFINITIONS
 
 // it is used for keeping message ID or talker ID
+#define TALKMSG_SIZE
 struct idname {
 
   int id,
-  char name[8] 
+  char name[ TALKMSG_SIZE ] 
 
 };
+
+#define TALKER_NAME_LEN 2
+#define MESSAGE_NAME_LEN 3
 
 // Talker list
 #define GENERATE_TALKER \
@@ -119,6 +123,7 @@ struct idname talker_idname[] {
 #undef X  
 
 };
+const size_t talker_idname_len = sizeof talker_idname / sizeof talker_idname[0];
 
 // message list
 #define GENERATE_MESSAGE \
@@ -143,6 +148,7 @@ struct idname message_idname[] {
 #undef X  
 
 };
+const size_t message_idname_len = sizeof message_idname / sizeof message_idname[0];
 
 // END OF CORE DEFINITIONS
 //////////////////////////////////////////////////
@@ -160,8 +166,10 @@ void init_nmea( struct *const NMEAent nmea,
     const char *line )  {
 
   nmea->line = line;
-  nmea->talkerID = talkerINIT;
-  nmea->messagID = messageINIT;
+  nmea->talker.id = talkerINIT;
+  memset( nmea->talker.name, '\0', TALKMSG_SIZE );
+  nmea->message.id = messageINIT;
+  memset( nmea->message.name, '\0', TALKMSG_SIZE );
   nmea->data = NULL;
 
 }
@@ -188,6 +196,7 @@ struct GGAdata  {
   int checksum
 
 } // TODO check this one last time
+
 
 
 // END OF NMEA STRUCTS AND INIT FUNCTIONS
@@ -237,10 +246,34 @@ int print_talkerID( const int talkerID ) {
 ///////////////////////////////////////////////
 // READING FUNCTIONS AND DATA UPLOAD
 
+
+// look for name in the talker or message idname array
+// if matches nmea one set the ID
+int setid( struct idname *const nmea_idn,
+    const struct idname *const idn,
+    const size_t idn_len )  {
+
+  for( size_t i = 0; i < idn_len; i++ )  {
+
+    if( ! strcmp( nmea_idn->name, idn_array[i].name ) )  {
+
+      //set the ID and return
+      strcpy( nmea_idn->id, idn_array[i].id );
+      return 0;
+
+    }
+
+  }
+
+  // this should not happen
+  return -1;
+
+}
+
 // extract data from nmea line
 // this function sets null in buff
 int readmem( char **const nmealinep,
-    const char *const datastr, const size_t cplen )  {
+    char *const datastr, const size_t cplen )  {
 
   // Get it, then use it and set new location
   char *nmealine = *nmealinep;
@@ -254,45 +287,73 @@ int readmem( char **const nmealinep,
       return -1;
 
     }
-    buff[i] = nmealine[i];
+    datastr[i] = nmealine[i];
 
   }
 
-  // set nul
-  buff[i] = '\0';
-  // move to place where we finished coping data.
+  // No need to set nul because it is done in nmea init function.
+  // Finaly move to place where we finished coping data..
   *nmealinep += cplen;
   return 0;
 
 }
 
+
+// This function extracts whole data from nmea->line
+const size_t nmeatalker_len = 2;  
+const size_t nmeamessage_len = 3;
 int readnmea( struct NMEAent *const nmea )  {
 
   char *nmealine = nmea->line;
   // $ should always start NMEA line
-  if( nmeapos[0] != '$' )  {
+  if( nmealine[0] != '$' )  {
 
     errno = 0;
     perror( "The nmea line has no $ at start" );
     return -1;
 
   }
-  nmeapos++; // move forward, after $.
+  nmealine++; // move forward, after $.
 
-  const size_t nmeatalker_len = 2;  
-  char nmeatalker[ nmeatalker_len + 1 ];
-  // read data ( function will add nul 
-  if( readmem( &nmealine, nmeatalker, nmeatalker_len ) == -1 )
+  // set nmea talker name
+  if( readmem( &nmealine, nmea->talker.name ,
+      TALKERNAME_LEN ) == -1 )
     return -1;
 
-  // TODO snow update nmea talker type
-  const size_t nmeamessage_len = 3;
-  char nmeamessage[ nmeamessage_len + 1 ];
-  if( readmem( &nmealine, nmeamessage, nmeamessage_len ) == -1 )
+  if( setid( &( nmea->talker ), talker_idname,
+       talker_idname_len ) == -1 )  {
+
+    fprintf( stderr, "Unknown talker ID: %s\n",
+      nmea->talker.name );
     return -1;
 
-  // TODO snow update nmea message type
-  //
+  }
+
+  // set nmea message name
+  if( readmem( &nmealine, nmea->message.name,
+      MESSAGENAME_LEN ) == -1 )
+    return -1;
+
+  if( setid( &( nmea->message ), message_idname,
+       message_idname_len ) == -1 )  {
+
+    fprintf( stderr, "Unknown message ID: %s\n",
+      nmea->message.name );
+    return -1;
+
+  }
+
+
+  // Now we should be standing on ',' - check it
+  if( nmealine[0] != ',' )  {
+
+    perror( "No ',' after message ID which has static size" );
+    return -1;
+
+  }
+
+
+
   // TODO
   // finished here last time
 

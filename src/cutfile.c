@@ -33,12 +33,24 @@ char *EXPRESSION = NULL;
 
 void fail( const char *const estr )  {
 
+  assert( estr != NULL );
+
   perror( estr );
   exit( EXIT_FAILURE );
 
 }
 
 int check_args( const int argc, const char *const argv[] )  {
+
+  assert( argv != NULL );
+  assert( argc >= 0 );
+#ifndef  NDEBUG
+
+  for( int i = 0; i < argc; i++ )
+    assert( argv[i] != NULL );
+
+// end of NDEBUG
+#endif
 
   int string_count = 0;
   int option_count = 0;
