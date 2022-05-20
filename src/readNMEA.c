@@ -298,6 +298,27 @@ int readmem( char **const nmealinep,
 
 }
 
+// upload data untill ',' is met or nul.
+char *getent( char **const nmealinep )  {
+
+  char *nmealine = nmealinep*;
+  char *nmeaent_end = nmealine;
+
+  for(;;)  {
+
+    if( nmeaent_end == ',' )  break;;
+    if( nmeaent_end == '\0' )  break;
+
+    nmeaent_end++;
+
+  }
+
+  const size_t entlen = nmeaent_end - 
+
+	  // TODO - finish this
+
+
+}
 
 // This function extracts whole data from nmea->line
 const size_t nmeatalker_len = 2;  
