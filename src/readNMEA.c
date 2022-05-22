@@ -20,6 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
+#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -29,6 +30,8 @@ OF THIS SOFTWARE.
 
 // basic error funtion - finish program
 void fail( const char *const estr )  {
+
+  assert( esrt != NULL );
 
   perror( estr );
   exit( EXIT_FAILURE );
@@ -44,6 +47,8 @@ unsigned char readgps_opt;
 // Set the option and check for bugs
   #define OPTSTR_POS 1
 int setoption( const char *const options )  {
+
+  assert( options != NULL );
 
   // '-' is a must
   if( options[0] != '-' )  return -1;
@@ -65,6 +70,8 @@ int setoption( const char *const options )  {
 }
 
 int chkarg( const int argc )  {
+
+  assert( argc >= 0 );
 
   switch( readgps_opt )  {
 
@@ -158,19 +165,26 @@ struct NMEAent  {
   const char *line
   struct idname talker,
   struct idname message,
-  void *data
+  char **entries,
+  size_t entries_len,
+  uint8_t chksum
 
 };
 
 void init_nmea( struct *const NMEAent nmea,
     const char *line )  {
 
+  assert( nmea != NULL );
+  assert( line != NULL );
+
   nmea->line = line;
   nmea->talker.id = talkerINIT;
   memset( nmea->talker.name, '\0', TALKMSG_SIZE );
   nmea->message.id = messageINIT;
   memset( nmea->message.name, '\0', TALKMSG_SIZE );
-  nmea->data = NULL;
+  nmea->entries = NULL;
+  nmea->entresi_len = 0;
+  nmea->chksum = 0;
 
 }
 
@@ -253,6 +267,10 @@ int setid( struct idname *const nmea_idn,
     const struct idname *const idn,
     const size_t idn_len )  {
 
+  assert( nmea_idn != NULL );
+  assert( idn != NULL );
+  assert( idn_len != 0 );
+
   for( size_t i = 0; i < idn_len; i++ )  {
 
     if( ! strcmp( nmea_idn->name, idn_array[i].name ) )  {
@@ -274,6 +292,11 @@ int setid( struct idname *const nmea_idn,
 // this function sets null in buff
 int readmem( char **const nmealinep,
     char *const datastr, const size_t cplen )  {
+
+  assert( nmealinep != NULL );
+  assert( *nmealinep != NULL );
+  assert( datastr != NULL );
+  assert( cplen != 0 );
 
   // Get it, then use it and set new location
   char *nmealine = *nmealinep;
@@ -298,25 +321,43 @@ int readmem( char **const nmealinep,
 
 }
 
-// upload data untill ',' is met or nul.
-char *getent( char **const nmealinep )  {
+// create entries. in NMEA we can simply strtok on  ','
+// since each entry is separated by ','
+// checksum needs to be done before this function call since it
+// changes the nmea line
+int loadent( struct *const NMEAent nmea )  {
 
-  char *nmealine = nmealinep*;
-  char *nmeaent_end = nmealine;
+  assert( nema != NULL );
+  assert( nmea->line != NULL );
+  assert( nmea->entres == NULL );
+  assert( nmea->entries_len == 0 );
 
-  for(;;)  {
 
-    if( nmeaent_end == ',' )  break;;
-    if( nmeaent_end == '\0' )  break;
+  // we do not look into first return of strtok
+  // because it's the $<TALKER><MESSAGE> data
+  // and we already have that obtained
+  const char comma = ',';
+  if( strtok( nmealinecpy, comma ) == NULL )  {
 
-    nmeaent_end++;
+    errno = 0;
+    perror( "the nmea line seems to be broken\n"
+      "Could not find any comma" );
+    return -1;
 
   }
 
-  const size_t entlen = nmeaent_end - 
+  // now create the entry list
+  for(;;)  {
 
-	  // TODO - finish this
+    char *ent = strtok( NULL, comma );
+    if( ent == NULL )  
 
+  }
+
+  // We should never appear here
+  errno = 0;
+  perror( "loadent fatal error" );
+  return -1;
 
 }
 
@@ -324,6 +365,12 @@ char *getent( char **const nmealinep )  {
 const size_t nmeatalker_len = 2;  
 const size_t nmeamessage_len = 3;
 int readnmea( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+  assert( nmea->line != NULL );
+  asser( nmea->entries == NULL );
+  assert( nmea->entries_len == 0 );
+  assert( nmea->chksum == 0 );
 
   char *nmealine = nmea->line;
   // $ should always start NMEA line
@@ -344,6 +391,7 @@ int readnmea( struct NMEAent *const nmea )  {
   if( setid( &( nmea->talker ), talker_idname,
        talker_idname_len ) == -1 )  {
 
+    errno = 0;
     fprintf( stderr, "Unknown talker ID: %s\n",
       nmea->talker.name );
     return -1;
@@ -358,6 +406,7 @@ int readnmea( struct NMEAent *const nmea )  {
   if( setid( &( nmea->message ), message_idname,
        message_idname_len ) == -1 )  {
 
+    errno = 0;
     fprintf( stderr, "Unknown message ID: %s\n",
       nmea->message.name );
     return -1;
@@ -373,11 +422,28 @@ int readnmea( struct NMEAent *const nmea )  {
 
   }
 
+  // Move at start and do the checksum
+  nmealine = nmea->line;
+  nmealine++; // pass the $
+  for(; *nmealine != '*'; nmealine++ )  {
+
+    if( *nmealine == '\0' )  {
+
+      errno = 0;
+      perror( "There is no check sum sign indicator.\n"
+        "nmea line appears to be broken." );
+      return -1;
+
+    }
+
+    nmea->chksum ^= *nmealine;
+
+  }
+
 
 
   // TODO
-  // finished here last time
-
+  // loadentires
 
 }
 
