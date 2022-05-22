@@ -1,5 +1,5 @@
-DBGFLG=-DNDEBUG
-CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBGFLG}
+DBG=-DNDEBUG
+CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBG}
 CCOBJ=${CC} -c
 AR=ar rcs
 SRC=src
@@ -118,6 +118,8 @@ make:
 		-ligm_search\
 		-o ${BIN}/fext
 #31  readNMEA
+	${CC} ${SRC}/readNMEA.c -o ${BIN}/readNMEA
+
 #32  find reserved
 #33 version
 

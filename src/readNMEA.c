@@ -26,6 +26,7 @@ OF THIS SOFTWARE.
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 // basic error funtion - finish program
@@ -76,11 +77,11 @@ int chkarg( const int argc )  {
   switch( readgps_opt )  {
 
    case 'i':
-     if( argc != 3 )  return -1
+     if( argc != 3 )  return -1;
      return 0;
 
    default:
-     return -1
+     return -1;
 
   }
 
@@ -92,16 +93,16 @@ int chkarg( const int argc )  {
 //  CORE DEFINITIONS
 
 // it is used for keeping message ID or talker ID
-#define TALKMSG_SIZE
+#define TALKMSG_SIZE 16
 struct idname {
 
-  int id,
-  char name[ TALKMSG_SIZE ] 
+  int id;
+  char name[ TALKMSG_SIZE ];
 
 };
 
-#define TALKER_NAME_LEN 2
-#define MESSAGE_NAME_LEN 3
+#define TALKERNAME_LEN 2
+#define MESSAGENAME_LEN 3
 
 // Talker list
 #define GENERATE_TALKER \
@@ -123,14 +124,17 @@ enum NMEAtalkerID {
 
 };
 
-struct idname talker_idname[] {
+struct idname talker_idname[] = {
 
-#define X( VARNAME ) { talker##VARNAME, #VARNAME },
+#define X( VARNAME ) { talker##VARNAME, #VARNAME }
   GENERATE_TALKER
 #undef X  
 
 };
-const size_t talker_idname_len = sizeof talker_idname / sizeof talker_idname[0];
+
+// get the lengt of it 
+const size_t talker_idname_len =
+  sizeof talker_idname / sizeof talker_idname[0];
 
 // message list
 #define GENERATE_MESSAGE \
@@ -148,42 +152,43 @@ enum NMEAmessageID {
 };
 
 
-struct idname message_idname[] {
+struct idname message_idname[] = {
 
-#define X( VARNAME ) { talker##VARNAME, #VARNAME },
+#define X( VARNAME ) { message##VARNAME, #VARNAME }
   GENERATE_MESSAGE
 #undef X  
 
 };
-const size_t message_idname_len = sizeof message_idname / sizeof message_idname[0];
+const size_t message_idname_len =
+  sizeof message_idname / sizeof message_idname[0];
 
 // END OF CORE DEFINITIONS
 //////////////////////////////////////////////////
 // NMEA STRUCTS AND INIT FUNCTIONS
 struct NMEAent  {
 
-  const char *line
-  struct idname talker,
-  struct idname message,
-  char **entries,
-  size_t entries_len,
-  uint8_t chksum
+  char *line;
+  struct idname talker;
+  struct idname message;
+  char **entries;
+  size_t entries_len;
+  uint8_t chksum;
 
 };
 
-void init_nmea( struct *const NMEAent nmea,
-    const char *line )  {
+void init_nmea( struct NMEAent *const nmea,
+    const char *const line )  {
 
   assert( nmea != NULL );
   assert( line != NULL );
 
-  nmea->line = line;
+  nmea->line = ( char* )line;
   nmea->talker.id = talkerINIT;
   memset( nmea->talker.name, '\0', TALKMSG_SIZE );
   nmea->message.id = messageINIT;
   memset( nmea->message.name, '\0', TALKMSG_SIZE );
   nmea->entries = NULL;
-  nmea->entresi_len = 0;
+  nmea->entries_len = 0;
   nmea->chksum = 0;
 
 }
@@ -192,24 +197,24 @@ void init_nmea( struct *const NMEAent nmea,
 struct GGAdata  {
 
   //  ss:mm:hh UTC  those are 13 bytes with nul
-  char time[16]
+  char time[16];
 
-  double latitude, // deg
-  char latitude_hemisphere,
-  double longtitude, // deg
-  char longtitude_hemisphere,
-  uint8_t typeoffix,  
-  int satelite_inview_number,
-  double horizontal_dilution,
-  double altitude,
+  double latitude; // deg
+  char latitude_hemisphere;
+  double longtitude; // deg
+  char longtitude_hemisphere;
+  uint8_t typeoffix;
+  int satelite_inview_number;
+  double horizontal_dilution;
+  double altitude;
 
   // above WGS84 - elipsoid
-  double geoid_height,
-  int DGPS_lastupdate_time,
-  int station_ID,
-  int checksum
+  double geoid_height;
+  int DGPS_lastupdate_time;
+  int station_ID;
+  int checksum;
 
-} // TODO check this one last time
+}; // TODO check this one last time
 
 
 
@@ -264,11 +269,11 @@ int print_talkerID( const int talkerID ) {
 // look for name in the talker or message idname array
 // if matches nmea one set the ID
 int setid( struct idname *const nmea_idn,
-    const struct idname *const idn,
+    const struct idname *const idn_array,
     const size_t idn_len )  {
 
   assert( nmea_idn != NULL );
-  assert( idn != NULL );
+  assert( idn_array != NULL );
   assert( idn_len != 0 );
 
   for( size_t i = 0; i < idn_len; i++ )  {
@@ -276,7 +281,7 @@ int setid( struct idname *const nmea_idn,
     if( ! strcmp( nmea_idn->name, idn_array[i].name ) )  {
 
       //set the ID and return
-      strcpy( nmea_idn->id, idn_array[i].id );
+      nmea_idn->id = idn_array[i].id;
       return 0;
 
     }
@@ -325,7 +330,7 @@ int readmem( char **const nmealinep,
 // since each entry is separated by ','
 // checksum needs to be done before this function call since it
 // changes the nmea line
-int loadent( struct *const NMEAent nmea )  {
+int loadent( struct NMEAent *const nmea )  {
 
   assert( nema != NULL );
   assert( nmea->line != NULL );
@@ -336,8 +341,8 @@ int loadent( struct *const NMEAent nmea )  {
   // we do not look into first return of strtok
   // because it's the $<TALKER><MESSAGE> data
   // and we already have that obtained
-  const char comma = ',';
-  if( strtok( nmealinecpy, comma ) == NULL )  {
+  const char *const comma = ",";
+  if( strtok(  ( char* )( nmea->line ), comma ) == NULL )  {
 
     errno = 0;
     perror( "the nmea line seems to be broken\n"
@@ -350,7 +355,8 @@ int loadent( struct *const NMEAent nmea )  {
   for(;;)  {
 
     char *ent = strtok( NULL, comma );
-    if( ent == NULL )  
+    if( ent == NULL )  return 0;
+    // TODO   create the sruct 
 
   }
 
@@ -368,7 +374,7 @@ int readnmea( struct NMEAent *const nmea )  {
 
   assert( nmea != NULL );
   assert( nmea->line != NULL );
-  asser( nmea->entries == NULL );
+  assert( nmea->entries == NULL );
   assert( nmea->entries_len == 0 );
   assert( nmea->chksum == 0 );
 
@@ -444,6 +450,7 @@ int readnmea( struct NMEAent *const nmea )  {
 
   // TODO
   // loadentires
+  return 0;
 
 }
 
@@ -461,14 +468,14 @@ int main( const int argc, const char *const argv[] )  {
   if( setoption( argv[ OPT_POS ] ) == -1 )
     fail( "Broken options" );
   // See if the number of arguments is correct
-  if( chkarg( const int argc ) == -1 )
+  if( chkarg( argc ) == -1 )
     fail( "Broken number of arguments" );
 
   // dependign on option do...
   switch( readgps_opt )  {
 
   // output information of GPS data
-case 'i':
+case 'i': ;// expression for *goto* - case
   #define NMEALINE_ARGPOS 2
 
   // init nmea
@@ -476,7 +483,7 @@ case 'i':
   init_nmea( &nmea, argv[ NMEALINE_ARGPOS ] );
 
   // read nmea data
-  if( readNMEA( &nmea ) == -1 )
+  if( readnmea( &nmea ) == -1 )
     fail( "Could not read NMEA entry" );
        	
   return 0;
