@@ -108,8 +108,8 @@ make:
 	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
 #29
 	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
-	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_read\
-		-ligf_open -ligf_offset -ligf_readword\
+	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_readword\
+		-ligf_open -ligf_offset -ligf_read\
 		-o ${BIN}/listwords
 #30  TODO I need more advanced searching
 	${CCOBJ} ${SRC}/fext.c -o ${SS_OBJ}/fext.o
