@@ -22,6 +22,7 @@ OF THIS SOFTWARE.
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -261,6 +262,20 @@ int print_talkerID( const int talkerID ) {
 
 }
 
+
+// this function prints nmea data,
+// it's more meant for debugging or when the Message
+// type is unknown
+void print_nmea( const struct NMEAent *const nmea )  {
+
+  printf( "Talker ID = %s\n", nmea->talker.name );
+  printf( "Message ID = %s\n", nmea->message.name );
+  for( size_t i = 0; i < nmea->entries_len; i++)
+    printf( "%s\n", ( nmea->entries )[i] );
+  printf( "Counted checksum: x%" PRIX8 "\n", nmea->chksum );
+
+}
+
 // END OF PRINTING FUNCTIONS
 ///////////////////////////////////////////////
 // READING FUNCTIONS AND DATA UPLOAD
@@ -337,7 +352,7 @@ int loadent( struct NMEAent *const nmea )  {
   assert( nmea->entres == NULL );
   assert( nmea->entries_len == 0 );
 
-
+  // TODO check if * should not be treated as last entry indicator
   // we do not look into first return of strtok
   // because it's the $<TALKER><MESSAGE> data
   // and we already have that obtained
@@ -356,7 +371,21 @@ int loadent( struct NMEAent *const nmea )  {
 
     char *ent = strtok( NULL, comma );
     if( ent == NULL )  return 0;
-    // TODO   create the sruct 
+    
+    void *aloc_data =
+      realloc( nmea->entries,
+      ( nmea->entries_len + 1 ) * sizeof *( nmea->entries ) );
+    if( aloc_data == NULL )  return -1;
+
+    ( nmea->entries_len )++;
+    nmea->entries = aloc_data;
+    char **newent_ptr = &( ( nmea->entries )[ nmea->entries_len - 1 ] );
+    size_t entsize = strlen( ent ) + 1;
+    *newent_ptr = malloc( entsize ); // + 1 for nul
+    if( *newent_ptr == NULL )  return -1;
+    // ^ even if we return -1 
+    // it is fine NULL is left, free( NULL ) wont cause problems
+    strncpy( *newent_ptr, ent, entsize );
 
   }
 
@@ -446,10 +475,9 @@ int readnmea( struct NMEAent *const nmea )  {
 
   }
 
-
-
-  // TODO
-  // loadentires
+  // load everything else
+  if( loadent( nmea ) != 0 )  return -1;
+  // at this point all data was processed
   return 0;
 
 }
@@ -485,10 +513,14 @@ case 'i': ;// expression for *goto* - case
   // read nmea data
   if( readnmea( &nmea ) == -1 )
     fail( "Could not read NMEA entry" );
-       	
+  
+  print_nmea( (const struct NMEAent *const ) ( &nmea ) );  
+
   return 0;
 
 default:
+    errno = 0;
+    perror( "No such option" );
     return -1;
 
   }
