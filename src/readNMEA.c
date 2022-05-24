@@ -60,9 +60,11 @@ int setoption( const char *const options )  {
 
   switch( options[ OPTSTR_POS ] )  {
 
+     // information
      case 'i':
-      // information
-      readgps_opt = 'i';
+     // Check the nmealine and chksum
+     case 'c':
+      readgps_opt = options[ OPTSTR_POS ];
       return 0;
 
      default :
@@ -78,6 +80,7 @@ int chkarg( const int argc )  {
 
   switch( readgps_opt )  {
 
+   case 'c':
    case 'i':
      if( argc != 3 )  return -1;
      return 0;
@@ -543,22 +546,58 @@ int main( const int argc, const char *const argv[] )  {
   // dependign on option do...
   switch( readgps_opt )  {
 
+  /////////////////////////////////////////////////////////////////////////
+
   // output information of GPS data
 case 'i': ;// expression for *goto* - case
-  #define NMEALINE_ARGPOS 2
+  #define INFO_NMEALINE_ARGPOS 2
 
   // init nmea
-  struct NMEAent nmea;
-  init_nmea( &nmea, argv[ NMEALINE_ARGPOS ] );
+  struct NMEAent nmea_info;
+  init_nmea( &nmea_info, argv[ INFO_NMEALINE_ARGPOS ] );
 
   // read nmea data
-  if( readnmea( &nmea ) == -1 )
+  if( readnmea( &nmea_info ) == -1 )
     fail( "Could not read NMEA entry" );
   
-  print_nmea( (const struct NMEAent *const ) ( &nmea ) );  
+  print_nmea( (const struct NMEAent *const ) ( &nmea_info ) );  
 
   return 0;
 
+  /////////////////////////////////////////////////////////////////////
+
+// Check the chksum
+// It will return 0 on succes
+// 1 means problem with passed commands and arguments - liek too many arguments, wrong commands
+// 2 means check sum does not match or the nmea line is broken, corrupted data.
+case 'c': ;
+  #define CHKSUM_NMEALINE_ARGPOS 2
+  #define NMEALINE_FAIL 2
+  #define CHKSUM_BASE 16
+
+  struct NMEAent nmea_chksum;
+  init_nmea( &nmea_chksum, argv[ CHKSUM_NMEALINE_ARGPOS ] );
+  if( readnmea( &nmea_chksum ) == -1 )  {
+
+    errno = 0;
+    perror( "Could not read NMEA line" );    
+    return NMEALINE_FAIL;
+
+  }
+
+  errno = 0;
+  long int chksum = strtol( nmea_chksum.entries[ nmea_chksum.entries_len - 1 ],
+    NULL, CHKSUM_BASE );
+  if( ( uint8_t )chksum != nmea_chksum.chksum )
+    return 2;  // Chksum fail, corrupted data
+    
+  // all fine
+  return 0;
+
+  // TODO free function
+
+  /////////////////////////////////////////////////////////////////////
+  // everythign else is bug
 default:
     errno = 0;
     perror( "No such option" );
