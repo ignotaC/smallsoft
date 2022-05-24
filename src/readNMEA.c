@@ -21,6 +21,7 @@ OF THIS SOFTWARE.
 */
 
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -272,7 +273,7 @@ void print_nmea( const struct NMEAent *const nmea )  {
   printf( "Message ID = %s\n", nmea->message.name );
   for( size_t i = 0; i < nmea->entries_len; i++)
     printf( "%s\n", ( nmea->entries )[i] );
-  printf( "Counted checksum: x%" PRIX8 "\n", nmea->chksum );
+  printf( "Counted checksum in hex: %" PRIX8 "\n", nmea->chksum );
 
 }
 
@@ -356,10 +357,13 @@ int loadent( struct NMEAent *const nmea )  {
   // we do not look into first return of strtok
   // because it's the $<TALKER><MESSAGE> data
   // and we already have that obtained
-  const char *const comma = ",";
-  if( strtok(  ( char* )( nmea->line ), comma ) == NULL )  {
+  char *ent = strchr( nmea->line, ',' );
+  if( ent == NULL )  {
 
     errno = 0;
+    //we actualy check it partialy elsewhere but we check it again
+    //here since this function is not bound to other one
+    //so it might be used in situation the other is not used.
     perror( "the nmea line seems to be broken\n"
       "Could not find any comma" );
     return -1;
@@ -367,10 +371,31 @@ int loadent( struct NMEAent *const nmea )  {
   }
 
   // now create the entry list
+  bool chksumsign_found = false;
+  bool lastent = false;
   for(;;)  {
 
-    char *ent = strtok( NULL, comma );
-    if( ent == NULL )  return 0;
+    ent++; // move after comma ( in this loop comma is changed to nul btw )
+    char *newent = strchr( ent, ',' );
+    if( newent == NULL )  {
+
+      newent = strchr( ent, '*' );
+      if( newent == NULL )  {
+
+	errno = 0;
+        perror( "Check sum indycator never appeared in NMEA line" );
+	return -1;
+
+      }
+
+      chksumsign_found = true;
+
+    }
+
+
+   finished:  // goto for last entry loop
+    // Now since we found the separator so we set it to null.
+    *newent = '\0';
     
     void *aloc_data =
       realloc( nmea->entries,
@@ -386,6 +411,22 @@ int loadent( struct NMEAent *const nmea )  {
     // ^ even if we return -1 
     // it is fine NULL is left, free( NULL ) wont cause problems
     strncpy( *newent_ptr, ent, entsize );
+
+    // pass found entry
+    ent = newent;
+
+    // we have all entries
+    if( lastent )  return 0;
+    if( chksumsign_found == true )  {
+
+      // pass the checksum sign - also turned to nul earlier
+      ent++;
+      newent = ent;
+      for(; isxdigit( *newent ); newent++);
+      lastent = true;
+      goto finished;
+
+    }
 
   }
 
