@@ -527,9 +527,130 @@ int readnmea( struct NMEAent *const nmea )  {
 }
 
 
+//It expects one character
+//if no nul after one char this is an error!
+int get_nmeachr( const char *const ent,
+    char *const nmeachr )  {
+
+  // we expect character and fin after it
+  if( ent[0] == '\0' )  return -1; 
+  if( ent[1] != '\0' )  return -1;
+  *nmeachr = ent[0];
+  return 0;
+
+}
+
+int chk_nmeachr_NS( const char *const nmeachr )  {
+
+  if( ( *nmeachr == 'N' ) || ( *nmeachr == 'S' ) )
+    return 0;
+  return -1;
+
+}
+
+int chk_nmeachr_EW( const char *const nmeachr )  {
+
+  if( ( *nmeachr == 'E' ) || ( *nmeachr == 'W' ) )
+    return 0;
+  return -1;
+
+}
+
+int chk_nmeachr_M( const char *const nmeachr )  {
+
+  if(  *nmeachr == 'M' )  return 0;
+  return -1;
+
+}
+
+// check digits and dot, else error
+int chk_nmeafloat( const char *const ent )  {
+
+  int count_dot = 0;
+  for( size_t i = 0; ent[i] != '\0'; i++ )  {
+
+    if( ent[i] == '.' )  {
+
+      // obviously we can have only one dot
+      if( count_dot != 0 )  return -1;
+      count_dot++;
+      continue;
+
+    }
+    if( isdigit( ent[i] ) )  continue;
+    return -1;
+
+  }
+
+  return 0;
+
+}
+
+//  date slen should at least be six characters
+//  dot appears if - always after six character
+//  hhmmss.ss
+int chk_nmeadate( const char *const ent )  {
+
+  size_t i = 0;
+  for(; i < 6; i++ )  {
+
+    if( isdigit( ent[i] ) )  continue;
+    return -1;
+
+  }
+
+  if( ent[i] == '\0' )  return 0;
+  if( ent[i] != '.' )  return -1;
+  i++; // pass the dot
+
+  for(; ent[i] == '\0'; i++ )  {
+
+    if( isdigit( ent[i] ) )  continue;
+    return -1;
+
+  }
+
+  return 0;
+
+}
+
+int get_nmeafloat( const char *const ent,
+    double *const nmeafloat )  {
+
+  errno = 0;
+  *nmeafloat = strtod( ent, NULL );
+  if( errno != 0 )  return -1;
+  return 0;
+
+}
+
+// 0-9 range is ok, rest is error
+int chk_nmeadigit( const char *const ent )  {
+
+  for( size_t i = 0; ent[i] != '\0'; i++ )  {
+
+    if( isdigit( ent[i] ) )  continue;
+    return -1;
+
+  }
+
+  return 0;
+
+}
+
+int get_nmeadigit( const char *const ent,
+    long *const digit )  {
+
+  errno = 0;
+  *digit = strtol( ent, NULL, 10 );
+  if( errno != 0 )  return -1;
+  return 0;
+
+}
+
 // END OF  READING FUNCTIONS AND DATA UPLOAD
 ///////////////////////////////////////////////////////////////
-//  MAINa PROGRAM
+//  MAIN PROGRAM
 
 int main( const int argc, const char *const argv[] )  {
 
