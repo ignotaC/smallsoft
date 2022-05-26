@@ -41,6 +41,12 @@ void fail( const char *const estr )  {
 
 }
 
+void etalk( const char *const estr )  {
+
+  fprintf( stderr, "%s\n", estr );
+
+}
+
 //////////////////////////////////////
 //  PROGRAM OPTIONS / ARGUMENTS FUNCTIONS
 
@@ -198,28 +204,79 @@ void init_nmea( struct NMEAent *const nmea,
 
 }
 
-// GGA = Global Positioning System Fix Data
-struct GGAdata  {
+struct nmeatime {
 
-  //  ss:mm:hh UTC  those are 13 bytes with nul
-  char time[16];
+  int hour;
+  int minute;
+  double sec;
 
-  double latitude; // deg
-  char latitude_hemisphere;
-  double longtitude; // deg
-  char longtitude_hemisphere;
-  uint8_t typeoffix;
-  int satelite_inview_number;
-  double horizontal_dilution;
-  double altitude;
+};
 
-  // above WGS84 - elipsoid
-  double geoid_height;
-  int DGPS_lastupdate_time;
-  int station_ID;
-  int checksum;
+struct nmeadate {
 
-}; // TODO check this one last time
+  int day;
+  int month;
+  int year;
+
+};
+
+
+/////////////////////
+// MESSAGE ID STRUCTS
+// Minimal parameter len since new versions of NMEA
+// introduce new parameters so only below minimal
+// will trigger error.
+
+#define GGA_MIN_PARAMLEN 14
+struct GGAmsg {
+
+  struct nmeadate time; // UTC hh:mm:ss.ss
+  double lat; //  degres
+  char lat_NS; // N / S  latitude hemisphere
+  double lon; // degres
+  char lon_NE; // W / E longtitude hemisphere 
+  int quality; // small numbers
+  double satelite_num; // small numbers
+  double hddp; // horizontal Dilution of Precision
+  double alt; // Altitude above mean sea level
+  char alt_units; // Seems only M, as for meters appear
+  double sep; // geoid separation differance between 
+	      // elipsoid and mean sea level
+  char sep_units; // ^ units, seems M for meters is only choice
+  double diff_age; // Age of differental corretions
+		   // blank if DGPS is not used
+  double diff_station; // ID of station providing differential
+		      // corrections - blank when DGPS not used
+
+  size_t min_paramlen;  // minimal expected entries
+
+};
+
+
+#define RMC_MIN_PARAMLEN 14
+struct RMCAmsg {
+
+  struct nmeadate time; // UTC hh:mm:ss.ss
+  char status; // data validator
+  double lat; //  degres
+  char lat_NS; // N / S  latitude hemisphere
+  double lon; // degres
+  char lon_NE; // W / E longtitude hemisphere 
+  double velocity; // speed over ground in knots - change to km/h or m/s
+  double course; // Course over ground.
+  struct nmeadate date; // dd mmy yyy		 
+  double mv; // Magnetic variation value 
+	    // Only supported in ADR 4.10 and above
+  char mv_EW; // Magnetic variation E / W indicator
+	    // Only supported in ADR 4.10 and above
+  char pos_mod; // Mode indicator NMEA v 2.3 and above only  // TODO wtf is this
+  char nav_stat; // Navigation indicator status NMEA v 4.1 and above
+		// For examples tells us equipment does not provide
+		// navigational status information.
+
+  size_t min_paramlen;  // minimal expected entries
+
+};
 
 
 
@@ -260,20 +317,40 @@ int print_talkerID( const int talkerID ) {
     return 0;
 
    default:
+    etalk( "Talker ID is unknown\n" );
     return -1;
 	
   }
 
 }
 
+int print_messageID( const int messageID )  {
+
+  switch( messageID )  {
+
+   case messageGGA:
+     printf( "Message ID: Global positioning system fix data\n" );
+     return 0;
+
+   case messageRMC:
+     printf( "Message ID: Recommended Minimum data\n" );
+     return 0;
+
+   default:
+     etalk( "Message ID is unknown\n" );
+     return -1;
+
+  }
+
+}
 
 // this function prints nmea data,
 // it's more meant for debugging or when the Message
 // type is unknown
-void print_nmea( const struct NMEAent *const nmea )  {
+void print_nmeadata( const struct NMEAent *const nmea )  {
 
-  printf( "Talker ID = %s\n", nmea->talker.name );
-  printf( "Message ID = %s\n", nmea->message.name );
+  print_talkerID( nmea->talker.id );
+  print_messageID( nmea->message.id );
   for( size_t i = 0; i < nmea->entries_len; i++)
     printf( "%s\n", ( nmea->entries )[i] );
   printf( "Counted checksum in hex: %" PRIX8 "\n", nmea->chksum );
@@ -329,8 +406,7 @@ int readmem( char **const nmealinep,
     // nul should never appear in data this function uses
     if( nmealine[i] == '\0' )  {
 
-      errno = 0;
-      perror( "Reached nul too early, missign data" );
+      etalk( "Reached nul too early, missign data" );
       return -1;
 
     }
@@ -363,11 +439,10 @@ int loadent( struct NMEAent *const nmea )  {
   char *ent = strchr( nmea->line, ',' );
   if( ent == NULL )  {
 
-    errno = 0;
     //we actualy check it partialy elsewhere but we check it again
     //here since this function is not bound to other one
     //so it might be used in situation the other is not used.
-    perror( "the nmea line seems to be broken\n"
+    etalk( "the nmea line seems to be broken\n"
       "Could not find any comma" );
     return -1;
 
@@ -385,8 +460,7 @@ int loadent( struct NMEAent *const nmea )  {
       newent = strchr( ent, '*' );
       if( newent == NULL )  {
 
-	errno = 0;
-        perror( "Check sum indycator never appeared in NMEA line" );
+        etalk( "Check sum indycator never appeared in NMEA line" );
 	return -1;
 
       }
@@ -434,8 +508,7 @@ int loadent( struct NMEAent *const nmea )  {
   }
 
   // We should never appear here
-  errno = 0;
-  perror( "loadent fatal error" );
+  etalk( "loadent fatal error" );
   return -1;
 
 }
@@ -455,8 +528,7 @@ int readnmea( struct NMEAent *const nmea )  {
   // $ should always start NMEA line
   if( nmealine[0] != '$' )  {
 
-    errno = 0;
-    perror( "The nmea line has no $ at start" );
+    etalk( "The nmea line has no $ at start" );
     return -1;
 
   }
@@ -470,7 +542,6 @@ int readnmea( struct NMEAent *const nmea )  {
   if( setid( &( nmea->talker ), talker_idname,
        talker_idname_len ) == -1 )  {
 
-    errno = 0;
     fprintf( stderr, "Unknown talker ID: %s\n",
       nmea->talker.name );
     return -1;
@@ -485,7 +556,6 @@ int readnmea( struct NMEAent *const nmea )  {
   if( setid( &( nmea->message ), message_idname,
        message_idname_len ) == -1 )  {
 
-    errno = 0;
     fprintf( stderr, "Unknown message ID: %s\n",
       nmea->message.name );
     return -1;
@@ -496,7 +566,7 @@ int readnmea( struct NMEAent *const nmea )  {
   // Now we should be standing on ',' - check it
   if( nmealine[0] != ',' )  {
 
-    perror( "No ',' after message ID which has static size" );
+    etalk( "No ',' after message ID which has static size" );
     return -1;
 
   }
@@ -508,8 +578,7 @@ int readnmea( struct NMEAent *const nmea )  {
 
     if( *nmealine == '\0' )  {
 
-      errno = 0;
-      perror( "There is no check sum sign indicator.\n"
+      etalk( "There is no check sum sign indicator.\n"
         "nmea line appears to be broken." );
       return -1;
 
@@ -681,7 +750,8 @@ case 'i': ;// expression for *goto* - case
   if( readnmea( &nmea_info ) == -1 )
     fail( "Could not read NMEA entry" );
   
-  print_nmea( (const struct NMEAent *const ) ( &nmea_info ) );  
+  // print nmea with basic info and raw data entries
+  print_nmeadata( &nmea_info );  
 
   return 0;
 
@@ -700,8 +770,7 @@ case 'c': ;
   init_nmea( &nmea_chksum, argv[ CHKSUM_NMEALINE_ARGPOS ] );
   if( readnmea( &nmea_chksum ) == -1 )  {
 
-    errno = 0;
-    perror( "Could not read NMEA line" );    
+    etalk( "Could not read NMEA line" );    
     return NMEALINE_FAIL;
 
   }
@@ -720,8 +789,7 @@ case 'c': ;
   /////////////////////////////////////////////////////////////////////
   // everythign else is bug
 default:
-    errno = 0;
-    perror( "No such option" );
+    etalk( "No such option" );
     return -1;
 
   }
