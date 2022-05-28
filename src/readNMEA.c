@@ -43,7 +43,18 @@ void fail( const char *const estr )  {
 
 void etalk( const char *const estr )  {
 
+  assert( estr != NULL );
+
   fprintf( stderr, "%s\n", estr );
+
+}
+
+void data_fail( const char *const estr )  {
+
+  assert( estr != NULL );
+
+  fprintf( stderr, "%s\n", estr );
+  exit( EXIT_FAILURE );
 
 }
 
@@ -184,6 +195,7 @@ struct NMEAent  {
   char **entries;
   size_t entries_len;
   uint8_t chksum;
+  void *msgdata;
 
 };
 
@@ -201,6 +213,7 @@ void init_nmea( struct NMEAent *const nmea,
   nmea->entries = NULL;
   nmea->entries_len = 0;
   nmea->chksum = 0;
+  nmea->msgdata = NULL;
 
 }
 
@@ -230,12 +243,12 @@ struct nmeadate {
 #define GGA_MIN_PARAMLEN 14
 struct GGAmsg {
 
-  struct nmeadate time; // UTC hh:mm:ss.ss
+  struct nmeatime time; // UTC hh:mm:ss.ss
   double lat; //  degres
   char lat_NS; // N / S  latitude hemisphere
   double lon; // degres
-  char lon_NE; // W / E longtitude hemisphere 
-  int quality; // small numbers
+  char lon_WE; // W / E longtitude hemisphere 
+  long quality; // small numbers
   double satelite_num; // small numbers
   double hddp; // horizontal Dilution of Precision
   double alt; // Altitude above mean sea level
@@ -243,25 +256,25 @@ struct GGAmsg {
   double sep; // geoid separation differance between 
 	      // elipsoid and mean sea level
   char sep_units; // ^ units, seems M for meters is only choice
-  double diff_age; // Age of differental corretions
-		   // blank if DGPS is not used
-  double diff_station; // ID of station providing differential
-		      // corrections - blank when DGPS not used
 
-  size_t min_paramlen;  // minimal expected entries
+  // because this might simly end up empty than we give out pointers
+  double *diff_age; // Age of differental corretions
+		   // blank if DGPS is not used
+  double *diff_station; // ID of station providing differential
+		      // corrections - blank when DGPS not used
 
 };
 
 
 #define RMC_MIN_PARAMLEN 14
-struct RMCAmsg {
+struct RMCmsg {
 
-  struct nmeadate time; // UTC hh:mm:ss.ss
+  struct nmeatime time; // UTC hh:mm:ss.ss
   char status; // data validator
   double lat; //  degres
   char lat_NS; // N / S  latitude hemisphere
   double lon; // degres
-  char lon_NE; // W / E longtitude hemisphere 
+  char lon_WE; // W / E longtitude hemisphere 
   double velocity; // speed over ground in knots - change to km/h or m/s
   double course; // Course over ground.
   struct nmeadate date; // dd mmy yyy		 
@@ -273,8 +286,6 @@ struct RMCAmsg {
   char nav_stat; // Navigation indicator status NMEA v 4.1 and above
 		// For examples tells us equipment does not provide
 		// navigational status information.
-
-  size_t min_paramlen;  // minimal expected entries
 
 };
 
@@ -329,11 +340,11 @@ int print_messageID( const int messageID )  {
   switch( messageID )  {
 
    case messageGGA:
-     printf( "Message ID: Global positioning system fix data\n" );
+     printf( "Message ID: GGA - Global positioning system fix data\n" );
      return 0;
 
    case messageRMC:
-     printf( "Message ID: Recommended Minimum data\n" );
+     printf( "Message ID: RMC - Recommended Minimum data\n" );
      return 0;
 
    default:
@@ -601,9 +612,22 @@ int readnmea( struct NMEAent *const nmea )  {
 int get_nmeachr( const char *const ent,
     char *const nmeachr )  {
 
+  assert( ent != NULL );
+  assert( nmeachr != NULL );
+
   // we expect character and fin after it
-  if( ent[0] == '\0' )  return -1; 
-  if( ent[1] != '\0' )  return -1;
+  if( ent[0] == '\0' )  {
+
+    etalk( "Nmea entry is not a single char as it should be" );
+    return -1;
+
+  }
+  if( ent[1] != '\0' )   {
+
+    etalk( "Nmea entry is not a single char as it should be" );
+    return -1;
+
+  }
   *nmeachr = ent[0];
   return 0;
 
@@ -611,21 +635,35 @@ int get_nmeachr( const char *const ent,
 
 int chk_nmeachr_NS( const char *const nmeachr )  {
 
-  if( ( *nmeachr == 'N' ) || ( *nmeachr == 'S' ) )
+  assert( nmeachr != NULL );
+
+  if( ( *nmeachr == 'N' ) || ( *nmeachr == 'S' ) )  {
+
+    etalk( "Not N/S char entry" );
     return 0;
+
+  }
   return -1;
 
 }
 
-int chk_nmeachr_EW( const char *const nmeachr )  {
+int chk_nmeachr_WE( const char *const nmeachr )  {
 
-  if( ( *nmeachr == 'E' ) || ( *nmeachr == 'W' ) )
+  assert( nmeachr != NULL );
+
+  if( ( *nmeachr == 'W' ) || ( *nmeachr == 'E' ) )  {
+
+    etalk( "Not W/E char entry" );
     return 0;
+
+  }
   return -1;
 
 }
 
 int chk_nmeachr_M( const char *const nmeachr )  {
+
+  assert( nmeachr != NULL );
 
   if(  *nmeachr == 'M' )  return 0;
   return -1;
@@ -635,18 +673,26 @@ int chk_nmeachr_M( const char *const nmeachr )  {
 // check digits and dot, else error
 int chk_nmeafloat( const char *const ent )  {
 
-  int count_dot = 0;
+  assert( ent != NULL );
+
+  bool isdot = false;
   for( size_t i = 0; ent[i] != '\0'; i++ )  {
 
     if( ent[i] == '.' )  {
 
       // obviously we can have only one dot
-      if( count_dot != 0 )  return -1;
-      count_dot++;
+      if( isdot == true )  {
+      
+        etalk( "Nmea entry is not a float" );
+	return-1;
+		
+      }
+      isdot = true;
       continue;
 
     }
     if( isdigit( ent[i] ) )  continue;
+    etalk( "Nmea entry is not a float" );
     return -1;
 
   }
@@ -655,26 +701,35 @@ int chk_nmeafloat( const char *const ent )  {
 
 }
 
-//  date slen should at least be six characters
+//  times len should at least be six characters
 //  dot appears if - always after six character
 //  hhmmss.ss
-int chk_nmeadate( const char *const ent )  {
+int chk_nmeatime( const char *const ent )  {
+
+  assert( ent != NULL );
 
   size_t i = 0;
   for(; i < 6; i++ )  {
 
     if( isdigit( ent[i] ) )  continue;
+    etalk( "Broken nmea time entry" );
     return -1;
 
   }
 
   if( ent[i] == '\0' )  return 0;
-  if( ent[i] != '.' )  return -1;
+  if( ent[i] != '.' )  {
+
+    etalk( "Broken nmea time entry" );
+    return -1;
+
+  }
   i++; // pass the dot
 
   for(; ent[i] == '\0'; i++ )  {
 
     if( isdigit( ent[i] ) )  continue;
+    etalk( "Broken nmea time entry" );
     return -1;
 
   }
@@ -686,19 +741,67 @@ int chk_nmeadate( const char *const ent )  {
 int get_nmeafloat( const char *const ent,
     double *const nmeafloat )  {
 
+  assert( ent != NULL );
+  assert( nmeafloat != NULL );
+
   errno = 0;
   *nmeafloat = strtod( ent, NULL );
-  if( errno != 0 )  return -1;
+  if( errno != 0 )  {
+
+    etalk( "Could not convert to float nmea entry" );	  
+    return -1;
+
+  }
   return 0;
+
+}
+
+#define NMEAGEO_DEG_SPLITPOS 2
+int get_nmeageo_deg( char *const ent,
+    double *const nmeageo_deg )  {
+
+  // additional check - dot should appear later
+  // chk float won't detect this so this check is a must
+  for( size_t i = 0; i < 3; i++ )  {
+
+    if( ent[i] == '.' )  {
+
+      etalk( "Nmea geo position entry broken" );
+      return -1;
+
+    }
+
+  }
+
+  char keepchr = ent[ NMEAGEO_DEG_SPLITPOS ];
+  ent[ NMEAGEO_DEG_SPLITPOS ] = '\0';
+
+  double geodeg = 0;
+  if( get_nmeafloat( ent, &geodeg ) == -1 )  return -1;
+  ent[ NMEAGEO_DEG_SPLITPOS ] = keepchr;
+
+  double geomin = 0;
+  if( get_nmeafloat( &ent[ NMEAGEO_DEG_SPLITPOS ], &geomin )
+    == -1 )  return -1;
+
+  // we could do additional check for
+  // xtreame error handling - did we not end up with like
+  // passing over 
+  *nmeageo_deg = geodeg + ( geomin / 60 );
+  return 0;
+  
 
 }
 
 // 0-9 range is ok, rest is error
 int chk_nmeadigit( const char *const ent )  {
 
+  assert( ent != NULL );
+
   for( size_t i = 0; ent[i] != '\0'; i++ )  {
 
     if( isdigit( ent[i] ) )  continue;
+    etalk( "Nmea entry is not a digit as expected to be." );
     return -1;
 
   }
@@ -707,13 +810,180 @@ int chk_nmeadigit( const char *const ent )  {
 
 }
 
+
 int get_nmeadigit( const char *const ent,
     long *const digit )  {
 
+  assert( ent != NULL );
+  assert( digit != NULL );
+
   errno = 0;
   *digit = strtol( ent, NULL, 10 );
-  if( errno != 0 )  return -1;
+  if( errno != 0 )  {
+
+    etalk( "Could not convert nmea entry to digit" );	  
+    return -1;
+
+  }
   return 0;
+
+}
+
+int load_GGA( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+
+  // -1 because we need to get rid of checksum entry
+  if( nmea->entries_len - 1 < GGA_MIN_PARAMLEN )  {
+
+    etalk( "There is not enough paramenetrs for GGA message,\n"
+      "Nmea line seems broken." );
+    return -1;
+
+  }
+
+  struct GGAmsg *gga = nmea->msgdata;
+  char *const* ent = nmea->entries;
+
+  // UTC date
+  if( chk_nmeatime( *ent ) == -1 )  return -1;
+  ent++; // TODO we still need to load it
+
+  // latitude in deg
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeageo_deg( *ent,  &( gga->lat ) ) == -1 )
+    return -1;
+  ent++;
+
+  // latitude hemisphere - we check after getting char
+  // it's correct
+  if( get_nmeachr( *ent, &( gga->lat_NS ) ) == -1 )
+    return -1;
+  if( chk_nmeachr_NS( &( gga->lat_NS ) ) == -1 )
+    return -1;
+  ent++;
+
+  // longtitude
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeageo_deg( *ent,  &( gga->lon ) ) == -1 )
+    return -1;
+  ent++;
+
+  //longtitude hemisphere 
+  if( get_nmeachr( *ent, &( gga->lon_WE ) ) == -1 )
+    return -1;
+  if( chk_nmeachr_NS( &( gga->lon_WE ) ) == -1 )
+    return -1;
+  ent++;
+
+  // quality of message
+  if( chk_nmeadigit( *ent ) == -1 )  return -1;
+  if( get_nmeadigit( *ent, &( gga->quality ) ) == -1 )
+    return -1;
+  ent++;
+
+  // Staelite number
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeafloat( *ent,  &( gga->satelite_num ) ) == -1 )
+    return -1;
+  ent++;
+  
+  // Horizontal dilution of precision
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeafloat( *ent,  &( gga->hddp ) ) == -1 )
+    return -1;
+  ent++;
+
+  // Altitude above mean sea leverl
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeafloat( *ent,  &( gga->alt ) ) == -1 )
+    return -1;
+  ent++;
+
+  // Altitude above mean sea leverl UNITS
+  if( get_nmeachr( *ent, &( gga->alt_units ) ) == -1 )
+    return -1;
+  if( chk_nmeachr_M( &( gga->alt_units ) ) == -1 )
+    return -1;
+  ent++;
+
+
+  // geoid separation differance between 
+  // elipsoid and mean sea level
+  if( chk_nmeafloat( *ent )  == -1 )  return -1;
+  if( get_nmeafloat( *ent,  &( gga->sep ) ) == -1 )
+    return -1;
+  ent++;
+
+  // geoid separation differance between 
+  // elipsoid and mean sea level UNITS
+  if( get_nmeachr( *ent, &( gga->sep_units ) ) == -1 )
+    return -1;
+  if( chk_nmeachr_M( &( gga->sep_units ) ) == -1 )
+    return -1;
+  ent++;
+
+
+
+  // Age of differental corretions
+  // blank if DGPS is not used
+  gga->diff_age = NULL;  // since this might be empty
+			 // TODO INIT
+			 // be default set to NULL
+  if( ent[0][0] != '\0' )  {
+
+    gga->diff_age = malloc( sizeof *( gga->diff_age ) );
+    if( gga->diff_age  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeafloat( *ent,  gga->diff_age ) == -1 )
+      return -1;
+
+   }
+   ent++;
+
+   // ID of station providing differential
+  // corrections - blank when DGPS not used
+   gga->diff_station = NULL;  // since this might be empty
+			 // TODO INIT
+			 // be default set to NULL
+  if( ent[0][0] != '\0' )  {
+
+    gga->diff_station = malloc( sizeof *( gga->diff_station ) );
+    if( gga->diff_station  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeafloat( *ent,  gga->diff_station ) == -1 )
+      return -1;
+
+   }
+   ent++;
+
+  return 0;
+
+}
+
+// use the raw entry data to convert it into nmea data
+int load_msgdata( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+
+  switch( nmea->message.id )  {
+
+   case messageGGA:
+    nmea->msgdata = malloc( sizeof( struct GGAmsg ) );
+    if( nmea->msgdata == NULL )  return -1;
+    return load_GGA( nmea );
+    
+   case messageRMC:
+    nmea->msgdata = malloc( sizeof( struct RMCmsg ) );
+    if( nmea->msgdata == NULL )  return -1;
+    return load_GGA( nmea );
+
+   default:
+    etalk( "Unable to load nmea message data,"
+      "message type unknown" );
+    return -1;
+
+  }	  
 
 }
 
@@ -725,13 +995,13 @@ int main( const int argc, const char *const argv[] )  {
 
   #define OPT_POS 1
   // basic argument check, there must be something.
-  if( argc < 2 )  fail( "Not enought arguments" );
+  if( argc < 2 )  data_fail( "Not enought arguments" );
   // Check the option and set it to the global value
   if( setoption( argv[ OPT_POS ] ) == -1 )
-    fail( "Broken options" );
+    data_fail( "Broken options" );
   // See if the number of arguments is correct
   if( chkarg( argc ) == -1 )
-    fail( "Broken number of arguments" );
+    data_fail( "Broken number of arguments" );
 
   // dependign on option do...
   switch( readgps_opt )  {
