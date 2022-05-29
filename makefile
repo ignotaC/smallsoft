@@ -121,8 +121,11 @@ make:
 		-ligm_search\
 		-o ${BIN}/fext
 #31  readNMEA
-	${CC} ${SRC}/readNMEA.c -o ${BIN}/readNMEA
-
+	${CCOBJ} ${SRC}/readNMEA.c -o ${SS_OBJ}/readNMEA.o
+	${CC} ${SS_OBJ}/readNMEA.o ${LIBIG_OBJ} -ligmath_geopos\
+		-lm \
+		-o ${BIN}/readNMEA
+#
 #32  find reserved
 #33 version
 

@@ -20,6 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
+#include "../ignotalib/src/ig_math/igmath_geopos.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -196,6 +198,7 @@ struct NMEAent  {
   size_t entries_len;
   uint8_t chksum;
   void *msgdata;
+  struct igmath_geopos *gp;  // coordinates - set if passed
 
 };
 
@@ -214,6 +217,7 @@ void init_nmea( struct NMEAent *const nmea,
   nmea->entries_len = 0;
   nmea->chksum = 0;
   nmea->msgdata = NULL;
+  nmea->gp = NULL;
 
 }
 
@@ -257,14 +261,22 @@ struct GGAmsg {
 	      // elipsoid and mean sea level
   char sep_units; // ^ units, seems M for meters is only choice
 
-  // because this might simly end up empty than we give out pointers
+  // because this might simly end up empty than we use pointers
+  // and on init set them to NULL
   double *diff_age; // Age of differental corretions
 		   // blank if DGPS is not used
   double *diff_station; // ID of station providing differential
 		      // corrections - blank when DGPS not used
 
+
 };
 
+void init_gga( struct GGAmsg *const gga )  {
+
+  gga->diff_age = NULL;
+  gga->diff_station = NULL;
+
+}
 
 #define RMC_MIN_PARAMLEN 14
 struct RMCmsg {
@@ -355,6 +367,114 @@ int print_messageID( const int messageID )  {
 
 }
 
+int print_gga( struct GGAmsg *const gga )  {
+
+  // TODO UTC TIME PRINT
+  printf( "Latitude: %f deg, hemisphere: %c\n",
+    gga->lat, gga->lat_NS );
+
+  printf( "Longtitude: %f deg, hemisphere %c\n",
+    gga->lon, gga->lon_WE );
+
+  printf( "Coordinate quality correction fix: %ld ",
+    (long int )gga->quality );
+  switch( gga->quality )  {
+
+   case 0:
+    printf( "- no correction\n" );
+    break;
+
+   case 1:
+    printf( "- autonomous GNSS fix\n" );
+    break;
+
+   case 2:
+    printf( "- differential GNSS fix\n" );
+    break;
+
+   case 4:
+    printf( "- RTK fixed\n" );
+    break;
+
+   case 5:
+    printf( "- RTK float\n" );
+    break;
+
+   case 6:
+    printf( "- estimated / dead reckoning fix\n" );
+    break;
+
+   default:
+    printf( "- unknown correction fix\n" );
+    break;
+
+  }
+
+  printf( "Number of used satelites for obtaining coordinates: %f\n",
+    gga->satelite_num );
+  
+  printf( "Horizontal dilution of precission: %f\n",
+    gga->hddp );
+
+  printf( "Altitude above mean sea level: %f, in %c units\n",
+    gga->alt, gga->alt_units );
+
+  printf( "Geoid separation diffearnce between elipsoid\n"
+    "and mean sea level: %f, in %c units\n",
+    gga->sep, gga->sep_units );
+
+  if( gga->diff_age != NULL )  {
+
+    printf( "Age of differential corrections: %f\n",
+      *( gga->diff_age ) );
+
+  }  else  {
+
+    puts( "No age of differential corrections,\n"
+      "Blank when DGPS is not used" );
+
+  }
+
+  if( gga->diff_station != NULL )  {
+
+    printf( "ID ofstation providing differential corrections: %f\n",
+      *( gga->diff_station ) );
+
+  }  else  {
+
+    puts( "No ID of station providing differential corrections,\n"
+      "Blank when DGPS is not used" );
+
+  }
+
+  return 0;
+
+}
+
+// use the raw entry data to convert it into nmea data
+int print_msgdata( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+
+  switch( nmea->message.id )  {
+
+   case messageGGA:
+    print_gga( ( struct GGAmsg *)( nmea->msgdata ) );
+    return 0;
+    
+   case messageRMC:
+    return 0;
+
+   default:
+    etalk( "Unable to load nmea message data,"
+      "message type unknown" );
+    return -1;
+
+  }	  
+
+}
+
+
 // this function prints nmea data,
 // it's more meant for debugging or when the Message
 // type is unknown
@@ -365,6 +485,23 @@ void print_nmeadata( const struct NMEAent *const nmea )  {
   for( size_t i = 0; i < nmea->entries_len; i++)
     printf( "%s\n", ( nmea->entries )[i] );
   printf( "Counted checksum in hex: %" PRIX8 "\n", nmea->chksum );
+
+}
+
+//print the 3d position using geopos from nmea
+void print_geopos( struct NMEAent *const nmea )  {
+
+  if( nmea->gp == NULL )  {
+
+    puts( "Nmea entry does not contain geographic data,\n"
+      "Which we need, to create a 3d position" );
+    return;
+
+  }
+
+  printf( "X = %f\n", nmea->gp->x );
+  printf( "Y = %f\n", nmea->gp->y );
+  printf( "Z = %f\n", nmea->gp->z );
 
 }
 
@@ -637,13 +774,13 @@ int chk_nmeachr_NS( const char *const nmeachr )  {
 
   assert( nmeachr != NULL );
 
-  if( ( *nmeachr == 'N' ) || ( *nmeachr == 'S' ) )  {
+  if( ( *nmeachr != 'N' ) && ( *nmeachr != 'S' ) )  {
 
     etalk( "Not N/S char entry" );
-    return 0;
+    return -1;
 
   }
-  return -1;
+  return 0;
 
 }
 
@@ -651,13 +788,13 @@ int chk_nmeachr_WE( const char *const nmeachr )  {
 
   assert( nmeachr != NULL );
 
-  if( ( *nmeachr == 'W' ) || ( *nmeachr == 'E' ) )  {
+  if( ( *nmeachr != 'W' ) && ( *nmeachr != 'E' ) )  {
 
     etalk( "Not W/E char entry" );
-    return 0;
+    return -1;
 
   }
-  return -1;
+  return 0;
 
 }
 
@@ -872,7 +1009,7 @@ int load_GGA( struct NMEAent *const nmea )  {
   //longtitude hemisphere 
   if( get_nmeachr( *ent, &( gga->lon_WE ) ) == -1 )
     return -1;
-  if( chk_nmeachr_NS( &( gga->lon_WE ) ) == -1 )
+  if( chk_nmeachr_WE( &( gga->lon_WE ) ) == -1 )
     return -1;
   ent++;
 
@@ -976,7 +1113,7 @@ int load_msgdata( struct NMEAent *const nmea )  {
    case messageRMC:
     nmea->msgdata = malloc( sizeof( struct RMCmsg ) );
     if( nmea->msgdata == NULL )  return -1;
-    return load_GGA( nmea );
+    return load_GGA( nmea ); // TODO chnage to RMC function
 
    default:
     etalk( "Unable to load nmea message data,"
@@ -986,6 +1123,34 @@ int load_msgdata( struct NMEAent *const nmea )  {
   }	  
 
 }
+
+// create the coordinates
+int load_geopos( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+
+  switch( nmea->message.id )  {
+
+   case messageGGA:;
+    struct GGAmsg *gga = nmea->msgdata;
+    nmea->gp = malloc( sizeof nmea->gp );
+    if( nmea->gp == NULL )  return -1;
+    igmath_get_geopos( nmea->gp, gga->lat,
+      gga->lat_NS, gga->lon, gga->lon_WE );
+    return 0;
+    
+   case messageRMC:
+    return 0;
+
+   default:
+    etalk( "Unable to load nmea message data,"
+      "message type unknown" );
+    return -1;
+
+  }	  
+
+}
+
 
 // END OF  READING FUNCTIONS AND DATA UPLOAD
 ///////////////////////////////////////////////////////////////
@@ -1019,19 +1184,22 @@ case 'i': ;// expression for *goto* - case
   // read nmea data
   if( readnmea( &nmea_info ) == -1 )
     fail( "Could not read NMEA entry" );
-  
+
   // print nmea with basic info and raw data entries
   print_nmeadata( &nmea_info );  
-
+  load_msgdata( &nmea_info );
+  print_msgdata( &nmea_info );
+  load_geopos( &nmea_info );
+  print_geopos( &nmea_info );
   return 0;
 
   /////////////////////////////////////////////////////////////////////
 
-// Check the chksum
+// Check the chksum and NMEA entries, see if they are apropirate
 // It will return 0 on succes
 // 1 means problem with passed commands and arguments - liek too many arguments, wrong commands
 // 2 means check sum does not match or the nmea line is broken, corrupted data.
-case 'c': ;
+case 't': ;
   #define CHKSUM_NMEALINE_ARGPOS 2
   #define NMEALINE_FAIL 2
   #define CHKSUM_BASE 16
@@ -1056,6 +1224,11 @@ case 'c': ;
 
   // TODO free function
 
+  // Perform test - see if the check sum and nmea arguments are correct
+
+case 'c':
+
+  return 0;
   /////////////////////////////////////////////////////////////////////
   // everythign else is bug
 default:
