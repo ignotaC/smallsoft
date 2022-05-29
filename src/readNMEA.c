@@ -124,6 +124,12 @@ int chkarg( const int argc )  {
 ////////////////////////////////////////////////
 //  CORE DEFINITIONS
 
+// If anything goes wrong while loading
+// mmea entries appears to be broken
+// set this flag to truth
+bool broken_entries = false;
+
+
 // it is used for keeping message ID or talker ID
 #define TALKMSG_SIZE 16
 struct idname {
@@ -348,7 +354,7 @@ int print_talkerID( const int talkerID ) {
     return 0;
 
    default:
-    etalk( "Talker ID is unknown\n" );
+     // info about this fail will appear already
     return -1;
 	
   }
@@ -368,7 +374,7 @@ int print_messageID( const int messageID )  {
      return 0;
 
    default:
-     etalk( "Message ID is unknown\n" );
+     // info about this fail will appear already
      return -1;
 
   }
@@ -588,8 +594,7 @@ int loadent( struct NMEAent *const nmea )  {
   assert( nmea->entres == NULL );
   assert( nmea->entries_len == 0 );
 
-  // TODO check if * should not be treated as last entry indicator
-  // we do not look into first return of strtok
+  // we do not look into first entry
   // because it's the $<TALKER><MESSAGE> data
   // and we already have that obtained
   char *ent = strchr( nmea->line, ',' );
@@ -600,6 +605,7 @@ int loadent( struct NMEAent *const nmea )  {
     //so it might be used in situation the other is not used.
     etalk( "the nmea line seems to be broken\n"
       "Could not find any comma" );
+    broken_entries = true;
     return -1;
 
   }
@@ -617,6 +623,7 @@ int loadent( struct NMEAent *const nmea )  {
       if( newent == NULL )  {
 
         etalk( "Check sum indycator never appeared in NMEA line" );
+	broken_entries = true;
 	return -1;
 
       }
@@ -665,7 +672,8 @@ int loadent( struct NMEAent *const nmea )  {
 
   // We should never appear here
   etalk( "loadent fatal error" );
-  return -1;
+  abort(); // so special case to blew eberythign up
+	   // and leave a nice dump
 
 }
 
@@ -685,6 +693,9 @@ int readnmea( struct NMEAent *const nmea )  {
   if( nmealine[0] != '$' )  {
 
     etalk( "The nmea line has no $ at start" );
+    // this is expected always and
+    // mandatory, no $ - finish immediatly
+    broken_entries = true;
     return -1;
 
   }
@@ -692,29 +703,41 @@ int readnmea( struct NMEAent *const nmea )  {
 
   // set nmea talker name
   if( readmem( &nmealine, nmea->talker.name ,
-      TALKERNAME_LEN ) == -1 )
+      TALKERNAME_LEN ) == -1 )  {
+
+    broken_entries = true;
     return -1;
 
+  }
   if( setid( &( nmea->talker ), talker_idname,
        talker_idname_len ) == -1 )  {
 
     fprintf( stderr, "Unknown talker ID: %s\n",
       nmea->talker.name );
-    return -1;
+    // despite this continue
+    // still probably this is an error
+    broken_entries = true;
 
   }
 
   // set nmea message name
   if( readmem( &nmealine, nmea->message.name,
-      MESSAGENAME_LEN ) == -1 )
+      MESSAGENAME_LEN ) == -1 )  {
+
+    broken_entries = true;
     return -1;
 
+  }
   if( setid( &( nmea->message ), message_idname,
        message_idname_len ) == -1 )  {
 
     fprintf( stderr, "Unknown message ID: %s\n",
       nmea->message.name );
-    return -1;
+    //this might not even be error since there is lot of
+    //nmea messgae ID types this program does not suppot
+    //still we flag this as broken entry
+    
+    broken_entries = true;
 
   }
 
@@ -723,6 +746,8 @@ int readnmea( struct NMEAent *const nmea )  {
   if( nmealine[0] != ',' )  {
 
     etalk( "No ',' after message ID which has static size" );
+    // This is also treated as crusial so no sens to go any furthe
+    broken_entries = true;
     return -1;
 
   }
@@ -736,6 +761,7 @@ int readnmea( struct NMEAent *const nmea )  {
 
       etalk( "There is no check sum sign indicator.\n"
         "nmea line appears to be broken." );
+      broken_entries = true;
       return -1;
 
     }
@@ -763,13 +789,15 @@ int get_nmeachr( const char *const ent,
   // we expect character and fin after it
   if( ent[0] == '\0' )  {
 
-    etalk( "Nmea entry is not a single char as it should be" );
+    etalk( "Nmea entry does not have even one expected char" );
+    broken_entries = true;
     return -1;
 
   }
   if( ent[1] != '\0' )   {
 
     etalk( "Nmea entry is not a single char as it should be" );
+    broken_entries = true;
     return -1;
 
   }
@@ -785,6 +813,7 @@ int chk_nmeachr_NS( const char *const nmeachr )  {
   if( ( *nmeachr != 'N' ) && ( *nmeachr != 'S' ) )  {
 
     etalk( "Not N/S char entry" );
+    broken_entries = true;
     return -1;
 
   }
@@ -799,6 +828,7 @@ int chk_nmeachr_WE( const char *const nmeachr )  {
   if( ( *nmeachr != 'W' ) && ( *nmeachr != 'E' ) )  {
 
     etalk( "Not W/E char entry" );
+    broken_entries = true;
     return -1;
 
   }
@@ -811,6 +841,7 @@ int chk_nmeachr_M( const char *const nmeachr )  {
   assert( nmeachr != NULL );
 
   if(  *nmeachr == 'M' )  return 0;
+  broken_entries = true;
   return -1;
 
 }
@@ -829,6 +860,7 @@ int chk_nmeafloat( const char *const ent )  {
       if( isdot == true )  {
       
         etalk( "Nmea entry is not a float" );
+	broken_entries = true;
 	return-1;
 		
       }
@@ -838,6 +870,7 @@ int chk_nmeafloat( const char *const ent )  {
     }
     if( isdigit( ent[i] ) )  continue;
     etalk( "Nmea entry is not a float" );
+    broken_entries = true;
     return -1;
 
   }
@@ -858,6 +891,7 @@ int chk_nmeatime( const char *const ent )  {
 
     if( isdigit( ent[i] ) )  continue;
     etalk( "Broken nmea time entry" );
+    broken_entries = true;
     return -1;
 
   }
@@ -866,6 +900,7 @@ int chk_nmeatime( const char *const ent )  {
   if( ent[i] != '.' )  {
 
     etalk( "Broken nmea time entry" );
+    broken_entries = true;
     return -1;
 
   }
@@ -875,6 +910,7 @@ int chk_nmeatime( const char *const ent )  {
 
     if( isdigit( ent[i] ) )  continue;
     etalk( "Broken nmea time entry" );
+    broken_entries = true;
     return -1;
 
   }
@@ -912,6 +948,7 @@ int get_nmeageo_deg( char *const ent,
     if( ent[i] == '.' )  {
 
       etalk( "Nmea geo position entry broken" );
+      broken_entries = true;
       return -1;
 
     }
@@ -947,6 +984,7 @@ int chk_nmeadigit( const char *const ent )  {
 
     if( isdigit( ent[i] ) )  continue;
     etalk( "Nmea entry is not a digit as expected to be." );
+    broken_entries = true;
     return -1;
 
   }
@@ -983,6 +1021,7 @@ int load_GGA( struct NMEAent *const nmea )  {
 
     etalk( "There is not enough paramenetrs for GGA message,\n"
       "Nmea line seems broken." );
+    broken_entries = true;
     return -1;
 
   }
@@ -990,9 +1029,19 @@ int load_GGA( struct NMEAent *const nmea )  {
   struct GGAmsg *gga = nmea->msgdata;
   char *const* ent = nmea->entries;
 
+  // TODO all gga entries must be pointers
+  // set them to null for a start
+  // CRUCIAL data has to appear
+  // else it will treat it as broken data
+  // Rest might appear or not.
+  // If yes - check it
+
   // UTC date
   if( chk_nmeatime( *ent ) == -1 )  return -1;
   ent++; // TODO we still need to load it
+
+  ////////////////////////////////
+  // CRUCIAL for data to be useful
 
   // latitude in deg
   if( chk_nmeafloat( *ent )  == -1 )  return -1;
@@ -1020,6 +1069,9 @@ int load_GGA( struct NMEAent *const nmea )  {
   if( chk_nmeachr_WE( &( gga->lon_WE ) ) == -1 )
     return -1;
   ent++;
+
+  // END OF CRUCIAL DATA
+  //////////////////////////////////
 
   // quality of message
   if( chk_nmeadigit( *ent ) == -1 )  return -1;
@@ -1072,9 +1124,6 @@ int load_GGA( struct NMEAent *const nmea )  {
 
   // Age of differental corretions
   // blank if DGPS is not used
-  gga->diff_age = NULL;  // since this might be empty
-			 // TODO INIT
-			 // be default set to NULL
   if( ent[0][0] != '\0' )  {
 
     gga->diff_age = malloc( sizeof *( gga->diff_age ) );
@@ -1088,9 +1137,6 @@ int load_GGA( struct NMEAent *const nmea )  {
 
    // ID of station providing differential
   // corrections - blank when DGPS not used
-   gga->diff_station = NULL;  // since this might be empty
-			 // TODO INIT
-			 // be default set to NULL
   if( ent[0][0] != '\0' )  {
 
     gga->diff_station = malloc( sizeof *( gga->diff_station ) );
@@ -1100,7 +1146,6 @@ int load_GGA( struct NMEAent *const nmea )  {
       return -1;
 
    }
-   ent++;
 
   return 0;
 
@@ -1121,11 +1166,13 @@ int load_msgdata( struct NMEAent *const nmea )  {
    case messageRMC:
     nmea->msgdata = malloc( sizeof( struct RMCmsg ) );
     if( nmea->msgdata == NULL )  return -1;
-    return load_GGA( nmea ); // TODO chnage to RMC function
+//    return 0; // TODO set up RMC function
 
    default:
-    etalk( "Unable to load nmea message data,"
-      "message type unknown" );
+    // At this point we probably know 100 times the
+    // message ID is unknown
+    broken_entries = true; // At this point it was 100% flaged but,
+			   // let us have it.
     return -1;
 
   }	  
@@ -1190,12 +1237,20 @@ case 'i': ;// expression for *goto* - case
   init_nmea( &nmea_info, argv[ INFO_NMEALINE_ARGPOS ] );
 
   // read nmea data
-  if( readnmea( &nmea_info ) == -1 )
-    fail( "Could not read NMEA entry" );
+  errno = 0;
+  if( readnmea( &nmea_info ) == -1 )  {
 
-  // print nmea with basic info and raw data entries
-  print_nmeadata( &nmea_info );  
+    if( errno )  fail( "Failure inside readnmea function" );
+    // fail won't return so no need for else
+    data_fail( "Could not read NMEA entry" );
+
+  }
+
+  // print nmea data if message ID is unknown
+  // just print raw entries
   load_msgdata( &nmea_info );
+
+  print_nmeadata( &nmea_info );  
   print_msgdata( &nmea_info );
   load_geopos( &nmea_info );
   print_geopos( &nmea_info );
