@@ -42,6 +42,9 @@ make:
 	${CCOBJ} ${IG}/ig_memory/igm_search.c -o ${IG_OBJ}/igm_search.o
 	${AR} ${IG_OBJ}/libigm_search.a ${IG_OBJ}/igm_search.o
 
+	${CCOBJ} ${IG}/ig_math/igmath_geopos.c -o ${IG_OBJ}/igmath_geopos.o
+	${AR} ${IG_OBJ}/libigmath_geopos.a ${IG_OBJ}/igmath_geopos.o
+
 #compile and link external libs
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
