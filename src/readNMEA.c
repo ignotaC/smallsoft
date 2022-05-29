@@ -26,6 +26,7 @@ OF THIS SOFTWARE.
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -79,9 +80,11 @@ int setoption( const char *const options )  {
 
   switch( options[ OPTSTR_POS ] )  {
 
+     // test nmea line correctness
+     case 't': 
      // information
      case 'i':
-     // Check the nmealine and chksum
+     // compare positions
      case 'c':
       readgps_opt = options[ OPTSTR_POS ];
       return 0;
@@ -99,10 +102,15 @@ int chkarg( const int argc )  {
 
   switch( readgps_opt )  {
 
-   case 'c':
+   case 't':
    case 'i':
      if( argc != 3 )  return -1;
      return 0;
+
+   case 'c':
+     if( argc != 4 )  return -1;
+     return 0;
+
 
    default:
      return -1;
@@ -1226,7 +1234,37 @@ case 't': ;
 
   // Perform test - see if the check sum and nmea arguments are correct
 
-case 'c':
+case 'c':;
+  #define CMP_NMEA_ARG_1 2
+  #define CMP_NMEA_ARG_2 3
+
+  // init nmea
+  struct NMEAent nmea_1, nmea_2;
+
+  init_nmea( &nmea_1, argv[ CMP_NMEA_ARG_1 ] );
+  init_nmea( &nmea_2, argv[ CMP_NMEA_ARG_2 ] );
+
+  // read nmea data
+  if( readnmea( &nmea_1 ) == -1 )
+    fail( "Could not read NMEA 1 entry" );
+  // read nmea data
+  if( readnmea( &nmea_2 ) == -1 )
+    fail( "Could not read NMEA 2 entry" );
+
+  load_msgdata( &nmea_1 );
+  load_geopos( &nmea_1 );
+
+  load_msgdata( &nmea_2 );
+  load_geopos( &nmea_2 );
+
+  double nmeapos_diff = ( nmea_1.gp->x - nmea_2.gp->x ) * 
+    ( nmea_1.gp->x - nmea_2.gp->x );
+  nmeapos_diff +=  ( nmea_1.gp->y - nmea_2.gp->y ) * 
+    ( nmea_1.gp->y - nmea_2.gp->y );
+  nmeapos_diff +=  ( nmea_1.gp->z - nmea_2.gp->z ) * 
+    ( nmea_1.gp->z - nmea_2.gp->z );
+  nmeapos_diff = sqrt( nmeapos_diff );
+  printf( "%f\n",  nmeapos_diff );
 
   return 0;
   /////////////////////////////////////////////////////////////////////
