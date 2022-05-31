@@ -289,6 +289,8 @@ struct GGAmsg {
 
 };
 
+// TODO I check only in check chars - meters but we can have FEET
+
 void init_gga( struct GGAmsg *const gga )  {
 
   gga->time = NULL;
@@ -311,26 +313,43 @@ void init_gga( struct GGAmsg *const gga )  {
 #define RMC_MIN_PARAMLEN 14
 struct RMCmsg {
 
-  struct nmeatime time; // UTC hh:mm:ss.ss
-  char status; // data validator
-  double lat; //  degres
-  char lat_NS; // N / S  latitude hemisphere
-  double lon; // degres
-  char lon_WE; // W / E longtitude hemisphere 
-  double velocity; // speed over ground in knots - change to km/h or m/s
-  double course; // Course over ground.
-  struct nmeadate date; // dd mmy yyy		 
-  double mv; // Magnetic variation value 
+  struct nmeatime *time; // UTC hh:mm:ss.ss
+  char *status; // data validator
+  double *lat; //  degres
+  char *lat_NS; // N / S  latitude hemisphere
+  double *lon; // degres
+  char *lon_WE; // W / E longtitude hemisphere 
+  double *velocity; // speed over ground in knots - change to km/h or m/s
+  double *course; // Course over ground.
+  struct nmeadate *date; // dd mmy yyy		 
+  double *mv; // Magnetic variation value 
 	    // Only supported in ADR 4.10 and above
-  char mv_EW; // Magnetic variation E / W indicator
+  char *mv_WE; // Magnetic variation E / W indicator
 	    // Only supported in ADR 4.10 and above
-  char pos_mod; // Mode indicator NMEA v 2.3 and above only  // TODO wtf is this
-  char nav_stat; // Navigation indicator status NMEA v 4.1 and above
+  char *pos_mod; // Mode indicator NMEA v 2.3 and above only  // TODO wtf is this
+  char *nav_stat; // Navigation indicator status NMEA v 4.1 and above
 		// For examples tells us equipment does not provide
 		// navigational status information.
 
 };
 
+void init_rmc( struct RMCmsg *const rmc )  {
+
+  rmc->time = NULL;
+  rmc->status = NULL;
+  rmc->lat = NULL;
+  rmc->lat_NS = NULL;
+  rmc->lon = NULL;
+  rmc->lon_WE = NULL;
+  rmc->velocity = NULL;
+  rmc->course = NULL;
+  rmc->date = NULL;
+  rmc->mv = NULL;
+  rmc->mv_WE = NULL;
+  rmc->pos_mod = NULL;
+  rmc->nav_stat = NULL;
+
+}
 
 
 // END OF NMEA STRUCTS AND INIT FUNCTIONS
@@ -508,7 +527,7 @@ int print_msgdata( struct NMEAent *const nmea )  {
   switch( nmea->message.id )  {
 
    case messageGGA:
-    print_gga( ( struct GGAmsg *)( nmea->msgdata ) );
+    print_gga( nmea->msgdata );
     return 0;
     
    case messageRMC:
@@ -1274,6 +1293,216 @@ int load_GGA( struct NMEAent *const nmea )  {
 
 }
 
+int load_RMC( struct NMEAent *const nmea )  {
+
+  assert( nmea != NULL );
+
+  // -1 because we need to get rid of checksum entry
+  if( nmea->entries_len - 1 < RMC_MIN_PARAMLEN )  {
+
+    etalk( "There is not enough paramenetrs for GGA message,\n"
+      "Nmea line seems broken." );
+    broken_entries = true;
+    return -1;
+
+  }
+
+  struct RMCmsg *rmc = nmea->msgdata;
+  char *const* ent = nmea->entries;
+
+  // TODO all gga entries must be pointers
+  // set them to null for a start
+  // CRUCIAL data has to appear
+  // else it will treat it as broken data
+  // Rest might appear or not.
+  // If yes - check it
+
+  // UTC date
+  if( ent[0][0] != '\0' )  {
+
+    rmc->time = malloc( sizeof *( rmc->time ) );
+    if( rmc->time  == NULL )  return -1;
+    if( chk_nmeatime( *ent ) == -1 )  return -1;
+
+  }
+  ent++; // TODO we still need to load it
+
+  // quality of message - STATUS Valid / invalid   V/A
+  if( ent[0][0] != '\0' )  {
+
+    rmc->status = malloc( sizeof *( rmc->status ) );
+    if( rmc->status  == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->status ) == -1 )
+      return -1;
+ /*   if( chk_nmeachr_VA( rmc->status ) == -1 )
+      return -1;   >TODO */
+
+  }
+  ent++;
+
+
+  ////////////////////////////////
+  // CRUCIAL for data to be useful
+
+  // latitude in deg
+  if( ent[0][0] == '\0' )  {
+
+    usless_data = true;
+
+  }  else  {
+
+    rmc->lat = malloc( sizeof *( rmc->lat ) );
+    if( rmc->lat  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeageo_deg( *ent, rmc->lat ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+  // latitude hemisphere - we check after getting char
+  // it's correct
+ if( ent[0][0] == '\0' )  {
+
+    usless_data = true;
+
+  }  else  {
+
+    rmc->lat_NS = malloc( sizeof *( rmc->lat_NS ) );
+    if( rmc->lat_NS  == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->lat_NS ) == -1 )
+      return -1;
+    if( chk_nmeachr_NS( rmc->lat_NS ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+  // longtitude
+  if( ent[0][0] == '\0' )  {
+
+    usless_data = true;
+
+  }  else  {
+
+    rmc->lon = malloc( sizeof *( rmc->lon ) );
+    if( rmc->lon  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeageo_deg( *ent, rmc->lon ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+  //longtitude hemisphere 
+  if( ent[0][0] == '\0' )  {
+
+    usless_data = true;
+
+  }  else  {
+
+    rmc->lon_WE = malloc( sizeof *( rmc->lon_WE ) );
+    if( rmc->lon_WE == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->lon_WE ) == -1 )
+      return -1;
+    if( chk_nmeachr_WE( rmc->lon_WE ) == -1 )
+      return -1;
+
+  }
+  ent++;
+  // END OF CRUCIAL DATA
+  //////////////////////////////////
+  
+  // velocity of the object ( knots )
+  if( ent[0][0] != '\0' )  {
+
+    rmc->velocity = malloc( sizeof *( rmc->velocity ) );
+    if( rmc->velocity  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeafloat( *ent,  rmc->velocity ) == -1 )
+      return -1;
+
+  }
+  ent++;
+  
+  //  Course of object ( angle )
+   if( ent[0][0] != '\0' )  {
+
+    rmc->course = malloc( sizeof *( rmc->course ) );
+    if( rmc->course  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeafloat( *ent, rmc->course ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+  // date
+  if( ent[0][0] != '\0' )  {
+
+    rmc->date = malloc( sizeof *( rmc->date ) );
+    if( rmc->date  == NULL )  return -1;
+    // TODO
+
+  }
+  ent++;
+
+  // Magnetic variation
+  if( ent[0][0] != '\0' )  {
+
+    rmc->mv = malloc( sizeof *( rmc->mv ) );
+    if( rmc->mv  == NULL )  return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  return -1;
+    if( get_nmeafloat( *ent, rmc->mv ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+  // Magnetic variation EW indycator
+  if( ent[0][0] != '\0' )  {
+
+    rmc->mv_WE = malloc( sizeof *( rmc->mv_WE ) );
+    if( rmc->mv_WE  == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->mv_WE ) == -1 )
+      return -1;
+    if( chk_nmeachr_WE( rmc->mv_WE ) == -1 )
+      return -1;
+
+  }
+  ent++;
+
+
+  // TODO - we need to check can we even increment the ent or did it leave bounds of it's size
+
+  // Mode indycator
+  if( ent[0][0] != '\0' )  {
+
+    rmc->pos_mod = malloc( sizeof *( rmc->pos_mod ) );
+    if( rmc->pos_mod  == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->pos_mod ) == -1 )
+      return -1;
+    // TODO  check chars
+ 
+   }
+   ent++;
+
+   // Navigation indycator
+  if( ent[0][0] != '\0' )  {
+
+    rmc->nav_stat = malloc( sizeof *( rmc->nav_stat ) );
+    if( rmc->nav_stat  == NULL )  return -1;
+    if( get_nmeachr( *ent, rmc->nav_stat ) == -1 )
+      return -1;
+    // TODO  check chars
+ 
+   }
+
+  return 0;
+
+}
+
+
 // use the raw entry data to convert it into nmea data
 int load_msgdata( struct NMEAent *const nmea )  {
 
@@ -1284,12 +1513,14 @@ int load_msgdata( struct NMEAent *const nmea )  {
    case messageGGA:
     nmea->msgdata = malloc( sizeof( struct GGAmsg ) );
     if( nmea->msgdata == NULL )  return -1;
+    init_gga(  nmea->msgdata );
     return load_GGA( nmea );
     
    case messageRMC:
     nmea->msgdata = malloc( sizeof( struct RMCmsg ) );
     if( nmea->msgdata == NULL )  return -1;
-//    return 0; // TODO set up RMC function
+    init_rmc( nmea->msgdata );
+    return load_RMC( nmea );
 
    default:
     // At this point we probably know 100 times the
