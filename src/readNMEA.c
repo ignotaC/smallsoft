@@ -214,6 +214,7 @@ struct NMEAent  {
   struct idname message;
   char **entries;
   size_t entries_len;
+  char *chksum_ent;
   uint8_t chksum;
   void *msgdata;
   struct igmath_geopos *gp;  // coordinates - set if passed
@@ -310,7 +311,7 @@ void init_gga( struct GGAmsg *const gga )  {
 
 }
 
-#define RMC_MIN_PARAMLEN 14
+#define RMC_MIN_PARAMLEN 9
 struct RMCmsg {
 
   struct nmeatime *time; // UTC hh:mm:ss.ss
@@ -519,6 +520,81 @@ int print_gga( struct GGAmsg *const gga )  {
 
 }
 
+
+int print_rmc( struct RMCmsg *const rmc )  {
+
+  // TODO UTC TIME PRINT
+  
+  if( rmc->status != NULL )  {
+
+	// TODO more details
+    printf( "Status value: %c\n", *( rmc->status ) );
+
+  }
+  
+  if( ( rmc->lat != NULL ) && ( rmc->lat_NS != NULL ) )  {
+   
+    printf( "Latitude: %f deg, hemisphere: %c\n",
+      *( rmc->lat ), *( rmc->lat_NS ) );
+
+  }
+
+
+  if( ( rmc->lon != NULL ) && ( rmc->lon_WE != NULL ) )  {
+
+    printf( "Longtitude: %f deg, hemisphere %c\n",
+      ( *rmc->lon ), *( rmc->lon_WE ) );
+
+  }
+  
+  if( rmc->velocity != NULL )  {
+
+    printf( "Speed over ground in knots: %f\n",
+      *( rmc->velocity ) );
+
+  }
+  
+  if( rmc->course != NULL )  {
+
+    printf( "Course over ground: %f\n",
+      *( rmc->course ) );
+
+  }
+
+  //TODO date data here
+
+  // TODO all above more details also change velocity to km/h or m/s
+
+  if( ( rmc->mv != NULL ) && ( rmc->mv_WE != NULL ) )  {
+
+    printf( "Magnetic variation value: %f, hemisphere: %c\n",
+      *( rmc->mv ), *( rmc->mv_WE ) );
+
+  }
+
+
+  if( rmc->pos_mod != NULL )  {
+
+    printf( "Mode indicator: %c\n",
+      *( rmc->pos_mod ) );
+
+  } 
+
+  if( rmc->nav_stat != NULL )  {
+
+    printf( "Navigator indicator status: %c\n",
+      *( rmc->nav_stat ) );
+
+  } 
+
+
+
+
+  return 0;
+
+}
+
+
 // use the raw entry data to convert it into nmea data
 int print_msgdata( struct NMEAent *const nmea )  {
 
@@ -531,7 +607,8 @@ int print_msgdata( struct NMEAent *const nmea )  {
     return 0;
     
    case messageRMC:
-//    return 0; TODO
+    print_rmc( nmea->msgdata );
+    return 0;
 
    default:
     etalk( "Unable to load nmea message data,"
@@ -698,8 +775,8 @@ int loadent( struct NMEAent *const nmea )  {
     ( nmea->entries_len )++;
     nmea->entries = aloc_data;
     char **newent_ptr = &( ( nmea->entries )[ nmea->entries_len - 1 ] );
-    size_t entsize = strlen( ent ) + 1;
-    *newent_ptr = malloc( entsize ); // + 1 for nul
+    size_t entsize = strlen( ent ) + 1; // + 1 for nul
+    *newent_ptr = malloc( entsize ); 
     if( *newent_ptr == NULL )  return -1;
     // ^ even if we return -1 
     // it is fine NULL is left, free( NULL ) wont cause problems
@@ -709,13 +786,29 @@ int loadent( struct NMEAent *const nmea )  {
     ent = newent;
 
     // we have all entries
-    if( lastent )  return 0;
+    if( lastent )  {
+     
+      // but the check sum is treated as separate entryy
+      // in this program
+      // so we move it out
+      nmea->chksum_ent = nmea->entries[ nmea->entries_len - 1 ];
+      nmea->entries[ nmea->entries_len - 1 ] = NULL;
+      // ^ this is very important, we will detect end of
+      // nmea entries later, kind of abbreviate  in
+      // solving is it the end
+
+      // now subtract the lost entry from len
+      ( nmea->entries_len )--; 
+
+      return 0;
+
+    }
     if( chksumsign_found == true )  {
 
       // pass the checksum sign - also turned to nul earlier
       ent++;
       newent = ent;
-      for(; isxdigit( *newent ); newent++);
+      for(; isxdigit( *newent ); newent++); // move after check sum
       lastent = true;
       goto finished;
 
@@ -801,7 +894,7 @@ int readnmea( struct NMEAent *const nmea )  {
   if( nmealine[0] != ',' )  {
 
     etalk( "No ',' after message ID which has static size" );
-    // This is also treated as crusial so no sens to go any furthe
+    // This is also treated as crusial so no sens to go any further
     broken_entries = true;
     return -1;
 
@@ -851,6 +944,7 @@ int get_nmeachr( const char *const ent,
   }
   if( ent[1] != '\0' )   {
 
+    etalk( ent );
     etalk( "Nmea entry is not a single char as it should be" );
     broken_entries = true;
     return -1;
@@ -1072,7 +1166,7 @@ int load_GGA( struct NMEAent *const nmea )  {
   assert( nmea != NULL );
 
   // -1 because we need to get rid of checksum entry
-  if( nmea->entries_len - 1 < GGA_MIN_PARAMLEN )  {
+  if( nmea->entries_len < GGA_MIN_PARAMLEN )  {
 
     etalk( "There is not enough paramenetrs for GGA message,\n"
       "Nmea line seems broken." );
@@ -1298,9 +1392,9 @@ int load_RMC( struct NMEAent *const nmea )  {
   assert( nmea != NULL );
 
   // -1 because we need to get rid of checksum entry
-  if( nmea->entries_len - 1 < RMC_MIN_PARAMLEN )  {
+  if( nmea->entries_len < RMC_MIN_PARAMLEN )  {
 
-    etalk( "There is not enough paramenetrs for GGA message,\n"
+    etalk( "There is not enough paramenetrs for RMC message,\n"
       "Nmea line seems broken." );
     broken_entries = true;
     return -1;
@@ -1339,7 +1433,6 @@ int load_RMC( struct NMEAent *const nmea )  {
 
   }
   ent++;
-
 
   ////////////////////////////////
   // CRUCIAL for data to be useful
@@ -1447,7 +1540,10 @@ int load_RMC( struct NMEAent *const nmea )  {
   }
   ent++;
 
+  // AFTER THIS THERE MIGHT BE NO DATA
+
   // Magnetic variation
+  if( *ent == NULL )  return 0;
   if( ent[0][0] != '\0' )  {
 
     rmc->mv = malloc( sizeof *( rmc->mv ) );
@@ -1460,6 +1556,7 @@ int load_RMC( struct NMEAent *const nmea )  {
   ent++;
 
   // Magnetic variation EW indycator
+  if( *ent == NULL )  return 0;
   if( ent[0][0] != '\0' )  {
 
     rmc->mv_WE = malloc( sizeof *( rmc->mv_WE ) );
@@ -1472,10 +1569,10 @@ int load_RMC( struct NMEAent *const nmea )  {
   }
   ent++;
 
-
   // TODO - we need to check can we even increment the ent or did it leave bounds of it's size
 
   // Mode indycator
+  if( *ent == NULL )  return 0;
   if( ent[0][0] != '\0' )  {
 
     rmc->pos_mod = malloc( sizeof *( rmc->pos_mod ) );
@@ -1488,6 +1585,7 @@ int load_RMC( struct NMEAent *const nmea )  {
    ent++;
 
    // Navigation indycator
+  if( *ent == NULL )  return 0;
   if( ent[0][0] != '\0' )  {
 
     rmc->nav_stat = malloc( sizeof *( rmc->nav_stat ) );
@@ -1503,7 +1601,7 @@ int load_RMC( struct NMEAent *const nmea )  {
 }
 
 
-// use the raw entry data to convert it into nmea data
+// Extract nmea data from raw entries
 int load_msgdata( struct NMEAent *const nmea )  {
 
   assert( nmea != NULL );
@@ -1533,6 +1631,7 @@ int load_msgdata( struct NMEAent *const nmea )  {
 
 }
 
+// TODO check if you can blow up geopos with a zero coordinate
 // create the coordinates
 int load_geopos( struct NMEAent *const nmea )  {
 
@@ -1542,14 +1641,19 @@ int load_geopos( struct NMEAent *const nmea )  {
 
    case messageGGA:;
     struct GGAmsg *gga = nmea->msgdata;
-    nmea->gp = malloc( sizeof nmea->gp );
+    nmea->gp = malloc( sizeof *( nmea->gp ) );
     if( nmea->gp == NULL )  return -1;
     igmath_get_geopos( nmea->gp, *( gga->lat ),
       *( gga->lat_NS ), *( gga->lon ), *( gga->lon_WE ) );
     return 0;
     
-   case messageRMC:
-// TODO    return 0;
+   case messageRMC:;
+     struct RMCmsg *rmc = nmea->msgdata;
+     nmea->gp = malloc( sizeof *( nmea->gp ) );
+     if( nmea->gp == NULL )  return -1;
+     igmath_get_geopos( nmea->gp, *( rmc->lat ),
+       *( rmc->lat_NS ), *( rmc->lon ), *( rmc->lon_WE ) );
+     return 0;
 
    default:
     etalk( "Unknown nmea message ID, can't aquaire geo data" );
@@ -1624,10 +1728,9 @@ case 'i': ;// expression for *goto* - case
 
   printf( "Counted checksum in hex: %" PRIX8 ", ", nmea_info.chksum );
   printf( "passed in line checksum: %s\n",
-     nmea_info.entries[ nmea_info.entries_len - 1 ] );
+     nmea_info.chksum_ent );
   errno = 0;
-  long int info_chksum = strtol( nmea_info.entries[ nmea_info.entries_len - 1 ],
-    NULL, CHKSUM_BASE );
+  long int info_chksum = strtol( nmea_info.chksum_ent, NULL, CHKSUM_BASE );
   if( ( uint8_t )info_chksum != nmea_info.chksum )  {
 
     puts( "Counted check sum does not match passed in nmealine checksum!" );
@@ -1673,8 +1776,7 @@ case 't': ;
   }
 
   errno = 0;
-  long int chksum = strtol( nmea_chksum.entries[ nmea_chksum.entries_len - 1 ],
-    NULL, CHKSUM_BASE );
+  long int chksum = strtol( nmea_chksum.chksum_ent, NULL, CHKSUM_BASE );
   if( ( uint8_t )chksum != nmea_chksum.chksum )
     return 2;  // Chksum fail, corrupted data
     
