@@ -33,6 +33,9 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+// TODO
+// when known message ID pass empty commans ,,,,,,,,,,,,,,,,,,,*34
+// longer than expected. - Segfaulting hard
 
 // basic error funtion - finish program
 void fail( const char *const estr )  {
@@ -130,7 +133,7 @@ int chkarg( const int argc )  {
 
 
 bool broken_entries = false;
-bool usless_data = false;
+bool useless_data = false;
 
 // it is used for keeping message ID or talker ID
 #define TALKMSG_SIZE 16
@@ -215,6 +218,7 @@ struct NMEAent  {
   char **entries;
   size_t entries_len;
   char *chksum_ent;
+  uint8_t chksum_ent_decimal;
   uint8_t chksum;
   void *msgdata;
   struct igmath_geopos *gp;  // coordinates - set if passed
@@ -431,7 +435,7 @@ int print_gga( struct GGAmsg *const gga )  {
   if( ( gga->lon != NULL ) && ( gga->lon_WE != NULL ) )  {
 
     printf( "Longtitude: %f deg, hemisphere %c\n",
-      ( *gga->lon ), *( gga->lon_WE ) );
+      *( gga->lon ), *( gga->lon_WE ) );
 
   }
   
@@ -479,7 +483,7 @@ int print_gga( struct GGAmsg *const gga )  {
       *( gga->satelite_num ) );
 
   }
-  
+ 
   if( gga->hddp != NULL )  {
 
     printf( "Horizontal dilution of precission: %f\n",
@@ -844,7 +848,7 @@ int readnmea( struct NMEAent *const nmea )  {
     broken_entries = true;
     return -1;
 
-    usless_data = true;
+    useless_data = true;
 
   }
   nmealine++; // move forward, after $.
@@ -866,7 +870,7 @@ int readnmea( struct NMEAent *const nmea )  {
     // still probably this is an error
     // don't treat it as broken entries
 
-    usless_data = true;
+    useless_data = true;
 
   }
 
@@ -921,6 +925,18 @@ int readnmea( struct NMEAent *const nmea )  {
   // load everything else
   if( loadent( nmea ) != 0 )  return -1;
   // at this point all data was processed
+  errno = 0;
+  nmea->chksum_ent_decimal =
+    ( uint8_t )strtol( nmea->chksum_ent, NULL, CHKSUM_BASE );
+  if( errno != 0 )  return -1;
+
+  if( nmea->chksum_ent_decimal != nmea->chksum )  {
+
+    broken_entries = true;
+    useless_data = true;
+
+  }
+
   return 0;
 
 }
@@ -1201,15 +1217,24 @@ int load_GGA( struct NMEAent *const nmea )  {
   // latitude in deg
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     gga->lat = malloc( sizeof *( gga->lat ) );
-    if( gga->lat  == NULL )  return -1;
-    if( chk_nmeafloat( *ent )  == -1 )  return -1;
-    if( get_nmeageo_deg( *ent, gga->lat ) == -1 )
+    if( gga->lat  == NULL ) return -1;
+    if( chk_nmeafloat( *ent )  == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
+    if( get_nmeageo_deg( *ent, gga->lat ) == -1 )  {
+
+      useless_data = true;	    
+      return -1;
+
+    }
 
   }
   ent++;
@@ -1218,16 +1243,24 @@ int load_GGA( struct NMEAent *const nmea )  {
   // it's correct
  if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     gga->lat_NS = malloc( sizeof *( gga->lat_NS ) );
     if( gga->lat_NS  == NULL )  return -1;
-    if( get_nmeachr( *ent, gga->lat_NS ) == -1 )
+    if( get_nmeachr( *ent, gga->lat_NS ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
-    if( chk_nmeachr_NS( gga->lat_NS ) == -1 )
+
+    }
+    if( chk_nmeachr_NS( gga->lat_NS ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
 
   }
   ent++;
@@ -1235,15 +1268,24 @@ int load_GGA( struct NMEAent *const nmea )  {
   // longtitude
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     gga->lon = malloc( sizeof *( gga->lon ) );
     if( gga->lon  == NULL )  return -1;
-    if( chk_nmeafloat( *ent )  == -1 )  return -1;
-    if( get_nmeageo_deg( *ent, gga->lon ) == -1 )
+    if( chk_nmeafloat( *ent )  == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
+    if( get_nmeageo_deg( *ent, gga->lon ) == -1 )  {
+
+      useless_data = true;	    
+      return -1;
+
+    }
 
   }
   ent++;
@@ -1251,16 +1293,24 @@ int load_GGA( struct NMEAent *const nmea )  {
   //longtitude hemisphere 
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     gga->lon_WE = malloc( sizeof *( gga->lon_WE ) );
     if( gga->lon_WE == NULL )  return -1;
-    if( get_nmeachr( *ent, gga->lon_WE ) == -1 )
+    if( get_nmeachr( *ent, gga->lon_WE ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
-    if( chk_nmeachr_WE( gga->lon_WE ) == -1 )
+
+    }
+    if( chk_nmeachr_WE( gga->lon_WE ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
 
   }
   ent++;
@@ -1440,15 +1490,24 @@ int load_RMC( struct NMEAent *const nmea )  {
   // latitude in deg
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     rmc->lat = malloc( sizeof *( rmc->lat ) );
     if( rmc->lat  == NULL )  return -1;
-    if( chk_nmeafloat( *ent )  == -1 )  return -1;
-    if( get_nmeageo_deg( *ent, rmc->lat ) == -1 )
+    if( chk_nmeafloat( *ent )  == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
+    if( get_nmeageo_deg( *ent, rmc->lat ) == -1 )  {
+
+      useless_data = true;	    
+      return -1;
+
+    }
 
   }
   ent++;
@@ -1457,16 +1516,24 @@ int load_RMC( struct NMEAent *const nmea )  {
   // it's correct
  if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     rmc->lat_NS = malloc( sizeof *( rmc->lat_NS ) );
     if( rmc->lat_NS  == NULL )  return -1;
-    if( get_nmeachr( *ent, rmc->lat_NS ) == -1 )
+    if( get_nmeachr( *ent, rmc->lat_NS ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
-    if( chk_nmeachr_NS( rmc->lat_NS ) == -1 )
+
+    }
+    if( chk_nmeachr_NS( rmc->lat_NS ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
 
   }
   ent++;
@@ -1474,15 +1541,24 @@ int load_RMC( struct NMEAent *const nmea )  {
   // longtitude
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     rmc->lon = malloc( sizeof *( rmc->lon ) );
     if( rmc->lon  == NULL )  return -1;
-    if( chk_nmeafloat( *ent )  == -1 )  return -1;
-    if( get_nmeageo_deg( *ent, rmc->lon ) == -1 )
+    if( chk_nmeafloat( *ent )  == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
+    if( get_nmeageo_deg( *ent, rmc->lon ) == -1 )  {
+
+      useless_data = true;	    
+      return -1;
+
+    }
 
   }
   ent++;
@@ -1490,16 +1566,24 @@ int load_RMC( struct NMEAent *const nmea )  {
   //longtitude hemisphere 
   if( ent[0][0] == '\0' )  {
 
-    usless_data = true;
+    useless_data = true;
 
   }  else  {
 
     rmc->lon_WE = malloc( sizeof *( rmc->lon_WE ) );
     if( rmc->lon_WE == NULL )  return -1;
-    if( get_nmeachr( *ent, rmc->lon_WE ) == -1 )
+    if( get_nmeachr( *ent, rmc->lon_WE ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
-    if( chk_nmeachr_WE( rmc->lon_WE ) == -1 )
+
+    }
+    if( chk_nmeachr_WE( rmc->lon_WE ) == -1 )  {
+
+      useless_data = true;	    
       return -1;
+
+    }
 
   }
   ent++;
@@ -1641,6 +1725,10 @@ int load_geopos( struct NMEAent *const nmea )  {
 
    case messageGGA:;
     struct GGAmsg *gga = nmea->msgdata;
+    if( gga->lat == NULL )  return -1;
+    if( gga->lat_NS == NULL )  return -1;
+    if( gga->lon == NULL )  return -1;
+    if( gga->lon_WE == NULL )  return -1;
     nmea->gp = malloc( sizeof *( nmea->gp ) );
     if( nmea->gp == NULL )  return -1;
     igmath_get_geopos( nmea->gp, *( gga->lat ),
@@ -1649,6 +1737,10 @@ int load_geopos( struct NMEAent *const nmea )  {
     
    case messageRMC:;
      struct RMCmsg *rmc = nmea->msgdata;
+     if( rmc->lat == NULL )  return -1;
+     if( rmc->lat_NS == NULL )  return -1;
+     if( rmc->lon == NULL )  return -1;
+     if( rmc->lon_WE == NULL )  return -1;
      nmea->gp = malloc( sizeof *( nmea->gp ) );
      if( nmea->gp == NULL )  return -1;
      igmath_get_geopos( nmea->gp, *( rmc->lat ),
@@ -1678,12 +1770,16 @@ int main( const int argc, const char *const argv[] )  {
     data_fail( "Broken options" );
   // See if the number of arguments is correct
   if( chkarg( argc ) == -1 )
-    data_fail( "Broken number of arguments" );
+    data_fail( "Wrong number of arguments" );
 
   // dependign on option do...
   switch( readgps_opt )  {
 
   /////////////////////////////////////////////////////////////////////////
+
+// TODO putting stuff in blocks will save you from  using
+// variables that are not supposed to be used in cases
+// so no nmea.info in check sum pare ot -t
 
   // output information of GPS data
 case 'i': ;// expression for *goto* - case
@@ -1708,33 +1804,35 @@ case 'i': ;// expression for *goto* - case
  
   // print nmea data if message ID is unknown
   // just print raw entries
+  errno = 0;
   if( load_msgdata( &nmea_info ) == -1 )  {
 
+    if( errno )  fail( "Failed on load_msgdata" );
     print_nmeadata( &nmea_info );
 
   }  else  {
 
+    if( errno )  fail( "Failed on load_msgdata" );
     // At this point, it SHOULD never fail
     // but if yes - return simply.
     // stderr will be informed why...
     if( print_msgdata( &nmea_info ) == -1 )  return 0;
+    errno = 0;
     if( load_geopos( &nmea_info ) != -1 )  {
   
+      if( errno )  fail( "Failed on load_geopos" );
       print_geopos( &nmea_info );
   
     }
 
   }
 
-  printf( "Counted checksum in hex: %" PRIX8 ", ", nmea_info.chksum );
-  printf( "passed in line checksum: %s\n",
-     nmea_info.chksum_ent );
-  errno = 0;
-  long int info_chksum = strtol( nmea_info.chksum_ent, NULL, CHKSUM_BASE );
-  if( ( uint8_t )info_chksum != nmea_info.chksum )  {
+  printf( "Counted checksum: x%" PRIX8 ", ", nmea_info.chksum );
+  printf( "passed in line checksum: x%" PRIX8 "\n", 
+     nmea_info.chksum_ent_decimal );
+  if(  nmea_info.chksum_ent_decimal != nmea_info.chksum )  {
 
     puts( "Counted check sum does not match passed in nmealine checksum!" );
-    broken_entries = true;
 
   }  else  {
 
@@ -1748,9 +1846,9 @@ case 'i': ;// expression for *goto* - case
 
   }
 
-  if( usless_data )  {
+  if( useless_data )  {
 
-    puts( "This nmea line appears to be usless" );
+    puts( "This nmea line appears to be useless" );
 
   }
 
@@ -1766,20 +1864,44 @@ case 't': ;
   #define CHKSUM_NMEALINE_ARGPOS 2
   #define NMEALINE_FAIL 2
 
-  struct NMEAent nmea_chksum;
-  init_nmea( &nmea_chksum, argv[ CHKSUM_NMEALINE_ARGPOS ] );
-  if( readnmea( &nmea_chksum ) == -1 )  {
+  struct NMEAent nmea_chk;
+  init_nmea( &nmea_chk, argv[ CHKSUM_NMEALINE_ARGPOS ] );
 
-    etalk( "Could not read NMEA line" );    
+  // read nmea data
+  errno = 0;
+  if( readnmea( &nmea_chk ) == -1 )  {
+
+    if( errno )  fail( "Failure inside readnmea function" );
+    // fail won't return so no need for else
+    etalk( "Could not read NMEA entry" );
     return NMEALINE_FAIL;
 
   }
 
+  // We expect data to be useful
   errno = 0;
-  long int chksum = strtol( nmea_chksum.chksum_ent, NULL, CHKSUM_BASE );
-  if( ( uint8_t )chksum != nmea_chksum.chksum )
-    return 2;  // Chksum fail, corrupted data
+  if( load_msgdata( &nmea_chk ) == -1 )  {
+
+    if( errno )  fail( "Failed on load_msgdata" );
+    etalk( "Could not load nmea message data" );
+    return NMEALINE_FAIL;
     
+
+  }  else  {
+
+    if( errno )  fail( "Failed on load_msgdata" );
+
+  }
+
+
+  if( broken_entries == true )  return NMEALINE_FAIL;
+  if( useless_data == true )  return NMEALINE_FAIL;
+/*	  
+  if( nmea_chksum.chksum_ent_decimal != nmea_chksum.chksum )
+    return 2;  // Chksum fail, corrupted data 
+	       //ignore this for now
+	       // */
+
   // all fine
   return 0;
 
