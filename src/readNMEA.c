@@ -207,7 +207,7 @@ const size_t message_idname_len =
 
 // END OF CORE DEFINITIONS
 //////////////////////////////////////////////////
-// NMEA STRUCTS AND INIT FUNCTIONS
+// NMEA STRUCTS AND INIT FREE FUNCTIONS
   
 #define CHKSUM_BASE 16
 struct NMEAent  {
@@ -222,8 +222,10 @@ struct NMEAent  {
   uint8_t chksum;
   void *msgdata;
   struct igmath_geopos *gp;  // coordinates - set if passed
+  void ( *free_msgdata )( void *); // TODO
 
 };
+
 
 void init_nmea( struct NMEAent *const nmea,
     const char *const line )  {
@@ -241,6 +243,20 @@ void init_nmea( struct NMEAent *const nmea,
   nmea->chksum = 0;
   nmea->msgdata = NULL;
   nmea->gp = NULL;
+  nmea->free_msgdata = NULL;
+
+}
+
+void free_nmea( struct NMEAent *nmea )  {
+
+  assert( nmea != NULL );
+
+  for( size_t i = 0; i < nmea->entries_len; i++ )
+    free( nmea->entries[i] );
+
+  free( nmea->entries );
+
+  // TODO free msgdata
 
 }
 
@@ -866,11 +882,11 @@ int readnmea( struct NMEAent *const nmea )  {
 
     fprintf( stderr, "Unknown talker ID: %s\n",
       nmea->talker.name );
-    // despite this continue
-    // still probably this is an error
-    // don't treat it as broken entries
-
-    useless_data = true;
+    // Since there are many TALKERS
+    // and new ones can show up in future
+    // We only highlight the program does not
+    // recognise the talker
+    // But ofc the nmea line might be still correct
 
   }
 
@@ -1010,6 +1026,22 @@ int chk_nmeachr_M( const char *const nmeachr )  {
   return -1;
 
 }
+
+int chk_nmeachr_VA( const char *const nmeachr )  {
+
+  assert( nmeachr != NULL );
+
+  if( ( *nmeachr != 'V' ) && ( *nmeachr != 'A' ) )  {
+
+    etalk( "Not V/A char entry" );
+    broken_entries = true;
+    return -1;
+
+  }
+  return 0;
+
+}
+
 
 // check digits and dot, else error
 int chk_nmeafloat( const char *const ent )  {
@@ -1194,12 +1226,7 @@ int load_GGA( struct NMEAent *const nmea )  {
   struct GGAmsg *gga = nmea->msgdata;
   char *const* ent = nmea->entries;
 
-  // TODO all gga entries must be pointers
-  // set them to null for a start
   // CRUCIAL data has to appear
-  // else it will treat it as broken data
-  // Rest might appear or not.
-  // If yes - check it
 
   // UTC date
   if( ent[0][0] != '\0' )  {
@@ -1454,8 +1481,6 @@ int load_RMC( struct NMEAent *const nmea )  {
   struct RMCmsg *rmc = nmea->msgdata;
   char *const* ent = nmea->entries;
 
-  // TODO all gga entries must be pointers
-  // set them to null for a start
   // CRUCIAL data has to appear
   // else it will treat it as broken data
   // Rest might appear or not.
@@ -1478,8 +1503,8 @@ int load_RMC( struct NMEAent *const nmea )  {
     if( rmc->status  == NULL )  return -1;
     if( get_nmeachr( *ent, rmc->status ) == -1 )
       return -1;
- /*   if( chk_nmeachr_VA( rmc->status ) == -1 )
-      return -1;   >TODO */
+    if( chk_nmeachr_VA( rmc->status ) == -1 )
+      return -1;
 
   }
   ent++;
@@ -1904,10 +1929,6 @@ case 't': ;
 
   // all fine
   return 0;
-
-  // TODO free function
-
-  // Perform test - see if the check sum and nmea arguments are correct
 
 case 'c':;
   #define CMP_NMEA_ARG_1 2
