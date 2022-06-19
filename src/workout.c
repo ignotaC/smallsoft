@@ -57,7 +57,7 @@ OF THIS SOFTWARE.
 #define MIX_CHANCE 25
 #define DAY_TIME ( 60 * 60 * 24 )
 
-#define FPERM ( ( mode_t ) ( S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IROTH ) )
+#define FPERM ( ( mode_t ) ( S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH ) )
 
 enum {
 
@@ -86,7 +86,7 @@ int create_workout_file( const char *const workout_file_path )  {
 
   int fd = open( workout_file_path, O_RDWR | O_CREAT, FPERM );
   if( fd == -1 )  return -1;
-  if( close( fd ) == -1 )  perror( "Error on closeing workoutfile" );
+  if( close( fd ) == -1 )  perror( "Error on closing workoutfile" );
   return 0;
 
 }
