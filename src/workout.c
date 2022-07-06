@@ -242,16 +242,16 @@ int canbenext( const int today_exer, const int yesterday_exer )  {
     if( *exe_rule == NULL )  {
 
       exe_rule++;
+      // NULL after NULL means end of list.
       if( *exe_rule == NULL )  return 1;
+
       te = exe_rule;
-      // This is not 
-      if( **te != today_exer )  {
-
+      
+      // If we did not find today exercise - go to next NULL
+      // than continue;
+      if( **te != today_exer )
         while( *exe_rule != NULL )  exe_rule++;
-	continue;
 
-      }
-      exe_rule++;
       continue;
 
     }
