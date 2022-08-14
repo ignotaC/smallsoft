@@ -35,6 +35,8 @@ OF THIS SOFTWARE.
 #include <string.h>
 #include <unistd.h>
 
+// TODO if passed string to find bigger than 1/4 buff
+// allocate
 
 void fail( char *const estr )   {
 
@@ -56,7 +58,7 @@ void manual( void )  {
   puts( "How to use this program:" );
   puts( "fext phrase1 phrase2 filename" );
   puts( "Program will extract data blocks between strings" );
-  printf( "%s", "Program uses buffor of "BUFF_SIZE_STR( BUFF SIZE )" size, so strings passed,\n" );
+  printf( "%s", "Program uses buffor of "BUFF_SIZE_STR( BUFF_SIZE )" size, so strings passed,\n" );
   puts( "should have lower size / length" );
   exit( EXIT_SUCCESS );
 
