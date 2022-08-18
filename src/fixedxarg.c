@@ -25,6 +25,16 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+void leave( void )  {
+
+  fprintf( stderr, "This xarg does need only one argument.\n" );
+  fprintf( stderr, "Which is program name.\n" );
+  fprintf( stderr, "We feed the program with options and arguments,\n" );
+  fprintf( stderr, "using stdin\n" );
+  exit( EXIT_FAILURE );
+
+}
+
 void fail( const char *const estr )  {
 
   perror( estr );
@@ -34,10 +44,8 @@ void fail( const char *const estr )  {
 
 int main( const int argc, const char *const argv[] )  {
 
-  if( argc != 2 )
-    fail( "Wrong! This xarg takes no options, "
-          "only program name for argument feed." );
-
+  if( argc != 2 )  leave();
+  
   char *linestr = NULL;
   size_t linesize = 0;
   ssize_t bytes = 0;

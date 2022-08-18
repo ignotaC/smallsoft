@@ -134,7 +134,7 @@ inside the directory of your makefile.
 
     You should rememer that | is buffered and will not  
     pass everything immediatly always. So the real time  
-    will can be different than the loged one.  
+    can be different than the loged one.  
 
 6. **recev**
   >

@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+void fail_showmanual( void )  {
+
+  fprintf( stderr, "You need to pass at least two files to program.\n" );
+  fprintf( stderr, "Example: faddlines file1 file2\n" );
+  exit( EXIT_FAILURE );
+
+}
+
 void fail( const char *const estr )  {
 
   perror( estr );
@@ -13,16 +21,20 @@ void fail( const char *const estr )  {
 
 int main( const int argc, const char *const argv[] )  {
 
-  if( argc < 2 )
-    fail( "No files passed to add their lines" );
+  if( argc < 3 )
+    fail_showmanual();
 
   const int filenum = argc - 1;
   FILE *filelist[ filenum ];
   for( int i = 0; i < filenum; i++ )  {
 
     filelist[i] = fopen( argv[ i + 1 ], "r" );
-    if( filelist[i] == NULL )
-      fail( "Failure on file opening" );
+    if( filelist[i] == NULL )  {
+
+      fprintf( stderr, "Problem with file: %s\n", argv[ i + 1 ] );
+      fail( "Could not open it" );
+
+    }
 
   }
 
