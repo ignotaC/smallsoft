@@ -20,7 +20,7 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../ignotalib/src/ig_net/ign_unixsock.h"
+#include "../ignotalib/src/ig_net/ign_unixserv.h"
 
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -155,7 +155,7 @@ int main( int argc, char *argv[] )  {
   if( sigaction( SIGINT, &sa, NULL ) == -1 )
     fail( "Could not set signal handler" );
 
-  int sockfd = ign_getsun( sockname, QUEUE_LIMIT );
+  int sockfd = ign_unixserv( sockname, QUEUE_LIMIT );
   if( sockfd == -1 ) fail( "Could not create socket." );
 
   if( argc == 4 )
@@ -202,7 +202,7 @@ int main( int argc, char *argv[] )  {
     if( pfd[0].revents == POLLNVAL )  {
 
       close( sockfd );
-      sockfd = ign_getsun( sockname, QUEUE_LIMIT );
+      sockfd = ign_unixserv( sockname, QUEUE_LIMIT );
       if( sockfd == -1 )
         fail( "Could not create socket" );
       pfd[0].fd = sockfd;

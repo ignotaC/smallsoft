@@ -10,7 +10,7 @@ LIBIG_OBJ=-Lignota_obj
 SS_OBJ=ss_obj
 make:
 
-	sh code_update.sh
+#	sh code_update.sh
 
 #compile external static libs ( ignotalib submodule )
 	mkdir -p ${IG_OBJ}
@@ -33,8 +33,14 @@ make:
 	${CCOBJ} ${IG}/ig_file/igf_offset.c -o ${IG_OBJ}/igf_offset.o
 	${AR} ${IG_OBJ}/libigf_offset.a ${IG_OBJ}/igf_offset.o
 
-	${CCOBJ} ${IG}/ig_net/ign_unixsock.c -o ${IG_OBJ}/ign_unixsock.o
-	${AR} ${IG_OBJ}/libign_unixsock.a ${IG_OBJ}/ign_unixsock.o
+	${CCOBJ} ${IG}/ig_net/ign_unixserv.c -o ${IG_OBJ}/ign_unixserv.o
+	${AR} ${IG_OBJ}/libign_unixserv.a ${IG_OBJ}/ign_unixserv.o
+
+	${CCOBJ} ${IG}/ig_net/ign_inetserv.c -o ${IG_OBJ}/ign_inetserv.o
+	${AR} ${IG_OBJ}/libign_inetserv.a ${IG_OBJ}/ign_inetserv.o
+
+	${CCOBJ} ${IG}/ig_net/ign_strtoport.c -o ${IG_OBJ}/ign_strtoport.o
+	${AR} ${IG_OBJ}/libign_strtoport.a ${IG_OBJ}/ign_strtoport.o
 
 	${CCOBJ} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
 	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
@@ -82,11 +88,15 @@ make:
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 #16	
 #  We need to remove the socket after gentle fin so it does not sleave shit in system	
-	${CCOBJ} ${SRC}/logdata.c -o ${SS_OBJ}/logdata.o # TODO add net socket support
-	${CC} ${SS_OBJ}/logdata.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/logdata
+#  ^ TODO
+	${CCOBJ} ${SRC}/sndlog_data.c -o ${SS_OBJ}/sndlog_data.o # TODO add net socket support
+	${CC} ${SS_OBJ}/sndlog_data.o ${LIBIG_OBJ} \
+	  -lign_unixserv -lign_inetserv -lign_strtoport \
+	  -o ${BIN}/sndlog_data
 #17
-	${CCOBJ} ${SRC}/runprog.c -o ${SS_OBJ}/runprog.o # TODO add net socket support
-	${CC} ${SS_OBJ}/runprog.o ${LIBIG_OBJ} -lign_unixsock -o ${BIN}/runprog
+# THis probably should stay as it is.
+	${CCOBJ} ${SRC}/runprog.c -o ${SS_OBJ}/runprog.o
+	${CC} ${SS_OBJ}/runprog.o ${LIBIG_OBJ} -lign_unixserv -o ${BIN}/runprog
 #18
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 #19
@@ -94,7 +104,9 @@ make:
 #20
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 #21
-	${CC} ${SRC}/givetask.c -o ${BIN}/givetask
+
+# PROGRAM REMOVED
+#
 #22
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 #23
