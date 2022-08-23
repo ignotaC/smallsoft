@@ -10,7 +10,7 @@ LIBIG_OBJ=-Lignota_obj
 SS_OBJ=ss_obj
 make:
 
-#	sh code_update.sh
+	sh code_update.sh
 
 #compile external static libs ( ignotalib submodule )
 	mkdir -p ${IG_OBJ}
