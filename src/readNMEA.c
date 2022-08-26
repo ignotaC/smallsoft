@@ -87,6 +87,8 @@ int setoption( const char *const options )  {
      case 't': 
      // information
      case 'i':
+     // print raw position
+     case 'p':
      // compare positions
      case 'c':
       readgps_opt = options[ OPTSTR_POS ];
@@ -105,6 +107,7 @@ int chkarg( const int argc )  {
 
   switch( readgps_opt )  {
 
+   case 'p':
    case 't':
    case 'i':
      if( argc != 3 )  return -1;
@@ -668,6 +671,22 @@ void print_geopos( struct NMEAent *const nmea )  {
   printf( "Z = %.3f m\n", nmea->gp->z );
 
 }
+//print the 3d position using geopos from nmea
+void print_raw_xyz_pos( struct NMEAent *const nmea )  {
+
+  if( nmea->gp == NULL )  {
+
+    puts( "Nmea entry does not contain geographic data,\n"
+      "Which we need, to create a 3d position" );
+    return;
+
+  }
+
+
+  printf( "%.3f %.3f %.3f\n", nmea->gp->x, nmea->gp->y, nmea->gp->z );
+
+}
+
 
 // END OF PRINTING FUNCTIONS
 ///////////////////////////////////////////////
@@ -1805,6 +1824,7 @@ int main( const int argc, const char *const argv[] )  {
 // TODO putting stuff in blocks will save you from  using
 // variables that are not supposed to be used in cases
 // so no nmea.info in check sum pare ot -t
+// It' is for gettign rid of struct NMEA each time with different name.
 
   // output information of GPS data
 case 'i': ;// expression for *goto* - case
@@ -1848,7 +1868,8 @@ case 'i': ;// expression for *goto* - case
       if( errno )  fail( "Failed on load_geopos" );
       print_geopos( &nmea_info );
   
-    }
+    } // TODO check if this can fail on system error
+      // vide errno gets set
 
   }
 
@@ -1881,6 +1902,50 @@ case 'i': ;// expression for *goto* - case
 
   /////////////////////////////////////////////////////////////////////
 
+  // output raw X Y Z postion of GPS data
+case 'p': ;// expression for *goto* - case
+  #define RAWPOS_NMEALINE_ARGPOS 2
+
+  // init nmea
+  struct NMEAent nmea_rawpos;
+  init_nmea( &nmea_rawpos, argv[ RAWPOS_NMEALINE_ARGPOS ] );
+
+  // read nmea data
+  errno = 0;
+  if( readnmea( &nmea_rawpos ) == -1 )  {
+
+    if( errno )  fail( "Failure inside readnmea function" );
+    // fail won't return so no need for else
+    data_fail( "Could not read NMEA entry" );
+
+  }
+
+  // print nmea data if message ID is unknown
+  // just print raw entries
+  errno = 0;
+  if( load_msgdata( &nmea_rawpos ) == -1 )  {
+
+    if( errno )  fail( "Failed on load_msgdata" );
+    fail( "Unknown NMEA data type" );
+
+  }  else  {
+
+    if( errno )  fail( "Failed on load_msgdata" );
+    // At this point, it SHOULD never fail
+    // but if yes - return simply.
+    // stderr will be informed why...
+    if( load_geopos( &nmea_rawpos ) != -1 )  {
+  
+      if( errno )  fail( "Failed on load_geopos" );
+      print_raw_xyz_pos( &nmea_rawpos );
+  
+    } // TODO same as in TODO i option
+
+  }
+
+  return 0;
+
+  /////////////////////////////////////////////////////////////////////
 // Check the chksum and NMEA entries, see if they are apropirate
 // It will return 0 on succes
 // 1 means problem with passed commands and arguments - liek too many arguments, wrong commands
