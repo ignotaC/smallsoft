@@ -114,7 +114,7 @@ int main( int argc, char *argv[] )  {
 
 
   bool setopt[255] = {0};
-  for( size_t i = 0; opts[i] != '\0'; i++ )  {
+  for( size_t i = 1; opts[i] != '\0'; i++ )  {
 
     switch( opts[i] )  {
 
@@ -179,6 +179,9 @@ int main( int argc, char *argv[] )  {
     if( portchk == -1 )
       usr_fail( "Broken port number" );
 
+    puts( sockport );
+    printf( "%d\n", portchk );
+
   }
   const unsigned short port = portchk;
   
@@ -216,7 +219,7 @@ int main( int argc, char *argv[] )  {
     sockfd = ign_unixserv( sockname, LISTEN_QUEUE );
 
   }  else  { // inet sock
-
+ 
     sockfd = ign_inettcpserv( port, LISTEN_QUEUE );
 
   }
@@ -243,6 +246,12 @@ int main( int argc, char *argv[] )  {
     if( exit_interrupt )  { // SIGINT came
 
       close( sockfd );
+      if( setopt[ 'u' ] )  {
+
+        if( remove( sockname ) == -1 )
+          fprintf( stderr, "fail on unixsock removal" );
+
+      }
       fprintf( stderr, "Exiting on sigint - gentle fin." );
       return 0;
 

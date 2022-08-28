@@ -38,13 +38,17 @@ void fail( const char *const estr )  {
 
 int main( int argc, char *argv[]  )  {
 
-  if( argc != 2 )  fail( "Wrong number of arguments\n"
-    "use like this:  listwords file\n" );
-  
+  if( argc > 2 )  fail( "Wrong number of arguments\n"
+    "use like this:  listwords filename, or nothing and input goes to stdin\n" );
+
   const size_t buffsize = 8192;
   char buff[ buffsize ];
 
-  int fd = igf_openrd( argv[ FILENAME_ARG ] );
+  // set fd  stdin or file
+  int fd = 0;
+  if( argc == 2 )  fd = igf_openrd( argv[ FILENAME_ARG ] );
+  else fd = fileno( stdin );  // TODO - this doe snot work  segfaults etc
+
   if( fd == -1 )  fail( "Could not open file" );
 
   for( char *word = NULL;;)  {

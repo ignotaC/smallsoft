@@ -42,6 +42,9 @@ make:
 	${CCOBJ} ${IG}/ig_net/ign_strtoport.c -o ${IG_OBJ}/ign_strtoport.o
 	${AR} ${IG_OBJ}/libign_strtoport.a ${IG_OBJ}/ign_strtoport.o
 
+	${CCOBJ} ${IG}/ig_event/igev_signals.c -o ${IG_OBJ}/igev_signals.o
+	${AR} ${IG_OBJ}/libigev_signals.a ${IG_OBJ}/igev_signals.o
+
 	${CCOBJ} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
 	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
 
@@ -87,11 +90,10 @@ make:
 #15
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 #16	
-#  We need to remove the socket after gentle fin so it does not sleave shit in system	
-#  ^ TODO
-	${CCOBJ} ${SRC}/sndlog_data.c -o ${SS_OBJ}/sndlog_data.o # TODO add net socket support
+	${CCOBJ} ${SRC}/sndlog_data.c -o ${SS_OBJ}/sndlog_data.o
 	${CC} ${SS_OBJ}/sndlog_data.o ${LIBIG_OBJ} \
 	  -lign_unixserv -lign_inetserv -lign_strtoport \
+	  -ligev_signals \
 	  -o ${BIN}/sndlog_data
 #17
 # THis probably should stay as it is.
