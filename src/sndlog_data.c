@@ -175,7 +175,9 @@ int main( int argc, char *argv[] )  {
   int portchk = -1;
   if( setopt[ 'i' ] )  {
 
+    printf( "%d\n", portchk );
     portchk = ign_strtoport( sockport );
+    printf( "%d\n", portchk );
     if( portchk == -1 )
       usr_fail( "Broken port number" );
 
