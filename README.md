@@ -371,20 +371,51 @@ inside the directory of your makefile.
     options can be together and can repeate.  
   >`randstr -d 50 -uuuud -udl`  
 
-16. **logdata**  `[ unix socket name ]`
+16. **sndlog_data**  `[ -option ] [ socket info ]`
   >
 
-    Program opens unix socket with name passed in argument.  
-    All data send to the socket will be redirected to stdout.  
-    Gentle way of exiting the program is sending SIGINT signal to it.  
-    dependencies: none  
-    Example of using it:
-  >`logdata /tmp/sunXXX > save_loged_data_here`
+    Program opens unix or internet socket and either sends  
+    data or logs it. It uses TCP protocol, by default picks IPv6 if  
+    both intrefaces ( IPv6 and IPv4 ) are present.  
+    You must always pass an option string and socket information.  
+    Existing options:  
 
-    This will create unix socket file /tmp/sunXXX and save  
-    all coming data to save_loged_data_here.  
-    An example of sending test data would look like this:
-  >`echo "test" | nc -UN /tmp/sunXXX`
+    `-l`  
+    Log data, everything that is recieved form  
+    connected clients is being redirected on stdout.
+    Expect FIN at the end of data.  
+    It is an error to pass this option with `-s` option.  
+
+    `-s`  
+    Send data, send one line from stdin to every client  
+    that connects, than pass FIN and close connection.  
+    It is an error to pass this option with `-l` option.  
+
+    `-u`  
+    Use unix socket for server. Second argument - socket  
+    information, must contain file name unix socket  
+    will use. It is an error to pass this option with `-i`  
+
+    `-i`  
+    Use internet socket. Second argument - socket infromation  
+    is port number we want server to use. It is an error  
+    to pass this option together with  `-u`.
+    
+    All data send to the socket will be redirected to stdout.  
+    Gentle way of telling server to finish running is sending SIGINT signal to it.  
+    dependencies: none  
+    Example of using it:  
+  >`sndlog_data -li 1500`  
+
+    This will create internet socket under 1500 port number  
+    and output incoming data to stdout. We could send it data  
+    using `nc` like this: `echo 'weeb' | nc -N 'localhost' '1500'`  
+  >`sndlog_data -su /tmp/sun_name`  
+
+    This will create unix socket file just as socket information says
+    under '/tmp/sun_name'. Server will send every connection one line  
+    from stdin. We could log data using `nc` since we like it so much.  
+    just like this: `nc -U '/tmp/sun_name'`  
 
 17. **runprog** - Program opens unix socket and runs program
               or script we pass at it start up. It runs the command when
@@ -437,10 +468,6 @@ inside the directory of your makefile.
 
               # Hope this is clear. The last line shows nc with passing traffic via tor
               # for server with https.
-
-21. **givetask** - Simple program, opens unix socket from first argument. And outputs each line
-               from stdin per connection. Then shutdowns and closes each socket. Example:
-               cat file | givetask /tmp/some; nc -U /tmp/some 
 
 22. **miodpitny** - program tells you MEAD proportions. 
 

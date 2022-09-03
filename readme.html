@@ -143,7 +143,7 @@ Example of using it:  </p>
 </blockquote>
 <p>You should rememer that | is buffered and will not<br />
 pass everything immediatly always. So the real time<br />
-will can be different than the loged one.  </p>
+can be different than the loged one.  </p>
 </li>
 <li>
 <p><strong>recev</strong></p>
@@ -386,22 +386,47 @@ options can be together and can repeate.  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>logdata</strong>  <code>[ unix socket name ]</code></p>
+<p><strong>sndlog_data</strong>  <code>[ -option ] [ socket info ]</code></p>
 <blockquote></blockquote>
-<p>Program opens unix socket with name passed in argument.<br />
-All data send to the socket will be redirected to stdout.<br />
-Gentle way of exiting the program is sending SIGINT signal to it.<br />
+<p>Program opens unix or internet socket and either sends<br />
+data or logs it. It uses TCP protocol, by default picks IPv6 if<br />
+both intrefaces ( IPv6 and IPv4 ) are present.<br />
+You must always pass an option string and socket information.<br />
+Existing options:  </p>
+<p><code>-l</code><br />
+Log data, everything that is recieved form<br />
+connected clients is being redirected on stdout.
+Expect FIN at the end of data.<br />
+It is an error to pass this option with <code>-s</code> option.  </p>
+<p><code>-s</code><br />
+Send data, send one line from stdin to every client<br />
+that connects, than pass FIN and close connection.<br />
+It is an error to pass this option with <code>-l</code> option.  </p>
+<p><code>-u</code><br />
+Use unix socket for server. Second argument - socket<br />
+information, must contain file name unix socket<br />
+will use. It is an error to pass this option with <code>-i</code>  </p>
+<p><code>-i</code><br />
+Use internet socket. Second argument - socket infromation<br />
+is port number we want server to use. It is an error<br />
+to pass this option together with  <code>-u</code>.</p>
+<p>All data send to the socket will be redirected to stdout.<br />
+Gentle way of telling server to finish running is sending SIGINT signal to it.<br />
 dependencies: none<br />
-Example of using it:</p>
+Example of using it:  </p>
 <blockquote>
-<p><code>logdata /tmp/sunXXX &gt; save_loged_data_here</code></p>
+<p><code>sndlog_data -li 1500</code>  </p>
 </blockquote>
-<p>This will create unix socket file /tmp/sunXXX and save<br />
-all coming data to save_loged_data_here.<br />
-An example of sending test data would look like this:</p>
+<p>This will create internet socket under 1500 port number<br />
+and output incoming data to stdout. We could send it data<br />
+using <code>nc</code> like this: <code>echo 'weeb' | nc -N 'localhost' '1500'</code>  </p>
 <blockquote>
-<p><code>echo "test" | nc -UN /tmp/sunXXX</code></p>
+<p><code>sndlog_data -su /tmp/sun_name</code>  </p>
 </blockquote>
+<p>This will create unix socket file just as socket information says
+under '/tmp/sun_name'. Server will send every connection one line<br />
+from stdin. We could log data using <code>nc</code> since we like it so much.<br />
+just like this: <code>nc -U '/tmp/sun_name'</code>  </p>
 </li>
 <li>
 <p><strong>runprog</strong> - Program opens unix socket and runs program
@@ -458,11 +483,6 @@ An example of sending test data would look like this:</p>
       # Hope this is clear. The last line shows nc with passing traffic via tor
       # for server with https.
 </code></pre>
-</li>
-<li>
-<p><strong>givetask</strong> - Simple program, opens unix socket from first argument. And outputs each line
-               from stdin per connection. Then shutdowns and closes each socket. Example:
-               cat file | givetask /tmp/some; nc -U /tmp/some </p>
 </li>
 <li>
 <p><strong>miodpitny</strong> - program tells you MEAD proportions. </p>

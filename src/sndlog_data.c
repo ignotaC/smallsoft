@@ -48,11 +48,11 @@ OF THIS SOFTWARE.
 
 #define LISTEN_QUEUE 1024
 
-// TODO Handle EPIPE
-// TODO this needs testing, too much new code
-// TODO in man tell user reuseaddr is default socket option
+// TODO check FIN for ending connection
 
-// TODO MUST TEST THIS
+
+// TODO in man tell user reuseaddr is default socket option
+// and set that f option ofc
 
 void manual( void )  {
 
@@ -62,13 +62,11 @@ void manual( void )  {
   fprintf( stderr, "-l program will log each message it recives to stdout \n" );	
   fprintf( stderr, "-u use unix socket\n" );	
   fprintf( stderr, "-i use inet socket\n" );
-  fprintf( stderr, "-T use tcp\n" );
-  fprintf( stderr, "-U use udp\n" );
-  fprintf( stderr, "It is error to mix both options as those in pairs: sl ui TU\n" );	
+  fprintf( stderr, "It is error to mix both options as those in pairs: sl ui\n" );	
   fprintf( stderr, "Second argument is unix socket name if -u option was chosen\n" );
   fprintf( stderr, "For -i socket in the second argument we must give port number \n" );
-  fprintf( stderr, "Example: sndrc_data -suU '\\tmp\\xxxfile' \n" );
-  fprintf( stderr, "Example: sndrc_data -liT '15015' \n" );
+  fprintf( stderr, "Example: sndrc_data -su '\\tmp\\xxxfile' \n" );
+  fprintf( stderr, "Example: sndrc_data -li '15015' \n" );
   exit( EXIT_FAILURE );
 
 }
@@ -122,8 +120,6 @@ int main( int argc, char *argv[] )  {
       case 'l':
       case 's':
       case 'u':
-      case 'T':
-      case 'U':
         setopt[ ( size_t )( ( unsigned char )opts[i] ) ] = 1;
 	break;
       default:
@@ -138,9 +134,6 @@ int main( int argc, char *argv[] )  {
 
   if( setopt[ 'l' ] && setopt[ 's' ] )
     usr_fail( "Option l and s can't be picked both" );
-
-  if( setopt[ 'T' ] && setopt[ 'U' ] )
-    usr_fail( "Option T and U can't be picked both" );
 
    if( !( setopt[ 'l' ] || setopt[ 's' ] ) )
     usr_fail( "s or l option must appear" );

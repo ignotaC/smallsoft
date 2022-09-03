@@ -60,7 +60,7 @@ make:
 #1
 	${CC} ./${SRC}/coin.c -o ./${BIN}/coin
 #2
-	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies # TODO huge revision for future remove wget crap etc
+	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies # TODO huge revision for future remove wget crap, we have now torgethhtp10
 #3
 	${CC} ${SRC}/novena.c -o ${BIN}/novena
 #4
@@ -86,7 +86,7 @@ make:
 #13
 	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump 
 #14
-	${CC} ${SRC}/rmvmb.c -o ${BIN}/rmvmb #TODO - turn allocations to simple buff
+	${CC} ${SRC}/rmvmb.c -o ${BIN}/rmvmb
 #15
 	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
 #16	
