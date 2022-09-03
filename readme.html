@@ -429,33 +429,22 @@ from stdin. We could log data using <code>nc</code> since we like it so much.<br
 just like this: <code>nc -U '/tmp/sun_name'</code>  </p>
 </li>
 <li>
-<p><strong>runprog</strong> - Program opens unix socket and runs program
-              or script we pass at it start up. It runs the command when
-              there is opened connection. It ignores sent data.  You can either
-              not even wait for the program to finish running the command
-              or wait.
-              I decided that there is no sens for inet socket type feature.
-              Unix socket is better fit for IPC without outside interferation.
-              Example: ./runprog '/tmp/sun' './runthisscript';
-              Than ask it to run it but don't wait for it to finish: nc -Uz '/tmp/sun'
-              Or ask it to run it and wait till it finish: nc -Ud '/tmp/sun'
-              Runprog closes gently when recives sigint. Additional one more argument
-              is for groups. You can do:
-              ./runprog '/tmp/sun' './runthisscript' 'go'
-              last one go stand for group and other - write permissions set on
-              unix socket. So if you need root to execute something simple user
-              can call it via this socket to do the job.</p>
-</li>
-<li>
-<p><strong>httpreq_addcrlf</strong> - Program adds after new line of each entry CRLF creating
-              proper http request. On the end it makes passes one more CRLF.
-              Empty lines are being ignored. Example of usage, we have file httpreq:</p>
-<pre><code>      GET /babylon/tower HTTP/1.0
-      Host: gagle.shit
-
-      We use it this way:
-      cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
-</code></pre>
+<p><strong>httpreq_addcrlf</strong></p>
+<blockquote></blockquote>
+<p>Program adds after new line of each entry CRLF creating<br />
+proper http request. After reaching EOF  one more CRLF<br />
+is being sent that indicates end of HTTP headet.<br />
+Empty lines are being ignored.<br />
+Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>cat httpreq | httpreq_addcrlf | nc hate-google-for-life.com 80</code>  </p>
+</blockquote>
+<p>Where httpreq file would look like this:  </p>
+<blockquote>
+<p><code>GET /babylon/tower HTTP/1.0</code><br />
+<code>Host: gagle.shit</code>  </p>
+</blockquote>
 </li>
 <li>
 <p><strong>flinemem</strong> - program loads stdin line to memory and searches if passed arguments

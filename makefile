@@ -96,19 +96,13 @@ make:
 	  -ligev_signals \
 	  -o ${BIN}/sndlog_data
 #17
-# THis probably should stay as it is.
-	${CCOBJ} ${SRC}/runprog.c -o ${SS_OBJ}/runprog.o
-	${CC} ${SS_OBJ}/runprog.o ${LIBIG_OBJ} -lign_unixserv -o ${BIN}/runprog
-#18
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
-#19
+#18
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
-#20
+#19
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
-#21
-
-# PROGRAM REMOVED
-#
+#20
+#####################################
 #22
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 #23
@@ -117,10 +111,13 @@ make:
 	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
 #25
 	${CC} ${SRC}/cutfile.c -o ${BIN}/cutfile
+	#TODO check httphb split for info
 #26
 	${CC} ${SRC}/htmlentities.c -o ${BIN}/htmlentities
 #27
 	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
+#  TODO cutfile shoudl do it just let it understand /r/n etc with
+#  escape char program should be removed and instead be a script using cutfile
 #28
 	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
 #29

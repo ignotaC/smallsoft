@@ -417,32 +417,20 @@ inside the directory of your makefile.
     from stdin. We could log data using `nc` since we like it so much.  
     just like this: `nc -U '/tmp/sun_name'`  
 
-17. **runprog** - Program opens unix socket and runs program
-              or script we pass at it start up. It runs the command when
-              there is opened connection. It ignores sent data.  You can either
-              not even wait for the program to finish running the command
-              or wait.
-              I decided that there is no sens for inet socket type feature.
-              Unix socket is better fit for IPC without outside interferation.
-              Example: ./runprog '/tmp/sun' './runthisscript';
-              Than ask it to run it but don't wait for it to finish: nc -Uz '/tmp/sun'
-              Or ask it to run it and wait till it finish: nc -Ud '/tmp/sun'
-              Runprog closes gently when recives sigint. Additional one more argument
-              is for groups. You can do:
-              ./runprog '/tmp/sun' './runthisscript' 'go'
-              last one go stand for group and other - write permissions set on
-              unix socket. So if you need root to execute something simple user
-              can call it via this socket to do the job.
+17. **httpreq_addcrlf**
+  >
 
-18. **httpreq_addcrlf** - Program adds after new line of each entry CRLF creating
-              proper http request. On the end it makes passes one more CRLF.
-              Empty lines are being ignored. Example of usage, we have file httpreq:
-              
-              GET /babylon/tower HTTP/1.0
-              Host: gagle.shit
-              
-              We use it this way:
-              cat httpreq | httpreq_addcrlf | netcat gagle.shit 80
+    Program adds after new line of each entry CRLF creating  
+    proper http request. After reaching EOF  one more CRLF  
+    is being sent that indicates end of HTTP head.  
+    Empty lines are being ignored.  
+    Dependencies: none  
+    Example of using it:  
+  >`cat httpreq | httpreq_addcrlf | nc hate-google-for-life.com 80`  
+
+    Where httpreq file would look like this:  
+  >`GET /babylon/tower HTTP/1.0`  
+  >`Host: gagle.shit`  
 
 19. **flinemem** - program loads stdin line to memory and searches if passed arguments
 	      exist in line. Line is printed to stdout only if all strings exist in line.

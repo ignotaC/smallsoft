@@ -27,10 +27,13 @@ OF THIS SOFTWARE.
 
 void fail()  {
 
-  perror( "" );
+  perror( "Httpreq_addcrlf Failure: " );
   exit( EXIT_FAILURE );
 
 }
+
+// TODO this should READ instead of silly putchc.
+// Since it's very slow because of it.
 
 int main( void )  {
 
