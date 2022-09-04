@@ -432,10 +432,20 @@ inside the directory of your makefile.
   >`GET /babylon/tower HTTP/1.0`  
   >`Host: gagle.shit`  
 
-19. **flinemem** - program loads stdin line to memory and searches if passed arguments
-	      exist in line. Line is printed to stdout only if all strings exist in line.
-              No need for regular expression when you simply need to find static patterns.
-              Example fo using:  cat file | flinemem 'pattern1' 'pattern2' 'pattern3' 
+18. **flinemem** `[ phrease1 ] [ phrease2 ] ...`
+  >
+
+    This simple program loads from stdin line to memory and searches  
+    if passed arguments exist in line. Line is printed to stdout only  
+    if all strings exist in line. First of all it's much faster then  
+    grep -E ( like 8 times ) since regular expressions are not used,  
+    and also, the egrep ( depracated name )  syntax for like  
+    four arguments and more is nonsens and shit.  
+    Command gets insanely long because someone could not make it simply  
+    "phra1&phra2" or what ever.  This program has none of such issues.  
+    Dependencies: none  
+    Example fo using it:  
+  >`cat file | flinemem 'pattern1' 'pattern2' 'pattern3'`
 
 20. **urlcode** - at the moment we have 3 options, encode (-e), decode (-d)  and
               'make post body' (-p). How to use:

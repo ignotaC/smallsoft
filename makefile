@@ -99,6 +99,7 @@ make:
 	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
 #18
 	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
+	#TODO make it possible to use OR and AND | & with () 
 #19
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 #20

@@ -433,7 +433,7 @@ just like this: <code>nc -U '/tmp/sun_name'</code>  </p>
 <blockquote></blockquote>
 <p>Program adds after new line of each entry CRLF creating<br />
 proper http request. After reaching EOF  one more CRLF<br />
-is being sent that indicates end of HTTP headet.<br />
+is being sent that indicates end of HTTP head.<br />
 Empty lines are being ignored.<br />
 Dependencies: none<br />
 Example of using it:  </p>
@@ -447,10 +447,21 @@ Example of using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>flinemem</strong> - program loads stdin line to memory and searches if passed arguments
-          exist in line. Line is printed to stdout only if all strings exist in line.
-              No need for regular expression when you simply need to find static patterns.
-              Example fo using:  cat file | flinemem 'pattern1' 'pattern2' 'pattern3' </p>
+<p><strong>flinemem</strong> <code>[ phrease1 ] [ phrease2 ] ...</code></p>
+<blockquote></blockquote>
+<p>This simple program loads from stdin line to memory and searches<br />
+if passed arguments exist in line. Line is printed to stdout only<br />
+if all strings exist in line. First of all it's much faster then<br />
+grep -E ( like 8 times ) since regular expressions are not used,<br />
+and also, the egrep ( depracated name )  syntax for like<br />
+four arguments and more is nonsens and shit.<br />
+Command gets insanely long because someone could not make it simply<br />
+"phra1&amp;phra2" or what ever.  This program has none of such issues.<br />
+Dependencies: none<br />
+Example fo using it:  </p>
+<blockquote>
+<p><code>cat file | flinemem 'pattern1' 'pattern2' 'pattern3'</code></p>
+</blockquote>
 </li>
 <li>
 <p><strong>urlcode</strong> - at the moment we have 3 options, encode (-e), decode (-d)  and
