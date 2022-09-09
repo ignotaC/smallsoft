@@ -24,8 +24,11 @@ OF THIS SOFTWARE.
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+//TODO \i no manual - sequance !!!
 
 void fail( const char *const estr )  {
 
@@ -37,6 +40,7 @@ void fail( const char *const estr )  {
 #define DIGIT_POS 1
 #define STR_POS 2
 
+
 int main( const int argc, const char *const argv[]  )  {
 
   if( argc != 3 )  // TODO  if no number passed - repeate string 1 time
@@ -45,6 +49,7 @@ int main( const int argc, const char *const argv[]  )  {
       "Example: repeatestr 100 'some text'\n" );
 
   char *endptr = NULL;
+  char *continue_str = NULL;
 
   errno = 0;
   if( argv[ DIGIT_POS ][0] == '\0' )  fail( "Broken number" );
@@ -75,6 +80,10 @@ int main( const int argc, const char *const argv[]  )  {
 	  continue;
 	case '\\':
 	  resolvestr[j] = '\\';
+	  continue;
+	case 'i':;
+	  continue_str = &resolvestr[ j + 1 ];
+	  resolvestr[j] = '\0'; // wee will print incrementor after this and than print rest
 	  continue;
 	case 't':
 	  resolvestr[j] = '\t';
@@ -108,7 +117,20 @@ int main( const int argc, const char *const argv[]  )  {
 
   }
 
-  while( repeate_count-- )  printf( "%s", resolvestr );
+  if( continue_str == NULL )
+    while( repeate_count-- )  printf( "%s", resolvestr );
+  else  {
+
+    uint64_t increment = 0; 
+    while( repeate_count-- )  {
+
+      printf( "%s%" PRIu64 "%s", resolvestr, increment, continue_str );
+      increment++;
+
+    }
+
+  }
+
   free( resolvestr );
 
   return 0;
