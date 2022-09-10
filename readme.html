@@ -396,7 +396,7 @@ options can be together and can repeate.  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>sndlog_data</strong>  <code>[ -option ] [ socket info ]</code></p>
+<p><strong>sndlog_data</strong>  <code>[ -options ] [ socket info ]</code></p>
 <blockquote></blockquote>
 <p>Program opens unix or internet socket and either sends<br />
 data or logs it. It uses TCP protocol, by default picks IPv6 if<br />
@@ -474,25 +474,37 @@ Example fo using it:  </p>
 </blockquote>
 </li>
 <li>
-<p><strong>urlcode</strong> - at the moment we have 3 options, encode (-e), decode (-d)  and
-              'make post body' (-p). How to use:
-              echo 'string to @#$ encode" | urlcode -e | urlcode -d
-              This will encode irl string and than decode it. Now the post part is a bit tricky.
-              First argument after options gets encoded and second argument does not.
-              Than third gets encoded and fourth does not. And so on.
-              We would use it in script like this:</p>
-<pre><code>      postbody=$( encode -p 'login' '=' 'someone' '&amp;' \
-                            'pass' '=' '7ygft67$%^&amp;*some' '&amp;' \
-                            'hidden_token' '=' '12fjwhr@#$Rwef345r3tGF#$$' )
-      # at this moment we find out the lengh of body and pass it for contetn lengh 
-      # after forming the http header we simply send this stuff like this using 
-      # former tools from this soft pack ( httpreq_addcrlf ):
-      { cat httpreq | httpreq_addcrlf | cat; printf "%s" "$postbody"; } | \
-      nc -c -X 5 -x localhost:9050 www 443
-
-      # Hope this is clear. The last line shows nc with passing traffic via tor
-      # for server with https.
-</code></pre>
+<p><strong>urlcode</strong> <code>[ -options ] [ data1 ] [ data2 ] [ ... ]</code></p>
+<p>Encode or decode urlcode. + &lt;=&gt; space is not supported<br />
+It's a browser extension. We have three types of options<br />
+and we can choose only one.  </p>
+<p><code>-d</code><br />
+Decode passed data from stdin and send it to sdtout.<br />
+After option arguments no more arguments should appear.  </p>
+<p><code>-c</code><br />
+Code passed data from stdin and send it to sdtout.<br />
+After option arguments no more arguments should appear.  </p>
+<p><code>-p</code><br />
+Create from passed argumnets http post body. It only<br />
+codes urlcode <code>data( 2n + 1 )</code>. So <code>data1</code> gets coded<br />
+but <code>data2</code> does not get coded, than <code>`data3</code> is coded<br />
+and <code>data4</code> is not coded. And so on..</p>
+<p>Dependencies: none<br />
+Example of using it:  </p>
+<blockquote>
+<p><code>printf "%s" 'This will get url-encoded' | urlcode -c</code><br />
+<code></code><br />
+<code>printf "%s"  'Decode this  url-encoded string' | urlcode -d</code><br />
+<code></code><br />
+<code>postbody=$( urlcode '-p' 'login' '=' 'someone' '&amp;' 'pass' '=' 'secret' \</code><br />
+<code>'&amp;' 'hidden_token' '=' '123jhfierhgiuerg12' )</code></p>
+</blockquote>
+<p>If we plan on further using the postbody it could look like this:  </p>
+<blockquote>
+<p><code>{ cat httpreq | httpreq_addcrlf; printf "%s" "$postbody"; }  \</code><br />
+<code>|  nc -c -X 5 -x localhost:9050 www 443</code>  </p>
+</blockquote>
+<p>As we can see we pass our http request via tor at the final example.  </p>
 </li>
 <li>
 <p><strong>miodpitny</strong> - program tells you MEAD proportions. </p>

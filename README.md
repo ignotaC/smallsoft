@@ -380,7 +380,7 @@ inside the directory of your makefile.
     options can be together and can repeate.  
   >`randstr -d 50 -uuuud -udl`  
 
-16. **sndlog_data**  `[ -option ] [ socket info ]`
+16. **sndlog_data**  `[ -options ] [ socket info ]`
   >
 
     Program opens unix or internet socket and either sends  
@@ -456,25 +456,40 @@ inside the directory of your makefile.
     Example fo using it:  
   >`cat file | flinemem 'pattern1' 'pattern2' 'pattern3'`
 
-20. **urlcode** - at the moment we have 3 options, encode (-e), decode (-d)  and
-              'make post body' (-p). How to use:
-              echo 'string to @#$ encode" | urlcode -e | urlcode -d
-              This will encode irl string and than decode it. Now the post part is a bit tricky.
-              First argument after options gets encoded and second argument does not.
-              Than third gets encoded and fourth does not. And so on.
-              We would use it in script like this:
+19. **urlcode** `[ -options ] [ data1 ] [ data2 ] [ ... ]`
 
-              postbody=$( encode -p 'login' '=' 'someone' '&' \
-                                    'pass' '=' '7ygft67$%^&*some' '&' \
-                                    'hidden_token' '=' '12fjwhr@#$Rwef345r3tGF#$$' )
-              # at this moment we find out the lengh of body and pass it for contetn lengh 
-              # after forming the http header we simply send this stuff like this using 
-              # former tools from this soft pack ( httpreq_addcrlf ):
-              { cat httpreq | httpreq_addcrlf | cat; printf "%s" "$postbody"; } | \
-              nc -c -X 5 -x localhost:9050 www 443
+    Encode or decode urlcode. + <=> space is not supported  
+    It's a browser extension. We have three types of options  
+    and we can choose only one.  
 
-              # Hope this is clear. The last line shows nc with passing traffic via tor
-              # for server with https.
+    `-d`  
+    Decode passed data from stdin and send it to sdtout.  
+    After option arguments no more arguments should appear.  
+
+    `-c`  
+    Code passed data from stdin and send it to sdtout.  
+    After option arguments no more arguments should appear.  
+
+    `-p`  
+    Create from passed argumnets http post body. It only  
+    codes urlcode `data( 2n + 1 )`. So `data1` gets coded  
+    but `data2` does not get coded, than ``data3` is coded  
+    and `data4` is not coded. And so on..
+    
+    Dependencies: none  
+    Example of using it:  
+  >`printf "%s" 'This will get url-encoded' | urlcode -c`  
+  >` `  
+  >`printf "%s"  'Decode this  url-encoded string' | urlcode -d`  
+  >` `  
+  >`postbody=$( urlcode '-p' 'login' '=' 'someone' '&' 'pass' '=' 'secret' \`  
+  >`                    '&' 'hidden_token' '=' '123jhfierhgiuerg12' )`
+
+    If we plan on further using the postbody it could look like this:  
+  >`{ cat httpreq | httpreq_addcrlf; printf "%s" "$postbody"; }  \ `  
+  >`|  nc -c -X 5 -x localhost:9050 www 443`  
+
+    As we can see we pass our http request via tor at the final example.  
 
 22. **miodpitny** - program tells you MEAD proportions. 
 

@@ -33,6 +33,14 @@ void fail( const char *const errstr )  {
 
 }
 
+void usr_fail( const char *const errstr )  {
+
+  fprintf( stderr, "%s\n", errstr );
+  exit( EXIT_FAILURE );
+
+}
+
+
 int noturlcode( char chrin )  {
 
   if( isalnum( chrin ) )
@@ -43,6 +51,9 @@ int noturlcode( char chrin )  {
   return -1;
 
 }
+
+// TODO use read instead of getc
+// TODO support + to space
 
 int main( int argc, char *argv[] )  {
 
@@ -63,6 +74,11 @@ int main( int argc, char *argv[] )  {
     {
 
      ;
+
+     if( argc != 2 )
+       usr_fail( "For this option after options argument"
+       " no more arguments should appear" );
+
      char chrin;
      for(;;)  {
 
@@ -96,6 +112,11 @@ int main( int argc, char *argv[] )  {
     {
      
      ;
+   
+     if( argc != 2 )
+       usr_fail( "For this option after options argument"
+       " no more arguments should appear" );
+
      char chrin;
      char chrin_sec;
      char hexans[3] = {0};

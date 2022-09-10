@@ -28,8 +28,6 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
-//TODO \i no manual - sequance !!!
-
 void fail( const char *const estr )  {
 
   perror( estr );
@@ -43,7 +41,7 @@ void fail( const char *const estr )  {
 
 int main( const int argc, const char *const argv[]  )  {
 
-  if( argc != 3 )  // TODO  if no number passed - repeate string 1 time
+  if( argc != 3 )
     fail( "You need to pass number of times string\n"
       "will be repeated and the string it self.\n"
       "Example: repeatestr 100 'some text'\n" );
@@ -64,7 +62,7 @@ int main( const int argc, const char *const argv[]  )  {
     fail( "Failed to malloc resolved sequances string." );
   // resolve char sequances
    
-  // TODO  this can be moved to ignota + add \000 support backspace and rest ;-)
+  // TODO  this can be moved to ignota + add \x00 support backspace and rest ;-)
   for( size_t i = 0, j = 0;; i++, j++)   {
 
     if( argv[ STR_POS ][i] == '\\' )  {
@@ -100,9 +98,6 @@ int main( const int argc, const char *const argv[]  )  {
 	case 'a':
 	  resolvestr[j] = '\a';
 	  continue;
-/*        case '0':
-	  resolvestr[j] = '\0';
-	  continue;    TODO*/  
 	default:
 	  resolvestr[j] = '\\';
 	  j++;
