@@ -230,15 +230,24 @@ inside the directory of your makefile.
     * `\a` = bell  
     * `\b` = backspace  
     * `\f` = form feed  
-    * `\n` = new line  
     * `\r` = carrige return  
+    * `\n` = new line  
+    * `\i` = This is very special, you can pass it in pattern  
+    only one time, it will increment from zero to  number - 1
     * `\t` = tab  
     * `\v` = vertical tab  
     * `\\` = backslash  
 
     Dependencies: none  
     Example of using it:  
-  >`repeatstr 100 'this gets repeated 100 times'`
+  >`repeatstr 100 'this gets repeated 100 times'`  
+  >` `  
+  >`repeatestr 3 'Increment number: \i'`  
+
+    Last example output wil look like this:  
+  >`Increment number: 0`  
+  >`Increment number: 1`  
+  >`Increment number: 2`  
 
 10. **lext** `[ -clp ] [ pattern1 ] [ pattern2 ]`  
   >

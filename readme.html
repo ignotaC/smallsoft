@@ -241,8 +241,10 @@ Supported character sequances:  </p>
 <li><code>\a</code> = bell  </li>
 <li><code>\b</code> = backspace  </li>
 <li><code>\f</code> = form feed  </li>
-<li><code>\n</code> = new line  </li>
 <li><code>\r</code> = carrige return  </li>
+<li><code>\n</code> = new line  </li>
+<li><code>\i</code> = This is very special, you can pass it in pattern<br />
+only one time, it will increment from zero to  number - 1</li>
 <li><code>\t</code> = tab  </li>
 <li><code>\v</code> = vertical tab  </li>
 <li><code>\\</code> = backslash  </li>
@@ -250,7 +252,15 @@ Supported character sequances:  </p>
 <p>Dependencies: none<br />
 Example of using it:  </p>
 <blockquote>
-<p><code>repeatstr 100 'this gets repeated 100 times'</code></p>
+<p><code>repeatstr 100 'this gets repeated 100 times'</code><br />
+<code></code><br />
+<code>repeatestr 3 'Increment number: \i'</code>  </p>
+</blockquote>
+<p>Last example output wil look like this:  </p>
+<blockquote>
+<p><code>Increment number: 0</code><br />
+<code>Increment number: 1</code><br />
+<code>Increment number: 2</code>  </p>
 </blockquote>
 </li>
 <li>
