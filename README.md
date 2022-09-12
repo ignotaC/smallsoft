@@ -491,7 +491,19 @@ inside the directory of your makefile.
 
     As we can see we pass our http request via tor at the final example.  
 
-22. **miodpitny** - program tells you MEAD proportions. 
+20. **miodpitny**
+  >
+
+    Program will ask you how meany liters of mead ( miodpitny ) you want to make.  
+    After that proportions for most common types - czworniak, trojniak, dwojniak and  
+    poltorak shall be listed. Telling you how many liters of honey and water you need.  
+    How many grams of fosfamon (nutrient medium for yeast ) is needed  
+    and how many citrons ( quantity ) should be used for obtaining proper  
+    acidity with their juice. Finally how long should the mead be kept in ballon  
+    before bottling it. At the end it prints few basic hints.  
+    Dependencies: none  
+    Example of using it:  
+  >`miodpitny`  
 
 23. **irclog** - program to log irc. It's old code. Not too proud of it but I needed to log
              some stuff recently and it worked. So I am adding it here for now.

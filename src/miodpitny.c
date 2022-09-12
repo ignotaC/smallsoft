@@ -20,31 +20,70 @@ OF THIS SOFTWARE.
 
 */
 
+#include <errno.h>
+#include <ctype.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 int main( void )  {
 
-  puts( "Welcome to miodpitny proportions" );
+  puts( "Welcome to miodpitny ( mead ) proportions" );
 
-  double honey = 0.0, water = 0.0, lemon_ammount = 0.0, fosfamon = 0.0;
-  double  miodpitny_volume = 0.0;
+#define BUFF_SIZE 1024
+  char miodpitny_usrvol[ BUFF_SIZE ] = {0};
+  char format[ BUFF_SIZE ] = {0};
+  // +1 for nul
 
   puts( "Tell me the miodpitny ( eng. - MEAD )  volume, I will count proportions.." );
-  puts( "Honey and water are in liters [l], fosfamon in grams [g]" );
+  puts( "Honey and water are in liters [l], fosfamon = nutrient medium for yeast in grams [g]" );
   puts( "Lemons are simply counted - it's quantity" );
   printf( "Miodpitny volume in liters: " );
-  scanf( "%lf", &miodpitny_volume );
-  puts("");
 
-  puts( "Poltorak:" );
+  snprintf( format, BUFF_SIZE - 1, "%%%ds", BUFF_SIZE - 1 );
+  scanf( format,  miodpitny_usrvol );
+  size_t miodpitny_usrvol_len = strlen( miodpitny_usrvol );
+
+  int dot = 0;
+  for( size_t i = 0; i < miodpitny_usrvol_len; i++ )  {
+
+    if( isdigit( miodpitny_usrvol[i] ) )  continue;
+    if( miodpitny_usrvol[i] == '.' ) {
+
+      // can't have two dots
+      if( dot )  goto broken_usrent;
+      dot++;
+      continue;
+
+    }
+
+    if( miodpitny_usrvol[i] == '\0' )  break;
+    
+broken_usrent:
+    fprintf( stderr, "Broken mead liters number\n" );
+    exit( EXIT_FAILURE );
+ 
+  }
+
+  double honey = 0.0, water = 0.0, lemon_ammount = 0.0, fosfamon = 0.0;
+  errno = 0;
+  double  miodpitny_volume = strtod( miodpitny_usrvol, NULL );
+  if( errno )  {
+
+    perror( "Error on strtod" );
+    exit( EXIT_FAILURE );
+
+  }
+
+  puts( "\nPoltorak:" );
   honey = miodpitny_volume / 1.5;
   water = miodpitny_volume - honey;
   lemon_ammount = 3.5 * miodpitny_volume / 3;
   fosfamon = 0.3 * miodpitny_volume;
   printf( "%.2f[l] honey + %.2f[l] water\n", honey, water );
   printf( "Squeeze juice from %.2f lemons\n", lemon_ammount );
-  printf( "Possibly %.2f[g] fosfamon\n", fosfamon );
-  puts( "Open bottle after 12 years\n" );
+  printf( "%.2f[g] fosfamon\n", fosfamon );
+  puts( "Keep it in ballon 12 years before putting into bottles\n" );
 
   puts( "Dwojniak:" );
   honey = miodpitny_volume / 2;
@@ -53,8 +92,8 @@ int main( void )  {
   fosfamon = 0.35 * miodpitny_volume;
   printf( "%.2f[l] honey + %.2f[l] water\n", honey, water );
   printf( "Squeeze juice from %.2f lemons\n", lemon_ammount );
-  printf( "Possibly %.2f[g] fosfamon\n", fosfamon );
-  puts( "Open bottle after 8 years\n" );
+  printf( "%.2f[g] fosfamon\n", fosfamon );
+  puts( "Keep it in ballon 8 years before putting into bottles\n" );
 
   puts( "Trojniak:" );
   honey = miodpitny_volume / 3;
@@ -63,8 +102,8 @@ int main( void )  {
   fosfamon = 0.4 * miodpitny_volume;
   printf( "%.2f[l] honey + %.2f[l] water\n", honey, water );
   printf( "Squeeze juice from %.2f lemons\n", lemon_ammount );
-  printf( "Possibly %.2f[g] fosfamon\n", fosfamon );
-  puts( "Open bottle after 4 years\n" );
+  printf( "%.2f[g] fosfamon\n", fosfamon );
+  puts( "Keep it in ballon 4 years before putting into bottles\n" );
 
   puts( "Czworniak:" );
   honey = miodpitny_volume / 4;
@@ -73,11 +112,11 @@ int main( void )  {
   fosfamon = 0.45 * miodpitny_volume;
   printf( "%.2f[l] honey + %.2f[l] water\n", honey, water );
   printf( "Squeeze juice from %.2f lemons\n", lemon_ammount );
-  printf( "Possibly %.2f[g] fosfamon\n", fosfamon );
-  puts( "Open bottle after 1 year\n" );
+  printf( "%.2f[g] fosfamon\n", fosfamon );
+  puts( "Keep it in ballon one year before putting into bottles\n" );
 
-  puts( "Fosfamon can be ignored - but use yeast for mead" );
-  puts( "Lemon is better to be added on end" );
-  puts( "Good luck" );
+  puts( "Fosfamon should not be ignred" );
+  puts( "Lemon is better to be added after effervescent fermentation" );
+  puts( "Good luck and be patient" );
 
 }
