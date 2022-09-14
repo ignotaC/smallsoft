@@ -121,7 +121,7 @@ make:
 #  TODO cutfile shoudl do it just let it understand /r/n etc with
 #  escape char program should be removed and instead be a script using cutfile
 #28
-	${CC} ${SRC}/fixedxarg.c -o ${BIN}/fixedxarg
+	${CC} ${SRC}/fixedxargs.c -o ${BIN}/fixedxargs
 #29
 	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
 	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_readword\

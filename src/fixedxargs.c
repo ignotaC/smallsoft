@@ -20,6 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
+#include <sys/wait.h>
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,8 +103,18 @@ int main( const int argc, const char *const argv[] )  {
   if( arg == NULL )  fail( "Failed on reallocing nul." );
   arg[ keep_argsize ] = 0;
 
+  puts( arg );
+
   int retval = system( arg );
   free( arg );
+
+  if( WIFEXITED( retval ) )  {
+
+    retval = WEXITSTATUS( retval );
+
+  }
+
+  // TODO this need proper handling - errors signals returns
 
   return retval;
 

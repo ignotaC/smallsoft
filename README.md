@@ -560,10 +560,10 @@ inside the directory of your makefile.
 27. **httphb_split** - Splits http server answers to http header or the rest ( body )
                    For help simply run it without any arguments.
                    Example: http_serber_answer | httphb_split -h > httpheader_file
-28. **fixedxarg** - Program closly performs same task as xargs, BUT PROPERLY.
+28. **fixedxargs** - Program closly performs same task as xargs, BUT PROPERLY.
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
-                echo  "a\nb\nc\nd\n" | fixedxarg echo
+                echo  "a\nb\nc\nd\n" | fixedxargs echo
 29. **listwords** - 
 30. **fext**
 31. **readNMEA**
