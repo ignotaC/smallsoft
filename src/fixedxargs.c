@@ -103,8 +103,6 @@ int main( const int argc, const char *const argv[] )  {
   if( arg == NULL )  fail( "Failed on reallocing nul." );
   arg[ keep_argsize ] = 0;
 
-  puts( arg );
-
   int retval = system( arg );
   free( arg );
 
