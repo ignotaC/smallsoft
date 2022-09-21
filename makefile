@@ -102,7 +102,7 @@ make:
 	#TODO make it possible to use OR and AND | & with () 
 #19
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
-	# TODO add + support
+	# TODO add + support with option ofc
 #20
 #####################################
 #22

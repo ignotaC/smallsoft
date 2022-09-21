@@ -3,6 +3,8 @@ Made for God Glory.
 Hail Supreame God one in Great Trinity.  
 Prise Saint Maria, mother of God.  
 
+irc: ##ignota irc.libera.chat
+
 A pack of my little unix programs.  
 I do not mention dependencies like C compiler and posix system.  
 None means you have the basic set.  
