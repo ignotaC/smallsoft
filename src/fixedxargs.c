@@ -54,12 +54,14 @@ int main( const int argc, const char *const argv[] )  {
 
   size_t argsize = strlen(  argv[1] );
   size_t keep_argsize = argsize + 1 ;
-  char *arg = realloc( NULL, keep_argsize );
-  strncat( arg, argv[1], argsize );
+  char *arg = realloc( NULL, keep_argsize + 1 ); // +1 for nul
+		// this protects us if none input in stdin
+  if( arg == NULL )  fail( "Failed on first allocation." );
+  strncpy( arg, argv[1], argsize );
   arg[ argsize ] = ' ';
+  arg[ argsize + 1 ] = '\0'; // nul protector
   argsize = keep_argsize;
 
-  if( arg == NULL )  fail( "Failed on first realloc." );
 
   for(;;)  {
 
