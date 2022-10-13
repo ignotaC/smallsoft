@@ -1,5 +1,7 @@
 // offered to God - Jezus, God Father, Saint Holy Spirit
 
+#include "../ignotalib/src/ig_file/igf_opt.h"
+
 #include <sys/socket.h>
 
 #include <pthread.h>
@@ -64,7 +66,6 @@ ssize_t write_msg( const int fd, void *const passed_buff, size_t passed_buff_siz
 void fail( const char *const fail_str )  {
 
   perror( fail_str );
-  perror( strerror( errno ) );
   exit( EXIT_FAILURE );
 
 }
@@ -119,15 +120,6 @@ void thread_fail( struct network *const ircnet_ptr,  const char *const str_fail 
 
 }
 
-int setfd_cloexec( const int fd )  {
-
-  int flags = fcntl( fd, F_GETFL );
-  if( flags == -1 )  return -1;
-  if( fcntl( fd, F_SETFL, flags | FD_CLOEXEC ) == -1 )  return -1;
-  return 0;
-
-}
-
 void closelogs( struct network *const ircnet, const size_t size_to_close )  {
 
   for( size_t i = 0; i < size_to_close; i++ )  {
@@ -168,7 +160,7 @@ int openlogs( struct network *const ircnet )  {
 
     }
 
-    if( setfd_cloexec( fileno( ircnet->logfiles[i] ) ) == -1 )  {
+    if( igf_cloexec( fileno( ircnet->logfiles[i] ) ) == -1 )  {
 
       closelogs( ircnet, i );
       thread_fail( ircnet, "Fail on setting fd to close on exec" );
@@ -177,15 +169,6 @@ int openlogs( struct network *const ircnet )  {
 
   }
 
-  return 0;
-
-}
-
-int setfd_nonblock( const int fd )  {
-
-  int flags = fcntl( fd, F_GETFL );
-  if( flags == -1 )  return -1;
-  if( fcntl( fd, F_SETFL, flags | O_NONBLOCK ) == -1 )  return -1;
   return 0;
 
 }
@@ -253,14 +236,14 @@ int irc_connect( struct network *ircnet )  {
   freeaddrinfo( ai_ret );
   if( ircnet->sockfd == -1 )  return -1;
 
-  if( setfd_nonblock( ircnet->sockfd ) )  {
+  if( igf_nonblock( ircnet->sockfd ) )  {
 
     close( ircnet->sockfd );
     return -1;
 
   }
 
-  if( setfd_cloexec( ircnet->sockfd ) )  {
+  if( igf_cloexec( ircnet->sockfd ) )  {
 
     close( ircnet->sockfd );
     return -1;
@@ -782,10 +765,10 @@ int main( int argc, char *argv[] )  {
   int un_sock[2];  
   socketpair( AF_LOCAL, SOCK_STREAM, 0, un_sock );
 
-  if( setfd_nonblock( un_sock[0] ) < 0 )
+  if( igf_nonblock( un_sock[0] ) < 0 )
     fail( "Could not set unsock to nonblocking" );
 
-  if( setfd_nonblock( un_sock[1] ) < 0 )
+  if( igf_nonblock( un_sock[1] ) < 0 )
     fail( "Could not set unsock2 to nonblocking" );
 
   pid_t ch_pid = fork();
@@ -829,10 +812,10 @@ int main( int argc, char *argv[] )  {
 
   }
 
-  if( setfd_cloexec( un_sock[0] ) < 0 )
+  if( igf_cloexec( un_sock[0] ) < 0 )
     fail( "Could not set unsock to close on exec" );
 
-  if( setfd_cloexec( un_sock[1] ) < 0 )
+  if( igf_cloexec( un_sock[1] ) < 0 )
     fail( "Could not set unsock2 to close on exec" );
 
   const  size_t buff_size = 8192;

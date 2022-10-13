@@ -54,6 +54,9 @@ make:
 	${CCOBJ} ${IG}/ig_math/igmath_geopos.c -o ${IG_OBJ}/igmath_geopos.o
 	${AR} ${IG_OBJ}/libigmath_geopos.a ${IG_OBJ}/igmath_geopos.o
 
+	${CCOBJ} ${IG}/ig_file/igf_opt.c -o ${IG_OBJ}/igf_opt.o
+	${AR} ${IG_OBJ}/libigf_opt.a ${IG_OBJ}/igf_opt.o
+
 #compile and link external libs
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
@@ -108,7 +111,7 @@ make:
 #22
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 #23
-	${CC} -pthread ${SRC}/irclog.c -o ${BIN}/irclog
+	${CC} -pthread ${SRC}/irclog.c ${LIBIG_OBJ} -ligf_opt -o ${BIN}/irclog
 #24
 	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
 #25

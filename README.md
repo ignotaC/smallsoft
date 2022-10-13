@@ -8,12 +8,13 @@ irc: ##ignota irc.libera.chat
 A pack of my little unix programs.  
 I do not mention dependencies like C compiler and posix system.  
 None means you have the basic set.  
+Also for automated compilation you need make.  
 
 I wrote this code for my personal use.  
-Shell hacks for life. ;-)  
+Shell hacks for life.
 
 You can either read this file as plain text  
-( and still understand 100% of what is this read me about ).  
+( and still understand 100% of what is this "read me" about ).  
 Or you can use your webbrowser to read it:  
 >`firefox readme.html`  
 
@@ -24,7 +25,7 @@ Before we install, we need to suck this up:
 >`git clone 'https://github.com/ignotaC/smallsoft'`  
 
 ### 2) compilation
-Run make in makefile:  
+Run make:  
 >`make`  
 
 Make before compilation will upload  
@@ -33,7 +34,7 @@ Compiled programs will go to the newly created
 bin directory inside smallsoft.  
 
 ### 3) installation ( binary managment )
-You do it by your self, You might no want to  
+You do it by your self, You might not want to  
 use some of the software this pack provides.  
 Simply copy what ever you want to one of the  
 preffered PATH directory which you can see  
