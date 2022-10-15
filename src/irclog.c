@@ -1,6 +1,8 @@
 // offered to God - Jezus, God Father, Saint Holy Spirit
 
+
 #include "../ignotalib/src/ig_file/igf_opt.h"
+#include "../ignotalib/src/ig_event/igev_signals.h"
 
 #include <sys/socket.h>
 
@@ -17,6 +19,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <ctype.h>
+
+#define SMALL_BUFF_SIZE 1024
+#define BUFF_SIZE 8192
+
+// TODO check child parent behavior when child dies - zombie
+// and when parents gets killed if no signal to child gets sent
+// like trying to kill whole process group
 
 ssize_t write_msg( const int fd, void *const passed_buff, size_t passed_buff_size )  {
   
@@ -550,7 +559,7 @@ void child_restart( const char *const fail_str, char *argv[] )  {
     fail( "Could not sigkill parent" );
 
   execv( argv[0], argv ); 
-  fail( "Could not execve - ending" );
+  fail( "Fail on execv" );
   
 }
 
@@ -562,7 +571,7 @@ void* irclog_thread( void *const passed )  {
   if( ( errno = pthread_detach( pthread_self() ) ) != 0 )
     thread_fail( irc_network, "Could not detach" );
 
-  const size_t thread_buff_size = 8192;
+  const size_t thread_buff_size = BUFF_SIZE;
   char thread_buff[ thread_buff_size ];
   char thread_buff2[ thread_buff_size ];
   char line_buff[ thread_buff_size ];
@@ -751,48 +760,71 @@ void* irclog_thread( void *const passed )  {
 }
 
 int main( int argc, char *argv[] )  {
-  
+
+  // we do not need it.
   ( void ) argc;
   
-  struct sigaction sa;
-  memset( &sa, 0, sizeof( sa ) );
-  sa.sa_handler = SIG_IGN;
-  if( sigaction( SIGPIPE, &sa, NULL ) < 0 )  fail( "Could not ignore SIGPIPE" );
+  // Ignore sigpipe as usuall for network  socket talk
+  if( igev_sigign( SIGPIPE ) == -1 )
+    fail( "Could not ignore SIGPIPE on igev_sigign" );
 
-  if( ( errno = pthread_mutex_init( &irc_mutex, NULL ) ) != 0 )  fail( "could not init mutex" );
-  puts( "Main mutex init." );
+  // mutex and socketpair for communication  
+  if( ( errno = pthread_mutex_init( &irc_mutex, NULL ) ) != 0 )
+    fail( "could not init mutex" );
+  puts( "Main mutex init complete." );
 
   int un_sock[2];  
-  socketpair( AF_LOCAL, SOCK_STREAM, 0, un_sock );
+  if( socketpair( AF_LOCAL, SOCK_STREAM, 0, un_sock ) == -1 )
+    fail( "Failed on socketpair function" );
 
-  if( igf_nonblock( un_sock[0] ) < 0 )
+  if( igf_nonblock( un_sock[0] ) == -1 )
     fail( "Could not set unsock to nonblocking" );
 
-  if( igf_nonblock( un_sock[1] ) < 0 )
+  if( igf_nonblock( un_sock[1] ) == -1 )
     fail( "Could not set unsock2 to nonblocking" );
 
   pid_t ch_pid = fork();
-  if( ch_pid < 0 )  fail( "Failed on fork" );
+  if( ch_pid == -1 )  fail( "Failed on fork" );
   if( ch_pid )  { 
     // parent
 
-    const size_t parent_buff_size = 1024;
+    const size_t parent_buff_size = SMALL_BUFF_SIZE;
     char parent_buff[ parent_buff_size ];
     memset( parent_buff, 0, parent_buff_size );
+
+    // Count how many times you sleeped before hard reset.
+    // It just checks if child is alive
+    // Sleeping is here   --->                      \/
     for( int count = 0, max_count = 240;; count++, sleep( 1 ) )  {
 
-      if( read( un_sock[0], parent_buff, parent_buff_size ) < 0 )  {
+      if( read( un_sock[0], parent_buff, parent_buff_size ) == -1 )  {
 
 	if( ( errno != EAGAIN ) && ( errno != EINTR ) )  count = max_count;
+	else  {
+
+	  perror( "Failure on read" );
+	  kill( ch_pid, SIGKILL );
+	  exit( EXIT_FAILURE );
+
+	}
 
       }  else  count = 0;
 
-      if( write( un_sock[0], parent_buff, 1 ) < 0 )  {
+      if( write( un_sock[0], parent_buff, 1 ) == -1 )  {
 
 	if( ( errno != EAGAIN ) && ( errno != EINTR ) )  count = max_count;
+	else  {
+
+	  perror( "Failure on write" );
+	  kill( ch_pid, SIGKILL );
+	  exit( EXIT_FAILURE );
+
+	}
+
 
       }
 
+      // restart if true
       if( count >= max_count )  {
 
 	sleep( 5 );
@@ -802,8 +834,8 @@ int main( int argc, char *argv[] )  {
 	  fail( "Could not send kill signal to child" );
 
 	ch_pid = fork();
-	if( ch_pid < 0 )  fail( "Failed on fork" );
-	if( ! ch_pid )  break;
+	if( ch_pid == -1 )  fail( "Failed on fork" );
+	if( ! ch_pid )  break; // child must break from loop
 	count = 0;
 
       }
@@ -812,16 +844,23 @@ int main( int argc, char *argv[] )  {
 
   }
 
-  if( igf_cloexec( un_sock[0] ) < 0 )
+  // TODO at this point we have failures that should end with killing
+  // parent
+
+  // child starts here
+  // since child can get restarted it's better to have all stuff
+  // closed on ecec.
+  if( igf_cloexec( un_sock[0] ) ==  -1 )
     fail( "Could not set unsock to close on exec" );
 
-  if( igf_cloexec( un_sock[1] ) < 0 )
+  if( igf_cloexec( un_sock[1] ) == -1 )
     fail( "Could not set unsock2 to close on exec" );
 
-  const  size_t buff_size = 8192;
+  const size_t buff_size = BUFF_SIZE;
   char buff[ buff_size ];
   memset( buff, 0 , buff_size );
 
+  // Open 
   FILE *serv_data_file = fopen( "log_serv_data", "r" );
   if( serv_data_file == NULL )  fail( "No log_serv_data file" );
 
@@ -852,7 +891,7 @@ int main( int argc, char *argv[] )  {
 
 	  if( errno != 0 )  fail( "Fail while reading server config file" );
 
-	  const size_t child_buff_size = 1024;
+	  const size_t child_buff_size = SMALL_BUFF_SIZE;
 	  char child_buff[ child_buff_size ];
 	  for(int count = 0, count_max = 100, wait_read = 0, wait_read_max = 240;;
 	      wait_read++, sleep(1) )  {
