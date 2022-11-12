@@ -346,14 +346,19 @@ inside the directory of your makefile.
     ktrace -i option is for tracking forks and threads. I advice to track all  
     else the output summary might be missleading.  
 
-14. **rmvmb**
+14. **rmvmb** [-f]
   >
 
     Program removes multibyte characters from input.  
     Normal one byte characters are redirected to stdout.  
+    Rarely you might encounter some illegal characters.  
+    Usually some old unknown encodings.  
+    In that case use -f option. It will pass unknown characters.  
+    Instead of throwing out error.  
     Dependencies: none  
     Example of using it:
   >`echo "$string_with_multibytechars" | rmvmb`  
+  >`echo "$string_with_brokenmultichars" | rmvmb -f`  
 
 15. **randstr** `[ -uld ] [ number ]`
   >

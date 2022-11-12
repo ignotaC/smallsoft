@@ -37,12 +37,24 @@ void fail( const char *const estr )  {
 
 //TODO it could use buff instead to not allocate all shit
 
-int main( void )  {
+int main( int argc, char *argv[] )  {
 
   char *locale_type = getenv( TURNSTR( LC_CTYPE ) );
   if( locale_type == NULL )  fail( "Could not get LC_TYPE locale" );
   if( setlocale( LC_CTYPE, locale_type ) == NULL )
     fail( "Setlocale failed" );
+
+  int fopt = 0;
+
+  if( argc > 2 )  fail( "Wrong number of arguments" );
+  
+  if( argc == 2 )  {
+
+    if( argv[1][0] != '-' )  fail( "Broken option" );
+    if( argv[1][1] != 'f' )  fail( "Broken option" );
+    fopt = 1; // we have only one option
+
+  }
 
   char *line = NULL;
   size_t linesize = 0;
@@ -60,7 +72,13 @@ int main( void )  {
     for( size_t i = linesize; i > 0; )  {
 
       int mblenret = mblen( linepos, i );
-      if( mblenret == -1 )  fail( "Failed on mblen" );
+      if( mblenret == -1 )  {
+	      
+        if( ! fopt )  fail( "Failed on mblen" );
+	mblenret = 1; // this way we ignore the error
+		      // when fopt is set
+
+      }
       if( mblenret == 0 )  break;
 
       if( mblenret == 1 )  putc( ( int ) *linepos, stdout );
