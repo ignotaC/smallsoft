@@ -518,7 +518,7 @@ inside the directory of your makefile.
              some stuff recently and it worked. So I am adding it here for now.
              Will try to reread it in future for detecting some bugs and other crap.
              How to use: create a file in directory where you will start the irclog program
-             The only accepted file name is: log_serv_data
+             The only accepted file name is: irclog.conf
              Else error.
              Contents example:
              Sirc.liberapriviligesqwertycrap.chat 6667

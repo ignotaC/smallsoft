@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <stdbool.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,6 +23,41 @@
 
 #define SMALL_BUFF_SIZE 1024
 #define BUFF_SIZE 8192
+
+#define COMMAND_LIST_X \
+  X( SERVER ), \
+  X( MESSAGE ), \
+  X( CHANNEL ), \
+  X( IDENT )
+
+enum COMMAND {
+
+  #define X( x ) x
+  COMMAND_LIST_X
+  #undef X
+
+}
+
+char *command_name[]  {
+
+  #define X( x ) #x
+  COMMAND_LIST_X
+  #undef X
+
+}
+
+struct cmdval  {
+
+  int num,
+  char *name
+
+} cv[] = {
+
+  #define X( x ) { x, #x  }
+  COMMAND_LIST_X
+  #undef X
+
+}
 
 // TODO check child parent behavior when child dies - zombie
 // and when parents gets killed if no signal to child gets sent
@@ -793,7 +829,7 @@ int main( int argc, char *argv[] )  {
     memset( parent_buff, 0, parent_buff_size );
 
     // Count how many times you sleeped before hard reset.
-    // It just checks if child is alive
+    // It just checks if child is alive, monitors it
     // Sleeping is here   --->                      \/
     for( int count = 0, max_count = 240;; count++, sleep( 1 ) )  {
 
@@ -844,9 +880,6 @@ int main( int argc, char *argv[] )  {
 
   }
 
-  // TODO at this point we have failures that should end with killing
-  // parent
-
   // child starts here
   // since child can get restarted it's better to have all stuff
   // closed on ecec.
@@ -860,15 +893,77 @@ int main( int argc, char *argv[] )  {
   char buff[ buff_size ];
   memset( buff, 0 , buff_size );
 
-  // Open 
-  FILE *serv_data_file = fopen( "log_serv_data", "r" );
-  if( serv_data_file == NULL )  fail( "No log_serv_data file" );
+  FILE *irclog_conf_file = fopen( "irclog.conf", "r" );
+  if( irclog_conf_file == NULL )  {
+
+    int keep_err = errno;	  
+    if( kill( getppid(), SIGTERM ) == -1 )  {
+
+      kill( getppid(), SIGKILL );
+      perror( "Kill function fail" );
+
+    }
+    errno = keep_err;
+    fail( "File irclog.conf does not exists" );
+
+  }
 
   struct network *irc = NULL;
-  
   int command = 0;
+
+  // SYNTAX of config file
+  // empty lines are allowed
+  // VAR_TYPE
+  // VAR
+
+  // EVERYHTING DOWN HERE NEED CHANGING
+
   puts( "Starting log servers..." );
   pthread_t pt_id;
+
+  // TODO rewriting the loop
+  
+
+  for(;;)  {
+ 
+    char *lp = NULL;
+    size_t lp_size = 0;
+
+    if( getline( &lp, &lp_size, irclog_conf_file ) == -1 )  {
+
+      if( feof( irclog_conf_file ) )  break;
+      fail( "Error on readign config file" );
+
+    }
+    
+    // pass empty lines
+    bool is_empty = true;
+    for( size_t i = 0; lp[i] != '\0'; i++ )  {
+
+      if( ! isspace( lp[i] ) )  {
+
+        is_empty = false;
+	break;
+
+      }
+
+      if( lp[i] == '\n' )  lp[i] = '\0';
+
+    }
+
+    if( is_empty )  {
+
+      free( lp );
+      continue;
+
+    }
+
+
+
+  }
+
+ //  ---\/   THIS IS BEING REWRITTEN
+
   for(;;)  {
 
     if( irc != NULL )  {
@@ -885,7 +980,7 @@ int main( int argc, char *argv[] )  {
     if( command != 'S' ) {
     
       errno = 0;
-      while( ( command = fgetc( serv_data_file ) ) != 'S' )  {
+      while( ( command = fgetc( irclog_conf_file ) ) != 'S' )  {
 	
 	if( command == EOF )  {
 
@@ -975,13 +1070,13 @@ int main( int argc, char *argv[] )  {
     
     }
 
-    irc = malloc( sizeof( struct network ) );   
-    memset( irc, 0, sizeof( *irc ) );
+    irc = malloc( sizeof *irc );   
+    memset( irc, 0, sizeof *irc );
     irc->channels = NULL;
     irc->msg = NULL;
     irc->ident = NULL;
 
-    if( fscanf( serv_data_file, "%400s %hu", irc->host, &( irc->port ) ) != 2 )  {
+    if( fscanf( irclog_conf_file, "%400s %hu", irc->host, &( irc->port ) ) != 2 )  {
       
       perror( "Somethign wrong with host:port data" );
       free( irc );
@@ -992,7 +1087,7 @@ int main( int argc, char *argv[] )  {
     
     printf( "Added: %s:%hu\n", irc->host, irc->port );
     
-    while( ( command = fgetc( serv_data_file ) ) != EOF )  {
+    while( ( command = fgetc( irclog_conf_file ) ) != EOF )  {
 
       fflush( stdout );
 
@@ -1026,7 +1121,7 @@ int main( int argc, char *argv[] )  {
 	size_t garbage = 0;	
 	errno = 0;
 // TODO Check if this does not leak
-	if( getline( &( ( *string_ptr )[ *count_ptr ] ), &garbage, serv_data_file ) < 0 )  {
+	if( getline( &( ( *string_ptr )[ *count_ptr ] ), &garbage, irclog_conf_file ) < 0 )  {
 	    
 	  if( errno )  fail( "Fail on getline" );
 	    
@@ -1056,7 +1151,7 @@ int main( int argc, char *argv[] )  {
       errno = 0;
       while( ( command != '\n' ) && ( command != EOF ) )  {
 	
-	command = fgetc( serv_data_file );
+	command = fgetc( irclog_conf_file );
 
       }
       

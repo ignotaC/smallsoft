@@ -111,7 +111,7 @@ make:
 #22
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 #23
-	${CC} -pthread ${SRC}/irclog.c \
+#	${CC} -pthread ${SRC}/irclog.c \
 	  ${LIBIG_OBJ} -ligf_opt -ligev_signals \
 	  -o ${BIN}/irclog
 #24
