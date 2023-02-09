@@ -28,19 +28,12 @@
   X( SERVER ), \
   X( MESSAGE ), \
   X( CHANNEL ), \
-  X( IDENT )
+  X( IDENT ), \
+  X( NO_CMD )
 
 enum COMMAND {
 
   #define X( x ) x
-  COMMAND_LIST_X
-  #undef X
-
-}
-
-char *command_name[]  {
-
-  #define X( x ) #x
   COMMAND_LIST_X
   #undef X
 
@@ -56,6 +49,21 @@ struct cmdval  {
   #define X( x ) { x, #x  }
   COMMAND_LIST_X
   #undef X
+
+}
+
+int what_cmd( const char *const lp )  {
+
+  size_t cv_len = sizeof cv / sizeof cv[0];
+  
+  for( size_t i = 0; i < cv_len; i++ )  {
+
+    if( ! strcmp( cv[i].name, lp )
+      return cv[i].num;
+
+  }
+
+  return NO_CMD;
 
 }
 
@@ -111,6 +119,16 @@ ssize_t write_msg( const int fd, void *const passed_buff, size_t passed_buff_siz
 void fail( const char *const fail_str )  {
 
   perror( fail_str );
+  exit( EXIT_FAILURE );
+
+}
+
+void fail_killparent( const char *const fail_str,
+    const pid_t ppid )  {
+
+  perror( fail_str );
+  if( kill( ppid, SIGTERM ) == -1 )
+    kill( ppid, SIGKILL );
   exit( EXIT_FAILURE );
 
 }
@@ -573,6 +591,18 @@ int use_ircmsg( char *msg, char *buff,
 
 }
 
+bool is_line_empty( char *const lp )  {
+
+  for( size_t i = 0;; i++ )  {
+
+    if( ! isspace( lp[i] ) )
+      return false;
+    if( lp[i] == '\n' )  lp[i] = '\0';
+    if( lp[i] == '\0' )  return true;
+
+  }
+
+}
 
 /* TODO
 int use_msg( const int command, char *const buff, const size_t buff_size )  {
@@ -884,29 +914,18 @@ int main( int argc, char *argv[] )  {
   // since child can get restarted it's better to have all stuff
   // closed on ecec.
   if( igf_cloexec( un_sock[0] ) ==  -1 )
-    fail( "Could not set unsock to close on exec" );
+    fail_killparent( "Could not set unsock to close on exec", getppid() );
 
   if( igf_cloexec( un_sock[1] ) == -1 )
-    fail( "Could not set unsock2 to close on exec" );
+    fail_killparent( "Could not set unsock2 to close on exec", getppid() );
 
   const size_t buff_size = BUFF_SIZE;
   char buff[ buff_size ];
   memset( buff, 0 , buff_size );
 
   FILE *irclog_conf_file = fopen( "irclog.conf", "r" );
-  if( irclog_conf_file == NULL )  {
-
-    int keep_err = errno;	  
-    if( kill( getppid(), SIGTERM ) == -1 )  {
-
-      kill( getppid(), SIGKILL );
-      perror( "Kill function fail" );
-
-    }
-    errno = keep_err;
-    fail( "File irclog.conf does not exists" );
-
-  }
+  if( irclog_conf_file == NULL )
+    fail_killparent( "File irclog.conf does not exist", getppid() );
 
   struct network *irc = NULL;
   int command = 0;
@@ -922,45 +941,83 @@ int main( int argc, char *argv[] )  {
   pthread_t pt_id;
 
   // TODO rewriting the loop
-  
+
+  enum status  {
+
+    WAIT_SERVER;
+    SERVER_IN;
+
+  }
+
+  int cmd_status = WAIT_SERVER;
 
   for(;;)  {
  
     char *lp = NULL;
     size_t lp_size = 0;
+    int cmd_type = NO_CMD;
 
-    if( getline( &lp, &lp_size, irclog_conf_file ) == -1 )  {
+    // Command part
+    for(;;)  {
 
-      if( feof( irclog_conf_file ) )  break;
-      fail( "Error on readign config file" );
+      free( lp );
+      lp = NULL;
+      lp_size = 0;
+	
+      if( getline( &lp, &lp_size, irclog_conf_file ) == -1 )  {
 
-    }
-    
-    // pass empty lines
-    bool is_empty = true;
-    for( size_t i = 0; lp[i] != '\0'; i++ )  {
-
-      if( ! isspace( lp[i] ) )  {
-
-        is_empty = false;
-	break;
+        if( feof( irclog_conf_file ) )  goto eof_on_conf;
+        fail_killparent( "Error on readign config file", getppid() );
 
       }
 
-      if( lp[i] == '\n' )  lp[i] = '\0';
+      if( is_empty_line( lp ) )  continue; // move past blank lines
+
+      // identify What command is it
+      cmd_type = what_cmd( lp );
+      if( cmd_type == NO_CMD )
+        fail_killparent( "The config file command is broken", getppid() );
+      
+      break; // at this point all is fine and we leave
+
+    }
+ 
+    if( cmd_status == WAIT_SERVER )  {
+
+      if( cmd_type != SERVER )
+        fail_killparent( "SERVER command should appear first in conf file", getppid() );
+
+      cmd_status = SERVER_IN;
 
     }
 
-    if( is_empty )  {
+    // Command data part
+    for(;;)  {
 
       free( lp );
-      continue;
+      lp = NULL;
+      lp_size = 0;
+	
+      if( getline( &lp, &lp_size, irclog_conf_file ) == -1 )  {
+
+	// we can't have eof here since we are expecting COMMAND data
+        fail_killparent( "Error on readign config file", getppid() );
+
+      }
+
+      if( is_empty_line( lp ) )  continue;
+
+      //if it is not empty we can use it
+      break;
 
     }
-
-
+ 
+    // TODO case on commands
 
   }
+
+ eof_on_conf:
+  // FINISHED reading stuff
 
  //  ---\/   THIS IS BEING REWRITTEN
 
