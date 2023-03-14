@@ -57,6 +57,15 @@ make:
 	${CCOBJ} ${IG}/ig_file/igf_opt.c -o ${IG_OBJ}/igf_opt.o
 	${AR} ${IG_OBJ}/libigf_opt.a ${IG_OBJ}/igf_opt.o
 
+	${CCOBJ} ${IG}/ig_file/igf_purge.c -o ${IG_OBJ}/igf_purge.o
+	${AR} ${IG_OBJ}/libigf_purge.a ${IG_OBJ}/igf_purge.o
+
+	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_getans.c\
+		-o ${IG_OBJ}/igmisc_getans.o
+	${AR} ${IG_OBJ}/libigmisc_getans.a ${IG_OBJ}/igmisc_getans.o
+
+
+
 #compile and link external libs
 	mkdir -p ${BIN}
 	mkdir -p ${SS_OBJ}
@@ -146,6 +155,12 @@ make:
 #
 #32  find reserved
 #33 version
+#fixfilename
+	${CCOBJ} ${SRC}/fixfilename.c -o ${SS_OBJ}/fixfilename.o
+	${CC} ${SS_OBJ}/fixfilename.o ${LIBIG_OBJ} -ligf_read\
+		-ligf_opt -ligf_purge -ligmisc_getans \
+		-o ${BIN}/fixfilename
+#
 
 clear:
 	rm -f ${BIN}/*

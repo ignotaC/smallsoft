@@ -21,7 +21,7 @@ OF THIS SOFTWARE.
 */
 
 #include "../../ignota/src/ig_file/igf_dir.h"
-#include "../../ignota/src/ig_miescellanous/igf_misc.h"
+#include "../../ignota/src/ig_miescellaneous/igf_misc.h"
 #include "../../ignota/src/ig_file/igf_read.h"
 #include "../../ignota/src/ig_file/igf_purge.h"
 
