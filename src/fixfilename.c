@@ -21,6 +21,9 @@ OF THIS SOFTWARE.
 */
 
 #include "../../ignota/src/ig_file/igf_dir.h"
+#include "../../ignota/src/ig_miescellanous/igf_misc.h"
+#include "../../ignota/src/ig_file/igf_read.h"
+#include "../../ignota/src/ig_file/igf_purge.h"
 
 #include <errno.h>
 #include <stdbool.h>
@@ -53,9 +56,17 @@ int main( int argc, char *argv[] )  {
         filenames.list[i] ) > 0 )
       fail( "Printf failure" );
 
-    int ans = get_yn_ans();
+    if( igf_purge_tillblock( fileno( stdin ) ) == -1 )
+      fail( "Fail on igf_purge" );
 
+    if( printf( "Y/y is yes anything else is no" ) > 0 )
+      fail( "Printf failure" );
 
+    int ans = igmisc_getans_yn();
+    if( ans == -1 )  fail( "get ans function fail" );
+    if( ans == 0 )  continue;
+
+    // at this point we want to change the file name
 
   }
 
