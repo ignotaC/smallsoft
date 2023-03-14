@@ -57,8 +57,15 @@ make:
 	${CCOBJ} ${IG}/ig_file/igf_opt.c -o ${IG_OBJ}/igf_opt.o
 	${AR} ${IG_OBJ}/libigf_opt.a ${IG_OBJ}/igf_opt.o
 
+	${CCOBJ} ${IG}/ig_datastructure/igds_strarr.c -o\
+		${IG_OBJ}/igds_strarr.o
+	${AR} ${IG_OBJ}/libigds_strarr.a ${IG_OBJ}/igds_strarr.o
+
 	${CCOBJ} ${IG}/ig_file/igf_purge.c -o ${IG_OBJ}/igf_purge.o
 	${AR} ${IG_OBJ}/libigf_purge.a ${IG_OBJ}/igf_purge.o
+
+	${CCOBJ} ${IG}/ig_file/igf_dir.c -o ${IG_OBJ}/igf_dir.o
+	${AR} ${IG_OBJ}/libigf_dir.a ${IG_OBJ}/igf_dir.o
 
 	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_getans.c\
 		-o ${IG_OBJ}/igmisc_getans.o
@@ -158,7 +165,8 @@ make:
 #fixfilename
 	${CCOBJ} ${SRC}/fixfilename.c -o ${SS_OBJ}/fixfilename.o
 	${CC} ${SS_OBJ}/fixfilename.o ${LIBIG_OBJ} -ligf_read\
-		-ligf_opt -ligf_purge -ligmisc_getans \
+		-ligf_opt -ligf_purge -ligmisc_getans -ligds_strarr\
+		-ligf_dir\
 		-o ${BIN}/fixfilename
 #
 

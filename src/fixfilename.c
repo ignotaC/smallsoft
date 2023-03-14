@@ -20,10 +20,10 @@ OF THIS SOFTWARE.
 
 */
 
-#include "../../ignota/src/ig_file/igf_dir.h"
-#include "../../ignota/src/ig_miescellaneous/igf_misc.h"
-#include "../../ignota/src/ig_file/igf_read.h"
-#include "../../ignota/src/ig_file/igf_purge.h"
+#include "../ignotalib/src/ig_file/igf_dir.h"
+#include "../ignotalib/src/ig_miscellaneous/igmisc_getans.h"
+#include "../ignotalib/src/ig_file/igf_read.h"
+#include "../ignotalib/src/ig_file/igf_purge.h"
 
 #include <errno.h>
 #include <stdbool.h>
@@ -31,17 +31,24 @@ OF THIS SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 
+void fail( const char *const errstr )  {
+
+  perror( errstr );
+  exit( EXIT_FAILURE );
+
+}
+
 int main( int argc, char *argv[] )  {
 
   struct igds_strarr filenames;
 
-  if( igf_getdirfnames( '.', &filenames ) == -1 )
+  if( igf_getdirfnames( ".", &filenames ) == -1 )
     fail( "Crashed on igf_getdirfnames" );
 
   for( size_t i = 0; i < filenames.listlen; i++ )  {
 
     bool has_argstrs = true;
-    for( size_t j = 1; j < argc; j++ )  {
+    for( size_t j = 1; j < ( size_t )argc; j++ )  {
 
       if( strstr( filenames.list[i], argv[j] ) == NULL )
         has_argstrs = false;
@@ -56,13 +63,15 @@ int main( int argc, char *argv[] )  {
         filenames.list[i] ) > 0 )
       fail( "Printf failure" );
 
-    if( igf_purge_tillblock( fileno( stdin ) ) == -1 )
+    const size_t bf_size = 8192;
+    char bf[ bf_size ];
+    if( igf_purge_tillblock( fileno( stdin ), bf, bf_size ) == -1 )
       fail( "Fail on igf_purge" );
 
     if( printf( "Y/y is yes anything else is no" ) > 0 )
       fail( "Printf failure" );
 
-    int ans = igmisc_getans_yn();
+    int ans = igmisc_getans_yn( ""  );  // TODO fix this should not take any string
     if( ans == -1 )  fail( "get ans function fail" );
     if( ans == 0 )  continue;
 
