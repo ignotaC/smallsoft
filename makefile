@@ -160,11 +160,11 @@ make:
 #32  find reserved
 #33 version
 #fixfilename
-	${CCOBJ} ${SRC}/fixfilename.c -o ${SS_OBJ}/fixfilename.o
-	${CC} ${SS_OBJ}/fixfilename.o ${LIBIG_OBJ}\
+	${CCOBJ} ${SRC}/getfileinode.c -o ${SS_OBJ}/getfileinode.o
+	${CC} ${SS_OBJ}/getfileinode.o ${LIBIG_OBJ}\
 		-ligmisc_getans -ligds_strarr\
 		-ligf_dir\
-		-o ${BIN}/fixfilename
+		-o ${BIN}/getfileinode
 #
 
 clear:

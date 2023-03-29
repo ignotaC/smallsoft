@@ -578,3 +578,4 @@ inside the directory of your makefile.
 31. **readNMEA**
 32. **findreserved**
 33. **version**
+34. **getfileinode**

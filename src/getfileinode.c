@@ -21,10 +21,12 @@ OF THIS SOFTWARE.
 */
 
 #include "../ignotalib/src/ig_file/igf_dir.h"
-#include "../ignotalib/src/ig_miscellaneous/igmisc_getans.h"
+// #include "../ignotalib/src/ig_miscellaneous/igmisc_getans.h"
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,14 +38,25 @@ void fail( const char *const errstr )  {
 
 }
 
+int printent( struct dirent *de )  {
+
+  if( de == NULL )  return -1;
+
+  if( printf( "Filename: %s\nInode: %" PRIuMAX "\n\n",
+       de->d_name, de->d_ino ) < 0 )  return -1;
+
+  return 0;
+
+}
+
 int main( int argc, char *argv[] )  {
 
-  struct igds_strarr filenames;
-  igds_strarr_init( &filenames );
+  if( igf_usedirent( ".", printent ) == -1 )
+    fail( "Crashed on igf_usedirent" );
 
-  if( igf_getdirfnames( ".", &filenames ) == -1 )
-    fail( "Crashed on igf_getdirfnames" );
+  return 0;
 
+/*
   size_t bf_size = 8192;  
   char *bf = malloc( bf_size );
   if( bf == NULL )  fail( "Could not allocate memory" );
@@ -133,4 +146,5 @@ int main( int argc, char *argv[] )  {
 
   return 0;
 
+  */
 }
