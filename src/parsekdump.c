@@ -44,6 +44,12 @@ void stop( char *problem  )  {
 
 }
 
+#ifndef NDEBUG
+#define DBGMSG(x) fprintf( stderr, "%s\n", x )
+#else
+#define DBGMSG(x) 
+#endif
+
 struct timepoint  {
 
   uint64_t sec;
@@ -122,9 +128,21 @@ int gettime( char *time,
   struct timepoint *tp )  {
 
   char *split_time = strchr( time, '.' );
-  if( split_time == NULL ) return -1;
+  if( split_time == NULL )  {
+    
+    DBGMSG( "Broken time string:" ); 
+    DBGMSG( time );
+    return -1;
+
+  }
   if( sscanf( time, "%" SCNu64 ".%" SCNu64, 
-    &( tp->sec ), &( tp->usec ) ) != 2 )  return -1;
+    &( tp->sec ), &( tp->usec ) ) != 2 )  {
+   
+    DBGMSG( "Broken time string:" ); 
+    DBGMSG( time );
+    return -1;
+
+  }
   return 0;
 
 }
@@ -236,8 +254,12 @@ struct proc_data *get_pd( struct proc_data **pd,
     struct loaded_syscall *ls )  {
 
   struct timepoint tp_action = { 0 };
-  if( gettime( ls->time, &tp_action ) == -1 )
+  if( gettime( ls->time, &tp_action ) == -1 )  {
+
+    DBGMSG( "gettime fail" );
     return NULL;
+
+  }
 
   for( size_t i = 0; i < *pd_len; i++ )  {
 
@@ -256,7 +278,13 @@ struct proc_data *get_pd( struct proc_data **pd,
 
   ( *pd_len )++;
   *pd = realloc( *pd, *pd_len * sizeof **pd );
-  if( *pd == NULL )  return NULL;
+  if( *pd == NULL )  {
+
+    DBGMSG( "allocation fail" );
+    return NULL;
+
+  }
+
   struct proc_data *new_pd =
     &( ( *pd )[ *pd_len -1 ] );
   pd_init( new_pd );
@@ -541,7 +569,7 @@ int main( void )  {
   close( tmpfd );
 
   //  Get kdump readable output
-  if( sprintf( cmd_buff, "kdump -TH > %s", tmpname_1 )
+  if( sprintf( cmd_buff, "kdump -THm 0 > %s", tmpname_1 )
     == -1 )  fail( "Fail on sprintf cmd get kdump" );
   if( system( cmd_buff ) == -1 )
     fail( "Fail on system, cmd kdump" );
@@ -573,10 +601,10 @@ int main( void )  {
   char *start_time = NULL;
   char *end_time = NULL;
 
-  for(;;)  {
+  char *lineptr = NULL;
+  size_t linesize = 0;
 
-    char *lineptr = NULL;
-    size_t linesize = 0;
+  for(;;)  {
 
     errno = 0;
     if( getline( &lineptr, &linesize, data_file ) ==
@@ -594,7 +622,6 @@ int main( void )  {
 
       if( errno == 0 )  {
 
-        free( lineptr );
 	free_ls( &ls );
 	continue;
 
@@ -602,8 +629,6 @@ int main( void )  {
       fail( "Could not load syscall line" );
 
     }
-
-    free( lineptr );
 
     // update time to know how long we were capturing syscalls
     if( start_time == NULL )  {
@@ -638,6 +663,8 @@ int main( void )  {
     free_ls( &ls );
 
   }
+
+  free( lineptr );
 
   remove( tmpname_1 );
 

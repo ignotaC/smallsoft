@@ -40,7 +40,7 @@ OF THIS SOFTWARE.
 // basic error funtion - finish program
 void fail( const char *const estr )  {
 
-  assert( esrt != NULL );
+  assert( estr != NULL );
 
   perror( estr );
   exit( EXIT_FAILURE );
@@ -758,9 +758,9 @@ int readmem( char **const nmealinep,
 // changes the nmea line
 int loadent( struct NMEAent *const nmea )  {
 
-  assert( nema != NULL );
+  assert( nmea != NULL );
   assert( nmea->line != NULL );
-  assert( nmea->entres == NULL );
+  assert( nmea->entries == NULL );
   assert( nmea->entries_len == 0 );
 
   // we do not look into first entry
