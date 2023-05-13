@@ -32,7 +32,7 @@ OF THIS SOFTWARE.
 #include <string.h>
 
 int inet_hint;
-int check_count; // zero if nothing prefered
+int check_count; // zero if nothing set since global
 char *domain_name;
 
 void fail( const char *const estr )  {
@@ -76,17 +76,21 @@ int chkarg( const int argc, const char *const argv[] )  {
 
     switch( argv[ optpos ][i] )  {
 
+      // don't set inet again in hint so we can keep order
+      // when options expect it
+
       case '4':
 	if( check_count )   {
          
 	  if( inet_hint == AF_INET )  return -1;
-	  check_count++;
+	  check_count++; 
 	  continue;
 
 	}
 	check_count++;
         inet_hint = AF_INET;
 	continue;
+
       case '6':
 	if( check_count )   {
 
@@ -98,8 +102,10 @@ int chkarg( const int argc, const char *const argv[] )  {
 	check_count++;
         inet_hint = AF_INET6;
         continue;
+
       case '\0':
 	break;
+
       default:
 	return -1;
 
@@ -120,13 +126,16 @@ int main( const int argc, const char *const argv[] )  {
   if( chkarg( argc, argv ) == -1 )
     fail( "Broken arguments" );
 
-  // now set rest of 
+  // TODO this needs some more look into 
+  // especialy AI_ADDRCONFIG
+  // also -46 does not work properly
+  // wrap in for and break when empty
 
   struct addrinfo hint = {0};
-  hint.ai_flags = AI_ADDRCONFIG | AI_CANONNAME;
+//hint.ai_flags = AI_ADDRCONFIG | AI_CANONNAME;
   hint.ai_family = inet_hint;
-  hint.ai_socktype = SOCK_STREAM; 
-  hint.ai_protocol = IPPROTO_TCP;
+ //hint.ai_socktype = SOCK_DGRAM; 
+ //hint.ai_protocol = IPPROTO_TCP;
 
   struct addrinfo  *aidata = NULL, *aipos = NULL;
   int error = 0;
@@ -147,7 +156,9 @@ new_hint_restart:
       if( hint.ai_family == AF_UNSPEC )  return 0;
       if( check_count == 1 )  return 0;
 
-      check_count = 0;
+      // 1 or 2 are possibilities so if not 1 
+      // than we had 2 and we decrement to 1
+      check_count = 1; 
       if( hint.ai_family == AF_INET )
         hint.ai_family = AF_INET6;
       else hint.ai_family = AF_INET;
