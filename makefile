@@ -164,8 +164,9 @@ make:
 #fixfilename
 	${CCOBJ} ${SRC}/getfileinode.c -o ${SS_OBJ}/getfileinode.o
 	${CC} ${SS_OBJ}/getfileinode.o ${LIBIG_OBJ}\
-		-ligmisc_getans -ligds_strarr\
 		-ligf_dir\
+		-ligmisc_getans\
+                -ligds_strarr\
 		-o ${BIN}/getfileinode
 #
 

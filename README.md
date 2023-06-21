@@ -187,12 +187,10 @@ inside the directory of your makefile.
 
     Program uses system resolver tools to get the ip  
     of the domain. Program expects at least the domain name  
-    argument. Order of arguments does not matter. But at  
-    maximum there can be only two arguments. So the options  
-    must not be separated like this: `-4 -6`  
-    Instead it should look like this: `-46`  
-    So we have four possibilities of passing options:  
-  >`-4 or -6 or -46 or -64`  
+    argument. Argument order matters, first options,  
+    last argument is domain.  
+    It can look like this:  
+  >`-4 or -46 or -6 -4 `  
 
     Options:  
 
@@ -443,11 +441,11 @@ inside the directory of your makefile.
     Empty lines are being ignored.  
     Dependencies: none  
     Example of using it:  
-  >`cat httpreq | httpreq_addcrlf | nc hate-google-for-life.com 80`  
+  >`cat httpreq | httpreq_addcrlf | nc hate-google.com 80`  
 
     Where httpreq file would look like this:  
   >`GET /babylon/tower HTTP/1.0`  
-  >`Host: gagle.shit`  
+  >`Host: hate-google.com`  
 
 18. **flinemem** `[ phrease1 ] [ phrease2 ] ...`
   >
