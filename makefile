@@ -68,7 +68,9 @@ make:
 		-o ${IG_OBJ}/igmisc_getans.o
 	${AR} ${IG_OBJ}/libigmisc_getans.a ${IG_OBJ}/igmisc_getans.o
 
-
+	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_opts.c\
+		-o ${IG_OBJ}/igmisc_opts.o
+	${AR} ${IG_OBJ}/libigmisc_opts.a ${IG_OBJ}/igmisc_opts.o
 
 #compile and link external libs
 	mkdir -p ${BIN}
