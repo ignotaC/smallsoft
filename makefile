@@ -91,6 +91,10 @@ make:
 #7
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
 #8
+# TODO we need to have working -4 -6 or -6 -4 and also
+# option for udp proto etc    and for showing simply
+# interface we can connect to so for example ipv6 will be
+# not shown etc
 	${CCOBJ} ${SRC}/gethostipv.c -o ${SS_OBJ}/gethostipv.o
 	${CC} ${SS_OBJ}/gethostipv.o ${LIBIG_OBJ}\
           -ligmisc_opts -o ${BIN}/gethostipv

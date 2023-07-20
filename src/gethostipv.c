@@ -47,7 +47,8 @@ int main( const int argc, const char *const argv[] )  {
   if( argc < 2 )
     fail( "Need at least one argument with domain" );
 
-  #define NOTOPTARG_COUNT 1
+  // one is argv[0] other argv[last]
+  #define NOTOPTARG_COUNT 2
 
   // 4 -> ipv4
   // 6 -> ipv6
@@ -60,16 +61,25 @@ int main( const int argc, const char *const argv[] )  {
   // Note argv[1] since we avoid argv[0]
   // it would alert error 
 
-
   const char *const domain_name = argv[ argc - 1 ];
 
-  int count_ipv;
-  if( sopts[ '4' ] )  count_ipv++;
-  if( sopts[ '6' ] )  count_ipv++;
+  int count_ipv = 1;
 
   int inet_hint = AF_INET;
-  if( sopts[ '6' ] < sopts[ '4' ] )
-    inet_hint = AF_INET6;
+  if( sopts[ '6' ] != 0 )  inet_hint = AF_INET6;
+  if( sopts[ '6' ] && sopts[ '4' ] )  {
+
+    count_ipv = 2;
+    if( sopts[ '6' ] > sopts[ '4' ] ) {
+
+      inet_hint = AF_INET;
+
+    } 
+ 
+  }
+
+  if( ( ! sopts[ '6' ] ) && ( ! sopts[ '4' ] ) )
+    inet_hint = AF_UNSPEC;
 
   // TODO this needs some more look into 
   // especialy AI_ADDRCONFIG
@@ -80,68 +90,81 @@ int main( const int argc, const char *const argv[] )  {
 //hint.ai_flags = AI_ADDRCONFIG | AI_CANONNAME;
   hint.ai_family = inet_hint;
  //hint.ai_socktype = SOCK_DGRAM; 
- //hint.ai_protocol = IPPROTO_TCP;
+  hint.ai_protocol = IPPROTO_TCP;  // else double resoults for udp
 
-  struct addrinfo  *aidata = NULL, *aipos = NULL;
-  int error = 0;
-new_hint_restart:
+  for(;;)  {
 
-  error = getaddrinfo( domain_name, NULL, &hint, &aidata );
-  if( error != 0 )  {
+    struct addrinfo  *aidata = NULL, *aipos = NULL;
+    int error = 0;
 
-    if( error == EAI_AGAIN )  goto new_hint_restart;
+    error = getaddrinfo( domain_name, NULL, &hint, &aidata );
+    if( error != 0 )  { // e
+
+      if( error == EAI_AGAIN )  continue;
 
  // fix to bsd chaos.
 #ifdef EAI_NODATA
-    if( ( error == EAI_NODATA ) 
-      || ( error == EAI_NONAME ) ) {
+      if( ( error == EAI_NODATA ) 
+        || ( error == EAI_NONAME ) ) { // e1
 #else   
-    if( error == EAI_NONAME )  {
+      if( error == EAI_NONAME )  {  // e1
 #endif
-      if( hint.ai_family == AF_UNSPEC )  return 0;
-      if( count_ipv == 1 )  return 0;
+        if( hint.ai_family == AF_UNSPEC )  return 0;
+        if( count_ipv == 1 )  return 0;
 
-      // 1 or 2 are possibilities so if not 1 
-      // than we had 2 and we decrement to 1
-      count_ipv = 1; 
-      if( hint.ai_family == AF_INET )
-        hint.ai_family = AF_INET6;
-      else hint.ai_family = AF_INET;
-      goto new_hint_restart;
+        // 1 or 2 are possibilities so if not 1 
+        // than we had 2 and we decrement to 1
+        count_ipv = 1; 
+        if( hint.ai_family == AF_INET )
+          hint.ai_family = AF_INET6;
+        else hint.ai_family = AF_INET;
+        continue;
+
+      } // e1
+      fail( gai_strerror( error ) );
+      return -1;
+
+    } //e
+
+    const socklen_t ipname_size = 128;
+    char ipname[ ipname_size ];
+    aipos = aidata;
+    for(;;)  {
+    
+      void *inet_struct = NULL;
+      if( aipos->ai_family == AF_INET )  {
+
+        inet_struct = &( ( ( struct sockaddr_in* )aipos->ai_addr )->sin_addr );
+
+      } else {
+
+        inet_struct = &( ( ( struct sockaddr_in6* )aipos->ai_addr )->sin6_addr );
+
+      }
+    
+      const char *ans = inet_ntop( aipos->ai_family, inet_struct,
+        ipname, ipname_size );
+      if( ans == NULL ) fail( "failed on inet_ntop" );
+
+      if( ans[0] != '\0' ) printf( "%s\n", ans );
+      if( aipos->ai_next == NULL )  break;
+      aipos = aipos->ai_next;
 
     }
-    fail( gai_strerror( error ) );
-    return -1;
+
+    freeaddrinfo( aidata );
+  
+    if( count_ipv == 1 )  return 0;
+
+    // 1 or 2 are possibilities so if not 1 
+    // than we had 2 and we decrement to 1
+
+    count_ipv = 1; 
+    if( hint.ai_family == AF_INET )
+      hint.ai_family = AF_INET6;
+    else hint.ai_family = AF_INET;
 
   }
-
-  const socklen_t ipname_size = 128;
-  char ipname[ ipname_size ];
-  aipos = aidata;
-  for(;;)  {
-    
-    void *inet_struct = NULL;
-    if( aipos->ai_family == AF_INET )  {
-
-      inet_struct = &( ( ( struct sockaddr_in* )aipos->ai_addr )->sin_addr );
-
-    } else {
-
-      inet_struct = &( ( ( struct sockaddr_in6* )aipos->ai_addr )->sin6_addr );
-
-    }
-    
-    const char *ans = inet_ntop( aipos->ai_family, inet_struct,
-      ipname, ipname_size );
-    if( ans == NULL ) fail( "failed on inet_ntop" );
-
-    if( ans[0] != '\0' ) printf( "%s\n", ans );
-    if( aipos->ai_next == NULL )  break;
-    aipos = aipos->ai_next;
-
-  }
-
-  freeaddrinfo( aidata );
 
   return 0;
 
