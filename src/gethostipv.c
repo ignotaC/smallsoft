@@ -20,6 +20,8 @@ OF THIS SOFTWARE.
 
 */
 
+#include "../ignotalib/src/ig_miscellaneous/igmisc_opts.h"
+
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -32,8 +34,6 @@ OF THIS SOFTWARE.
 #include <string.h>
 
 int inet_hint;
-int check_count; // zero if nothing set since global
-char *domain_name;
 
 void fail( const char *const estr )  {
 
@@ -42,89 +42,34 @@ void fail( const char *const estr )  {
 
 }
 
-int chkarg( const int argc, const char *const argv[] )  {
-
-  if( argc > 3 )  return -1;
-  if( argc < 2 )  return -1;
-  if( argc == 2 )  {
-
-    // we are passing simply domain,
-    // and will accept what ever answer is returned
-    // so the first one to be specific.
-    domain_name = ( char* )argv[1];
-    inet_hint = AF_UNSPEC;
-    return 0; 
-
-  } 
-
-  int optpos = 1;
-  if( argv[1][0] != '-' )  {
-
-    optpos = 2;
-    domain_name = ( char* )argv[1];
-
-  }  else  {
-
-    domain_name = ( char* )argv[2];
-
-  }
-  if( argv[ optpos ][0] != '-' )  return -1;
-
-  size_t argsize = strlen( argv[ optpos ] );
-  if( argsize == 1 )  return -1;
-  for( size_t i = 1; i < argsize; i++ )  {
-
-    switch( argv[ optpos ][i] )  {
-
-      // don't set inet again in hint so we can keep order
-      // when options expect it
-
-      case '4':
-	if( check_count )   {
-         
-	  if( inet_hint == AF_INET )  return -1;
-	  check_count++; 
-	  continue;
-
-	}
-	check_count++;
-        inet_hint = AF_INET;
-	continue;
-
-      case '6':
-	if( check_count )   {
-
-	  if( inet_hint == AF_INET6 )  return -1;
-	  check_count++;
-	  continue;
-
-	}
-	check_count++;
-        inet_hint = AF_INET6;
-        continue;
-
-      case '\0':
-	break;
-
-      default:
-	return -1;
-
-    }
-
-  }
-
-  // option like -466 is a bug the only possibilities are
-  // -4 -6 or -46 -64
-  if( check_count > 2 ) return -1;
-
-  return 0;
-
-}
-
 int main( const int argc, const char *const argv[] )  {
 
-  if( chkarg( argc, argv ) == -1 )
-    fail( "Broken arguments" );
+  if( argc < 2 )
+    fail( "Need at least one argument with domain" );
+
+  #define NOTOPTARG_COUNT 1
+
+  // 4 -> ipv4
+  // 6 -> ipv6
+  char *optstr = "46";
+  igmisc_short_opts sopts;
+  igmisc_sopts_init( &sopts, ( unsigned char* )optstr );
+  if( igmisc_sopts_load( &sopts, igmisc_sopts_readorder,
+      argc - NOTOPTARG_COUNT, &( argv[1] ) ) == -1 )
+    fail( "Passed option arguments are broken" );
+  // Note argv[1] since we avoid argv[0]
+  // it would alert error 
+
+
+  const char *const domain_name = argv[ argc - 1 ];
+
+  int count_ipv;
+  if( sopts[ '4' ] )  count_ipv++;
+  if( sopts[ '6' ] )  count_ipv++;
+
+  int inet_hint = AF_INET;
+  if( sopts[ '6' ] < sopts[ '4' ] )
+    inet_hint = AF_INET6;
 
   // TODO this needs some more look into 
   // especialy AI_ADDRCONFIG
@@ -154,11 +99,11 @@ new_hint_restart:
     if( error == EAI_NONAME )  {
 #endif
       if( hint.ai_family == AF_UNSPEC )  return 0;
-      if( check_count == 1 )  return 0;
+      if( count_ipv == 1 )  return 0;
 
       // 1 or 2 are possibilities so if not 1 
       // than we had 2 and we decrement to 1
-      check_count = 1; 
+      count_ipv = 1; 
       if( hint.ai_family == AF_INET )
         hint.ai_family = AF_INET6;
       else hint.ai_family = AF_INET;

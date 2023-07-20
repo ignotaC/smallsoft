@@ -1,4 +1,4 @@
-DBG=-DNDEBUG
+DBG=#-DNDEBUG
 CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBG}
 CCOBJ=${CC} -c
 AR=ar rcs
@@ -91,14 +91,17 @@ make:
 #7
 	${CC} ${SRC}/playev.c -o ${BIN}/playev
 #8
-	${CC} ${SRC}/gethostipv.c -o ${BIN}/gethostipv
+	${CCOBJ} ${SRC}/gethostipv.c -o ${SS_OBJ}/gethostipv.o
+	${CC} ${SS_OBJ}/gethostipv.o ${LIBIG_OBJ}\
+          -ligmisc_opts -o ${BIN}/gethostipv
 #9
 	${CC} ${SRC}/repeatstr.c -o ${BIN}/repeatstr
 #10
 	${CC} ${SRC}/lext.c -o ${BIN}/lext
 #11
 	${CCOBJ} ${SRC}/getlimits.c -o ${SS_OBJ}/getlimits.o
-	${CC} ${SS_OBJ}/getlimits.o ${LIBIG_OBJ} -ligp_double -o ${BIN}/getlimits
+	${CC} ${SS_OBJ}/getlimits.o ${LIBIG_OBJ}\
+          -ligp_double -o ${BIN}/getlimits
 #12
 	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp 
 #13
