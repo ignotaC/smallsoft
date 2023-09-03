@@ -49,20 +49,21 @@ int main( const int argc, const char *const argv[] )  {
   // the avilible options don't matter
   if( argc == 2 )  return 0;
 
-  // don't count options on the last argument
-  #define NOTOPTARG_COUNT 1
+  // don't count options on the last argument and also we ignore first argv[0]
+  #define NOTOPTARG_COUNT 2
 
   // opt string is nothing more but avilable options
   // so our last argument
   const char *optstr = argv[ argc - 1 ]; // fine since we exit if argc < 2
   igmisc_short_opts sopts;
   igmisc_sopts_init( &sopts, ( unsigned char* )optstr );
+  // we will start ofc after argv[0]
   if( igmisc_sopts_load( &sopts, igmisc_sopts_readorder,
-      argc - NOTOPTARG_COUNT, &( argv[0] ) ) == -1 )
+      argc - NOTOPTARG_COUNT, &( argv[1] ) ) == -1 ) 
     fail( "Passed option arguments are broken" );
 
   // now all you need to do is print options that appeared
-  if( igmosic_sopts_print( &sopts, argv[ argc - 1 ] ) < 0 )
+  if( igmisc_sopts_print( &sopts, optstr ) == -1 )
     fail( "Sopts print failed" );
 
   return 0;
