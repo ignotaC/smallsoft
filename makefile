@@ -129,7 +129,9 @@ make:
 	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
 	# TODO add + support with option ofc
 #20
-#####################################
+	${CCOBJ} ${SRC}/sh_getopt.c -o ${SS_OBJ}/sh_getopt.o
+	${CC} ${SS_OBJ}/sh_getopt.o ${LIBIG_OBJ}\
+          -ligmisc_opts -o ${BIN}/sh_getopt
 #22
 	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
 #23
