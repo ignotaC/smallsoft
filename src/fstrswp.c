@@ -47,7 +47,59 @@ int main(
   if( argc != 3 )  pfail( "Wrong number of arguments" );
 
   const char *const searchstr = argv[1];
-  const char *const replacestr = argv[2];
+  char replacestr[ 1 + strlen( argv[2] ) ];
+  strcpy( replacestr, argv[2] );
+  
+  char *replacestr_pos = replacestr;
+  char *replacestr_newpos = replacestr;
+  for(;;)  {
+
+    if( *replacestr_pos == '\\' )  {
+
+      replacestr_pos++;
+      switch( *replacestr_pos )  {
+
+       case 'r':
+         *replacestr_newpos = '\r';
+	 replacestr_newpos++;
+	 replacestr_pos++;
+	 continue;
+       case 'n':
+         *replacestr_newpos = '\n';
+	 replacestr_newpos++;
+	 replacestr_pos++;
+	 continue;
+       case 't':
+         *replacestr_newpos = '\t';
+	 replacestr_newpos++;
+	 replacestr_pos++;
+	 continue;
+       case 'v':
+         *replacestr_newpos = '\v';
+	 replacestr_newpos++;
+	 replacestr_pos++;
+	 continue;
+       case '\\':
+         *replacestr_newpos = '\\';
+	 replacestr_newpos++;
+	 replacestr_pos++;
+	 continue;
+       default:
+	 fail( "Broken character sequance" );
+	 break; // will never reach this
+
+      }
+
+    }
+
+    *replacestr_newpos = *replacestr_pos;
+    if( *replacestr_newpos == '\0' )  break;
+
+    replacestr_pos++;
+    replacestr_newpos++;
+
+  }
+
   char *lineptr = NULL;
   char *found_phrease = NULL;
 

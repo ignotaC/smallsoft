@@ -2,13 +2,15 @@
 <p>Made for God Glory.<br />
 Hail Supreame God one in Great Trinity.<br />
 Prise Saint Maria, mother of God.  </p>
+<p>irc: ##ignota irc.libera.chat</p>
 <p>A pack of my little unix programs.<br />
 I do not mention dependencies like C compiler and posix system.<br />
-None means you have the basic set.  </p>
+None means you have the basic set.<br />
+Also for automated compilation you need make.  </p>
 <p>I wrote this code for my personal use.<br />
-Shell hacks for life. ;-)  </p>
+Shell hacks for life.</p>
 <p>You can either read this file as plain text<br />
-( and still understand 100% of what is this read me about ).<br />
+( and still understand 100% of what is this "read me" about ).<br />
 Or you can use your webbrowser to read it:  </p>
 <blockquote>
 <p><code>firefox readme.html</code>  </p>
@@ -20,7 +22,7 @@ Or you can use your webbrowser to read it:  </p>
 <p><code>git clone 'https://github.com/ignotaC/smallsoft'</code>  </p>
 </blockquote>
 <h3>2) compilation</h3>
-<p>Run make in makefile:  </p>
+<p>Run make:  </p>
 <blockquote>
 <p><code>make</code>  </p>
 </blockquote>
@@ -29,7 +31,7 @@ required submodules - ignotalib.<br />
 Compiled programs will go to the newly created<br />
 bin directory inside smallsoft.  </p>
 <h3>3) installation ( binary managment )</h3>
-<p>You do it by your self, You might no want to<br />
+<p>You do it by your self, You might not want to<br />
 use some of the software this pack provides.<br />
 Simply copy what ever you want to one of the<br />
 preffered PATH directory which you can see<br />
@@ -196,13 +198,11 @@ events. Untill reached the expected repeated number.  </p>
 <blockquote></blockquote>
 <p>Program uses system resolver tools to get the ip<br />
 of the domain. Program expects at least the domain name<br />
-argument. Order of arguments does not matter. But at<br />
-maximum there can be only two arguments. So the options<br />
-must not be separated like this: <code>-4 -6</code><br />
-Instead it should look like this: <code>-46</code><br />
-So we have four possibilities of passing options:  </p>
+argument. Argument order matters, first options,<br />
+last argument is domain.<br />
+It can look like this:  </p>
 <blockquote>
-<p><code>-4 or -6 or -46 or -64</code>  </p>
+<p><code>-4 or -46 or -6 -4</code>  </p>
 </blockquote>
 <p>Options:  </p>
 <p><code>-4</code><br />
@@ -319,16 +319,27 @@ Example of using it:  </p>
 to string in second argument. I use it for source fixing.<br />
 Each line gets allocated to heap. After swapping is done<br />
 output is sent to stdout anf line gets freed.<br />
-Dependencies: none<br />
-Example of using it:  </p>
+Supported character sequances only in pattern2:  </p>
+<ul>
+<li><code>\r</code> = carrige return  </li>
+<li><code>\n</code> = new line  </li>
+<li><code>\t</code> = tab  </li>
+<li><code>\v</code> = vertical tab  </li>
+<li><code>\\</code> = backslash  </li>
+</ul>
+</li>
+</ol>
+<p>Dependencies: none<br />
+    Example of using it:  </p>
 <blockquote>
 <p><code>find src -type f -iname '*.c' -exec sh -c \</code><br />
 <code>'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\</code><br />
 <code>' | tmpfile; mv tmpfile {}' \;</code>  </p>
 </blockquote>
-<p>This fixes gnuism crap left in code by some<br />
-unexpiranced coder. Next run would scan <code>*.h</code>.  </p>
-</li>
+<pre><code>This fixes gnuism crap left in code by some  
+unexpiranced coder. Next run would scan `*.h`.
+</code></pre>
+<ol>
 <li>
 <p><strong>parsekdump</strong></p>
 <blockquote></blockquote>
@@ -358,14 +369,19 @@ Example of using it:</p>
 else the output summary might be missleading.  </p>
 </li>
 <li>
-<p><strong>rmvmb</strong></p>
+<p><strong>rmvmb</strong> [-f]</p>
 <blockquote></blockquote>
 <p>Program removes multibyte characters from input.<br />
 Normal one byte characters are redirected to stdout.<br />
+Rarely you might encounter some illegal characters.<br />
+Usually some old unknown encodings.<br />
+In that case use -f option. It will pass unknown characters.<br />
+Instead of throwing out error.<br />
 Dependencies: none<br />
 Example of using it:</p>
 <blockquote>
-<p><code>echo "$string_with_multibytechars" | rmvmb</code>  </p>
+<p><code>echo "$string_with_multibytechars" | rmvmb</code><br />
+<code>echo "$string_with_brokenmultichars" | rmvmb -f</code>  </p>
 </blockquote>
 </li>
 <li>
@@ -448,12 +464,12 @@ Empty lines are being ignored.<br />
 Dependencies: none<br />
 Example of using it:  </p>
 <blockquote>
-<p><code>cat httpreq | httpreq_addcrlf | nc hate-google-for-life.com 80</code>  </p>
+<p><code>cat httpreq | httpreq_addcrlf | nc hate-google.com 80</code>  </p>
 </blockquote>
 <p>Where httpreq file would look like this:  </p>
 <blockquote>
 <p><code>GET /babylon/tower HTTP/1.0</code><br />
-<code>Host: gagle.shit</code>  </p>
+<code>Host: hate-google.com</code>  </p>
 </blockquote>
 </li>
 <li>
@@ -475,6 +491,7 @@ Example fo using it:  </p>
 </li>
 <li>
 <p><strong>urlcode</strong> <code>[ -options ] [ data1 ] [ data2 ] [ ... ]</code></p>
+<blockquote></blockquote>
 <p>Encode or decode urlcode. + &lt;=&gt; space is not supported<br />
 It's a browser extension. We have three types of options<br />
 and we can choose only one.  </p>
@@ -527,7 +544,7 @@ Example of using it:  </p>
              some stuff recently and it worked. So I am adding it here for now.
              Will try to reread it in future for detecting some bugs and other crap.
              How to use: create a file in directory where you will start the irclog program
-             The only accepted file name is: log_serv_data
+             The only accepted file name is: irclog.conf
              Else error.
              Contents example:
              Sirc.liberapriviligesqwertycrap.chat 6667
@@ -584,13 +601,14 @@ Example of using it:  </p>
                    For help simply run it without any arguments.
                    Example: http_serber_answer | httphb_split -h &gt; httpheader_file</p>
 </li>
-<li><strong>fixedxarg</strong> - Program closly performs same task as xargs, BUT PROPERLY.
+<li><strong>fixedxargs</strong> - Program closly performs same task as xargs, BUT PROPERLY.
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
-                echo  "a\nb\nc\nd\n" | fixedxarg echo</li>
+                echo  "a\nb\nc\nd\n" | fixedxargs echo</li>
 <li><strong>listwords</strong> - </li>
 <li><strong>fext</strong></li>
 <li><strong>readNMEA</strong></li>
 <li><strong>findreserved</strong></li>
 <li><strong>version</strong></li>
+<li><strong>getfileinode</strong></li>
 </ol>

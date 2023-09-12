@@ -308,7 +308,15 @@ inside the directory of your makefile.
     to string in second argument. I use it for source fixing.  
     Each line gets allocated to heap. After swapping is done  
     output is sent to stdout anf line gets freed.  
-    Dependencies: none  
+    Supported character sequances only in pattern2:  
+
+    * `\r` = carrige return  
+    * `\n` = new line  
+    * `\t` = tab  
+    * `\v` = vertical tab  
+    * `\\` = backslash  
+
+   Dependencies: none  
     Example of using it:  
   >`find src -type f -iname '*.c' -exec sh -c \`  
   >`'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\`  
