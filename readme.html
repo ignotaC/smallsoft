@@ -4,11 +4,11 @@ Hail Supreame God one in Great Trinity.<br />
 Prise Saint Maria, mother of God.  </p>
 <p>irc: ##ignota irc.libera.chat</p>
 <p>A pack of my little unix programs.<br />
-I do not mention dependencies like C compiler and posix system.<br />
-None means you have the basic set.<br />
-Also for automated compilation you need make.  </p>
+None in dependecies means you have the basic set.<br />
+Basci set you need:<br />
+<strong>cmake</strong>, <strong>make</strong>, <strong>cc - c compiler</strong>, <strong>posix</strong>  </p>
 <p>I wrote this code for my personal use.<br />
-Shell hacks for life.</p>
+Shell hacks for life.  </p>
 <p>You can either read this file as plain text<br />
 ( and still understand 100% of what is this "read me" about ).<br />
 Or you can use your webbrowser to read it:  </p>
@@ -327,19 +327,16 @@ Supported character sequances only in pattern2:  </p>
 <li><code>\v</code> = vertical tab  </li>
 <li><code>\\</code> = backslash  </li>
 </ul>
-</li>
-</ol>
 <p>Dependencies: none<br />
-    Example of using it:  </p>
+Example of using it:  </p>
 <blockquote>
 <p><code>find src -type f -iname '*.c' -exec sh -c \</code><br />
 <code>'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\</code><br />
 <code>' | tmpfile; mv tmpfile {}' \;</code>  </p>
 </blockquote>
-<pre><code>This fixes gnuism crap left in code by some  
-unexpiranced coder. Next run would scan `*.h`.
-</code></pre>
-<ol>
+<p>This fixes gnuism crap left in code by some<br />
+unexpiranced coder. Next run would scan <code>*.h</code>.  </p>
+</li>
 <li>
 <p><strong>parsekdump</strong></p>
 <blockquote></blockquote>

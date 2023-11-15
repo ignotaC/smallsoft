@@ -2,184 +2,232 @@ DBG=#-DNDEBUG
 CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBG}
 CCOBJ=${CC} -c
 AR=ar rcs
-SRC=src
-BIN=bin
-IG=ignotalib/src
-IG_OBJ=ignota_obj
-LIBIG_OBJ=-Lignota_obj
-SS_OBJ=ss_obj
-make:
+SRC=../src
+BIN=../bin
+IG=../ignotalib/src
+LOBJ=-L../obj
 
-	sh code_update.sh
 
-#compile external static libs ( ignotalib submodule )
-	mkdir -p ${IG_OBJ}
+# set up src path so make can find files.c
+.PATH.c: ../src
 
-	${CCOBJ} ${IG}/ig_file/igf_write.c -o ${IG_OBJ}/igf_write.o
-	${AR} ${IG_OBJ}/libigf_write.a ${IG_OBJ}/igf_write.o
 
-	${CCOBJ} ${IG}/ig_file/igf_read.c -o ${IG_OBJ}/igf_read.o
-	${AR} ${IG_OBJ}/libigf_read.a ${IG_OBJ}/igf_read.o
+# TODO write in manual what does do
+.PHONY: clean clear clearobj cleanobj make setup
 
-	${CCOBJ} ${IG}/ig_file/igf_readword.c -o ${IG_OBJ}/igf_readword.o
-	${AR} ${IG_OBJ}/libigf_readword.a ${IG_OBJ}/igf_readword.o
 
-	${CCOBJ} ${IG}/ig_file/igf_search.c -o ${IG_OBJ}/igf_search.o
-	${AR} ${IG_OBJ}/libigf_search.a ${IG_OBJ}/igf_search.o
+# program list
+make: coin \
+  getproxies \
+  novena \
+  workout \
+  logtime \
+  recev \
+  playev \
+  gethostipv \
+  repeatstr \
+  lext \
+  getlimits \
+  fstrswp \
+  parsekdump \
+  rmvmb \
+  randstr \
+  sndlog_data \
+  httpreq_addcrlf \
+  flinemem \
+  urlcode \
+  sh_getopt \
+  miodpitny \
+  faddlines \
+  cutfile \
+  htmlentities \
+  httphb_split \
+  fixedxargs \
+  listwords \
+  fext \
+  readNMEA \
+  getfileinode
+	@printf "\nSmall soft compiled succesfully.\n"
+	@printf "Binaries are in bin dir\n\n"
 
-	${CCOBJ} ${IG}/ig_file/igf_open.c -o ${IG_OBJ}/igf_open.o
-	${AR} ${IG_OBJ}/libigf_open.a ${IG_OBJ}/igf_open.o
 
-	${CCOBJ} ${IG}/ig_file/igf_offset.c -o ${IG_OBJ}/igf_offset.o
-	${AR} ${IG_OBJ}/libigf_offset.a ${IG_OBJ}/igf_offset.o
+# setup requred directories and get ignota
+.BEGIN: setup
+setup:
+	@git submodule update --init --recursive
 
-	${CCOBJ} ${IG}/ig_net/ign_unixserv.c -o ${IG_OBJ}/ign_unixserv.o
-	${AR} ${IG_OBJ}/libign_unixserv.a ${IG_OBJ}/ign_unixserv.o
 
-	${CCOBJ} ${IG}/ig_net/ign_inetserv.c -o ${IG_OBJ}/ign_inetserv.o
-	${AR} ${IG_OBJ}/libign_inetserv.a ${IG_OBJ}/ign_inetserv.o
 
-	${CCOBJ} ${IG}/ig_net/ign_strtoport.c -o ${IG_OBJ}/ign_strtoport.o
-	${AR} ${IG_OBJ}/libign_strtoport.a ${IG_OBJ}/ign_strtoport.o
+# This handles file compilation of source that does not use ignota.
+# We copy because the binary is what we check in obj for remake if needed
+# so we don't recompile all. After we are dun we can run make clearobj
+.SUFFIXES: .c
+.c:
+	${CC} $< -o $*
+	cp $* ${BIN}/$*
 
-	${CCOBJ} ${IG}/ig_event/igev_signals.c -o ${IG_OBJ}/igev_signals.o
-	${AR} ${IG_OBJ}/libigev_signals.a ${IG_OBJ}/igev_signals.o
 
-	${CCOBJ} ${IG}/ig_print/igp_double.c -o ${IG_OBJ}/igp_double.o
-	${AR} ${IG_OBJ}/libigp_double.a ${IG_OBJ}/igp_double.o
+workout: libigf_read.a libigf_write.a
+	${CCOBJ} ${SRC}/workout.c -o workout.o
+	${CC} workout.o -L. -ligf_read -ligf_write -o workout 
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_memory/igm_search.c -o ${IG_OBJ}/igm_search.o
-	${AR} ${IG_OBJ}/libigm_search.a ${IG_OBJ}/igm_search.o
+gethostipv: libigmisc_opts.a
+	${CCOBJ} ${SRC}/gethostipv.c -o gethostipv.o
+	${CC} gethostipv.o -L. -ligmisc_opts -o gethostipv
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_math/igmath_geopos.c -o ${IG_OBJ}/igmath_geopos.o
-	${AR} ${IG_OBJ}/libigmath_geopos.a ${IG_OBJ}/igmath_geopos.o
+getlimits: libigp_double.a
+	${CCOBJ} ${SRC}/getlimits.c -o getlimits.o
+	${CC} getlimits.o -L. -ligp_double -o getlimits
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_file/igf_opt.c -o ${IG_OBJ}/igf_opt.o
-	${AR} ${IG_OBJ}/libigf_opt.a ${IG_OBJ}/igf_opt.o
+sndlog_data: libign_unixserv.a libign_inetserv.a \
+	libign_strtoport.a libigev_signals.a
+	${CCOBJ} ${SRC}/sndlog_data.c -o sndlog_data.o
+	${CC} sndlog_data.o -L. \
+		-lign_unixserv -lign_inetserv -lign_strtoport \
+		-ligev_signals -o sndlog_data
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_datastructure/igds_strarr.c -o\
-		${IG_OBJ}/igds_strarr.o
-	${AR} ${IG_OBJ}/libigds_strarr.a ${IG_OBJ}/igds_strarr.o
+sh_getopt: libigmisc_opts.a
+	${CCOBJ} ${SRC}/sh_getopt.c -o sh_getopt.o
+	${CC} sh_getopt.o -L. -ligmisc_opts -o sh_getopt
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_file/igf_dir.c -o ${IG_OBJ}/igf_dir.o
-	${AR} ${IG_OBJ}/libigf_dir.a ${IG_OBJ}/igf_dir.o
+# irc logger is revisited and this will wait TODO
+#irclog: 
+#	${CCOBJ} ${SRC}/irclog.c -o irclog.o
+#	${CC} irclog.o -pthread \
+#	  -L. -ligxxx -o irclog
+#	cp $@ ${BIN}/$@
+#
 
-	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_getans.c\
-		-o ${IG_OBJ}/igmisc_getans.o
-	${AR} ${IG_OBJ}/libigmisc_getans.a ${IG_OBJ}/igmisc_getans.o
+listwords: libigf_readword.a libigf_open.a libigf_offset.a libigf_read.a
+	${CCOBJ} ${SRC}/listwords.c -o listwords.o
+	${CC} listwords.o -L. -ligf_readword -ligf_open \
+		-ligf_offset -ligf_read -o listwords
+	cp $@ ${BIN}/$@
 
-	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_opts.c\
-		-o ${IG_OBJ}/igmisc_opts.o
-	${AR} ${IG_OBJ}/libigmisc_opts.a ${IG_OBJ}/igmisc_opts.o
+fext: libigf_search.a libigf_open.a libigf_read.a \
+	libigf_write.a libigf_offset.a libigm_search.a
+	${CCOBJ} ${SRC}/fext.c -o fext.o
+	${CC} fext.o -L. -ligf_search -ligf_open \
+		-ligf_read -ligf_write -ligf_offset \
+		-ligm_search -o fext
+	cp $@ ${BIN}/$@
 
-#compile and link external libs
-	mkdir -p ${BIN}
-	mkdir -p ${SS_OBJ}
-#1
-	${CC} ./${SRC}/coin.c -o ./${BIN}/coin
-#2
-	${CC} ${SRC}/getproxies.c -o ${BIN}/getproxies # TODO huge revision for future remove wget crap, we have now torgethhtp10
-#3
-	${CC} ${SRC}/novena.c -o ${BIN}/novena
-#4
-	${CCOBJ} ${SRC}/workout.c -o ${SS_OBJ}/workout.o
-	${CC} ${SS_OBJ}/workout.o ${LIBIG_OBJ} -ligf_read -ligf_write -o ${BIN}/workout 
-#5
-	${CC} ${SRC}/logtime.c -o ${BIN}/logtime
-#6
-	${CC} ${SRC}/recev.c -o ${BIN}/recev
-#7
-	${CC} ${SRC}/playev.c -o ${BIN}/playev
-#8
-# TODO we need to have working -4 -6 or -6 -4 and also
+readNMEA: libigmath_geopos.a
+	${CCOBJ} ${SRC}/readNMEA.c -o readNMEA.o
+	${CC} readNMEA.o -L. -ligmath_geopos -lm -o readNMEA
+	cp $@ ${BIN}/$@
+
+getfileinode: libigf_dir.a libigmisc_getans.a libigds_strarr.a
+	${CCOBJ} ${SRC}/getfileinode.c -o getfileinode.o
+	${CC} getfileinode.o -L. -ligf_dir \
+		-ligmisc_getans -ligds_strarr -o getfileinode
+	cp $@ ${BIN}/$@
+
+
+## TODO smallsoft LIST
+# 1. getproxies need huge revision for future remove wget crap, we have now torgethhtp10
+# 2. gethostipv we need to have working -4 -6 or -6 -4 and also
 # option for udp proto etc    and for showing simply
 # interface we can connect to so for example ipv6 will be
 # not shown etc
-	${CCOBJ} ${SRC}/gethostipv.c -o ${SS_OBJ}/gethostipv.o
-	${CC} ${SS_OBJ}/gethostipv.o ${LIBIG_OBJ}\
-          -ligmisc_opts -o ${BIN}/gethostipv
-#9
-	${CC} ${SRC}/repeatstr.c -o ${BIN}/repeatstr
-#10
-	${CC} ${SRC}/lext.c -o ${BIN}/lext
-#11
-	${CCOBJ} ${SRC}/getlimits.c -o ${SS_OBJ}/getlimits.o
-	${CC} ${SS_OBJ}/getlimits.o ${LIBIG_OBJ}\
-          -ligp_double -o ${BIN}/getlimits
-#12
-	${CC} ${SRC}/fstrswp.c -o ${BIN}/fstrswp 
-#13
-	${CC} ${SRC}/parsekdump.c -o ${BIN}/parsekdump 
-#14
-	${CC} ${SRC}/rmvmb.c -o ${BIN}/rmvmb
-#15
-	${CC} ${SRC}/randstr.c -o ${BIN}/randstr
-#16	
-	${CCOBJ} ${SRC}/sndlog_data.c -o ${SS_OBJ}/sndlog_data.o
-	${CC} ${SS_OBJ}/sndlog_data.o ${LIBIG_OBJ} \
-	  -lign_unixserv -lign_inetserv -lign_strtoport \
-	  -ligev_signals \
-	  -o ${BIN}/sndlog_data
-#17
-	${CC} ${SRC}/httpreq_addcrlf.c -o ${BIN}/httpreq_addcrlf
-#18
-	${CC} ${SRC}/flinemem.c -o ${BIN}/flinemem
-	#TODO make it possible to use OR and AND | & with () 
-#19
-	${CC} ${SRC}/urlcode.c -o ${BIN}/urlcode
-	# TODO add + support with option ofc
-#20
-	${CCOBJ} ${SRC}/sh_getopt.c -o ${SS_OBJ}/sh_getopt.o
-	${CC} ${SS_OBJ}/sh_getopt.o ${LIBIG_OBJ}\
-          -ligmisc_opts -o ${BIN}/sh_getopt
-#22
-	${CC} ${SRC}/miodpitny.c -o ${BIN}/miodpitny
-#23
-#	${CC} -pthread ${SRC}/irclog.c \
-	  ${LIBIG_OBJ} -ligf_opt -ligev_signals \
-	  -o ${BIN}/irclog
-#24
-	${CC} ${SRC}/faddlines.c -o ${BIN}/faddlines
-#25
-	${CC} ${SRC}/cutfile.c -o ${BIN}/cutfile
-	#TODO check httphb split for info
-#26
-	${CC} ${SRC}/htmlentities.c -o ${BIN}/htmlentities
-#27
-	${CC} ${SRC}/httphb_split.c -o ${BIN}/httphb_split
-#  TODO cutfile shoudl do it just let it understand /r/n etc with
-#  escape char program should be removed and instead be a script using cutfile
-#28
-	${CC} ${SRC}/fixedxargs.c -o ${BIN}/fixedxargs
-#29
-	${CCOBJ} ${SRC}/listwords.c -o ${SS_OBJ}/listwords.o
-	${CC} ${SS_OBJ}/listwords.o ${LIBIG_OBJ} -ligf_readword\
-		-ligf_open -ligf_offset -ligf_read\
-		-o ${BIN}/listwords
-#30  TODO I need more advanced searching
-	${CCOBJ} ${SRC}/fext.c -o ${SS_OBJ}/fext.o
-	${CC} ${SS_OBJ}/fext.o ${LIBIG_OBJ} -ligf_search\
-		-ligf_open -ligf_read -ligf_write -ligf_offset\
-		-ligm_search\
-		-o ${BIN}/fext
-#31  readNMEA
-	${CCOBJ} ${SRC}/readNMEA.c -o ${SS_OBJ}/readNMEA.o
-	${CC} ${SS_OBJ}/readNMEA.o ${LIBIG_OBJ} -ligmath_geopos\
-		-lm \
-		-o ${BIN}/readNMEA
-#
-#32  find reserved
-#33 version
-#fixfilename
-	${CCOBJ} ${SRC}/getfileinode.c -o ${SS_OBJ}/getfileinode.o
-	${CC} ${SS_OBJ}/getfileinode.o ${LIBIG_OBJ}\
-		-ligf_dir\
-		-ligmisc_getans\
-                -ligds_strarr\
-		-o ${BIN}/getfileinode
-#
+# 3. flinemem make it possible to use OR and AND | & with () 
+# 4. urlcode add + support with option ofc
+# 5. httphb split  should be script using cutfile which must support \r\n
+# 6. Upgrade fext I need more advanced searching
+# 7. Unfinished programms: find reserved, version
+# 8. finish documentation
+# 9. hint in dosc how to pick up compiler with make -opt gcc for example
+# 10. add to make running readme to html ( only for my use )
+# 11. add for my own use ignota update in make
 
-clear:
+
+#How to compile external static libs rules ( ignotalib submodule )
+
+libigf_write.a:
+	${CCOBJ} ${IG}/ig_file/igf_write.c -o igf_write.o
+	${AR} libigf_write.a igf_write.o
+
+libigf_read.a:
+	${CCOBJ} ${IG}/ig_file/igf_read.c -o igf_read.o
+	${AR} libigf_read.a igf_read.o
+
+libigf_readword.a:
+	${CCOBJ} ${IG}/ig_file/igf_readword.c -o igf_readword.o
+	${AR} libigf_readword.a igf_readword.o
+
+libigf_search.a:
+	${CCOBJ} ${IG}/ig_file/igf_search.c -o igf_search.o
+	${AR} libigf_search.a igf_search.o
+
+libigf_open.a:
+	${CCOBJ} ${IG}/ig_file/igf_open.c -o igf_open.o
+	${AR} libigf_open.a igf_open.o
+
+libigf_offset.a:
+	${CCOBJ} ${IG}/ig_file/igf_offset.c -o igf_offset.o
+	${AR} libigf_offset.a igf_offset.o
+
+libign_unixserv.a:
+	${CCOBJ} ${IG}/ig_net/ign_unixserv.c -o ign_unixserv.o
+	${AR} libign_unixserv.a ign_unixserv.o
+
+libign_inetserv.a:
+	${CCOBJ} ${IG}/ig_net/ign_inetserv.c -o ign_inetserv.o
+	${AR} libign_inetserv.a ign_inetserv.o
+
+libign_strtoport.a:
+	${CCOBJ} ${IG}/ig_net/ign_strtoport.c -o ign_strtoport.o
+	${AR} libign_strtoport.a ign_strtoport.o
+
+libigev_signals.a:
+	${CCOBJ} ${IG}/ig_event/igev_signals.c -o igev_signals.o
+	${AR} libigev_signals.a igev_signals.o
+
+libigp_double.a:
+	${CCOBJ} ${IG}/ig_print/igp_double.c -o igp_double.o
+	${AR} libigp_double.a igp_double.o
+
+libigm_search.a:
+	${CCOBJ} ${IG}/ig_memory/igm_search.c -o igm_search.o
+	${AR} libigm_search.a igm_search.o
+
+libigmath_geopos.a:
+	${CCOBJ} ${IG}/ig_math/igmath_geopos.c -o igmath_geopos.o
+	${AR} libigmath_geopos.a igmath_geopos.o
+
+libigf_opt.a:
+	${CCOBJ} ${IG}/ig_file/igf_opt.c -o igf_opt.o
+	${AR} libigf_opt.a igf_opt.o
+
+libigds_strarr.a:
+	${CCOBJ} ${IG}/ig_datastructure/igds_strarr.c -o igds_strarr.o
+	${AR} libigds_strarr.a igds_strarr.o
+
+libigf_dir.a:
+	${CCOBJ} ${IG}/ig_file/igf_dir.c -o igf_dir.o
+	${AR} libigf_dir.a igf_dir.o
+
+
+libigmisc_getans.a:
+	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_getans.c -o igmisc_getans.o
+	${AR} libigmisc_getans.a igmisc_getans.o
+
+libigmisc_opts.a:
+	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_opts.c -o igmisc_opts.o
+	${AR} libigmisc_opts.a igmisc_opts.o
+
+
+clean clear:
 	rm -f ${BIN}/*
-	rm -f ${SS_OBJ}/*
-	rm -f ${IG_OBJ}/*
+	rm -f ./*
+
+cleanobj clearobj:
+	rm -f ./*
+
+
+

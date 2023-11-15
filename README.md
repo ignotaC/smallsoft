@@ -6,12 +6,12 @@ Prise Saint Maria, mother of God.
 irc: ##ignota irc.libera.chat
 
 A pack of my little unix programs.  
-I do not mention dependencies like C compiler and posix system.  
-None means you have the basic set.  
-Also for automated compilation you need make.  
+None in dependecies means you have the basic set.  
+Basci set you need:  
+**cmake**, **make**, **cc - c compiler**, **posix**  
 
 I wrote this code for my personal use.  
-Shell hacks for life.
+Shell hacks for life.  
 
 You can either read this file as plain text  
 ( and still understand 100% of what is this "read me" about ).  
@@ -316,7 +316,7 @@ inside the directory of your makefile.
     * `\v` = vertical tab  
     * `\\` = backslash  
 
-   Dependencies: none  
+    Dependencies: none  
     Example of using it:  
   >`find src -type f -iname '*.c' -exec sh -c \`  
   >`'cat {} | fstrswp '\''malloc.h'\'' '\''stdlib.h'\'\`  
