@@ -5,7 +5,6 @@ AR=ar rcs
 SRC=../src
 BIN=../bin
 IG=../ignotalib/src
-LOBJ=-L../obj
 
 
 # TODO try to detect what kind of make is used so we 
@@ -59,7 +58,7 @@ make: coin \
 # setup requred directories and get ignota
 setup:
 	@git submodule update --init --recursive
-
+	@mkdir -p ${BIN}
 
 
 # This handles file compilation of source that does not use ignota.
