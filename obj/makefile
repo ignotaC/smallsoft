@@ -8,6 +8,8 @@ IG=../ignotalib/src
 LOBJ=-L../obj
 
 
+# TODO try to detect what kind of make is used so we 
+# can with some set of macros not create variables for other make files
 # set up src path so make can find files.c
 # openbsd make
 .PATH.c: ../src
@@ -55,7 +57,6 @@ make: coin \
 
 
 # setup requred directories and get ignota
-.BEGIN: setup
 setup:
 	@git submodule update --init --recursive
 
