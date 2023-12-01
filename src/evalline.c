@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2022 Piotr Trzpil  p.trzpil@protonmail.com
+Copyright (c) 2023 Piotr Trzpil  p.trzpil@protonmail.com
 
 Permission to use, copy, modify, and distribute 
 this software for any purpose with or without fee
@@ -21,12 +21,9 @@ OF THIS SOFTWARE.
 */
 
 #include <errno.h>
-#include <locale.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define TURNSTR( x ) #x
 
 void fail( const char *const estr )  {
 
@@ -35,25 +32,12 @@ void fail( const char *const estr )  {
 
 }
 
+//TODO it could use buff instead to not allocate all shit
+
 int main( int argc, char *argv[] )  {
 
-  char *locale_type = getenv( TURNSTR( LC_CTYPE ) );
-  if( locale_type == NULL )  fail( "Could not get LC_TYPE locale" );
-  if( setlocale( LC_CTYPE, locale_type ) == NULL )
-    fail( "Setlocale failed" );
-
-  int fopt = 0;
-
-  if( argc > 2 )  fail( "Wrong number of arguments" );
+  if( argc > 1 )  fail( "This program does not take any arguments." );
   
-  if( argc == 2 )  {
-
-    if( argv[1][0] != '-' )  fail( "Broken option" );
-    if( argv[1][1] != 'f' )  fail( "Broken option" );
-    fopt = 1; // we have only one option
-
-  }
-
   char *line = NULL;
   size_t linesize = 0;
 
@@ -67,10 +51,8 @@ int main( int argc, char *argv[] )  {
     }
 
     char *linepos = line;
-    size_t linelen = strnlen( line, linesize );
 
-    // We do it thsi way because we need to tell mblenret  max size of bytes it should cosider.
-    for( size_t i = linelen; i > 0; )  {
+    for( size_t i = linesize; i > 0; )  {
 
       int mblenret = mblen( linepos, i );
       if( mblenret == -1 )  {
@@ -88,16 +70,19 @@ int main( int argc, char *argv[] )  {
 
     }
 
+    free( line );
+    line = NULL;
+    linesize = 0;
+
   }
 
   if( ! feof( stdin ) )  {
 
-    perror( "Error on reading stdin" );
+    perror( "Fail on reading stdin" );
     return -1;
 
   }
 
-  free( line );
   return 0;
 
 }

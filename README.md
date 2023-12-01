@@ -576,10 +576,11 @@ inside the directory of your makefile.
                    For help simply run it without any arguments.
                    Example: http_serber_answer | httphb_split -h > httpheader_file
 28. **fixedxargs** - Program closly performs same task as xargs, BUT PROPERLY.
+          TODO - write what it does it simply passes lines as separate commands
                 Each new line separates new argument. Empty lines creates ''
                 Which normal xarg fails to catch. No options. Example:
                 echo  "a\nb\nc\nd\n" | fixedxargs echo
-29. **listwords** - 
+29. **listwords** -  TODO - segfaults
 30. **fext**
 31. **readNMEA**
 32. **findreserved**

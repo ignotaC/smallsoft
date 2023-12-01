@@ -54,7 +54,14 @@ int main( int argc, char *argv[] )  {
   if( igf_usedirent( ".", printent ) == -1 )
     fail( "Crashed on igf_usedirent" );
 
+  // TODO duno what but i smell it
+
+  ( void )argc;
+  ( void )argv;
+
   return 0;
+
+}
 
 /*
   size_t bf_size = 8192;  
@@ -147,4 +154,3 @@ int main( int argc, char *argv[] )  {
   return 0;
 
   */
-}
