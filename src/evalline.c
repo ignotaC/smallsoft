@@ -34,10 +34,8 @@ void fail( const char *const estr )  {
 
 //TODO it could use buff instead to not allocate all shit
 
-int main( int argc, char *argv[] )  {
+int main( void )  {
 
-  if( argc > 1 )  fail( "This program does not take any arguments." );
-  
   char *line = NULL;
   size_t linesize = 0;
 
@@ -50,29 +48,41 @@ int main( int argc, char *argv[] )  {
 
     }
 
-    char *linepos = line;
+    putc( '"', stdout );
+    for( size_t i = 0; i < linesize; i++ )  {
 
-    for( size_t i = linesize; i > 0; )  {
+      switch( line[i] )  {
 
-      int mblenret = mblen( linepos, i );
-      if( mblenret == -1 )  {
-	      
-        if( ! fopt )  fail( "Failed on mblen" );
-	mblenret = 1; // this way we ignore the error
-		      // when fopt is set
+        case '$':
+          printf( "\\$" ); 
+          break;
+        
+        case '"':
+          printf( "\\\"" );
+          break;
+
+        case '\\':
+          printf( "\\\\" );
+          break;
+
+        case '\n':
+          putc( '"', stdout );
+          printf( "\n" );
+          goto escapeloop;
+
+        case '\0':
+          putc( '"', stdout );
+          goto escapeloop;
+
+        default:
+          putc( line[i], stdout );
 
       }
-      if( mblenret == 0 )  break;
-
-      if( mblenret == 1 )  putc( ( int ) *linepos, stdout );
-      i -= ( size_t )mblenret;
-      linepos += ( ptrdiff_t )mblenret;
 
     }
-
-    free( line );
-    line = NULL;
-    linesize = 0;
+    
+   escapeloop:
+    ; // statement so compiler calm down
 
   }
 
@@ -83,6 +93,7 @@ int main( int argc, char *argv[] )  {
 
   }
 
+  free( line );
   return 0;
 
 }

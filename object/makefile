@@ -51,7 +51,8 @@ make: coin \
   listwords \
   fext \
   readNMEA \
-  getfileinode
+  getfileinode \
+  evalline
 
 # setup requred directories and get ignota
 setup:
