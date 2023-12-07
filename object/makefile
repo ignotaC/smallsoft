@@ -52,7 +52,8 @@ make: coin \
   fext \
   readNMEA \
   getfileinode \
-  evalline
+  evalline \
+  in2outerr
 
 # setup requred directories and get ignota
 setup:
@@ -75,27 +76,27 @@ setup:
 	cp $* ${BIN}/$*
 
 
-workout: libigf_read.a libigf_write.a workout.o
-	${CC} workout.o -L. -ligf_read -ligf_write -o workout 
+workout: libigf_read.a libigf_write.a $@.o
+	${CC} $@.o -L. -ligf_read -ligf_write -o $@ 
 	cp $@ ${BIN}/$@
 
-gethostipv: libigmisc_opts.a gethostipv.o
-	${CC} gethostipv.o -L. -ligmisc_opts -o gethostipv
+gethostipv: libigmisc_opts.a $@.o
+	${CC} $@.o -L. -ligmisc_opts -o $@
 	cp $@ ${BIN}/$@
 
-getlimits: libigp_double.a getlimits.o
-	${CC} getlimits.o -L. -ligp_double -o getlimits
+getlimits: libigp_double.a $@.o
+	${CC} $@.o -L. -ligp_double -o $@
 	cp $@ ${BIN}/$@
 
 sndlog_data: libign_unixserv.a libign_inetserv.a \
-	libign_strtoport.a libigev_signals.a sndlog_data.o
-	${CC} sndlog_data.o -L. \
+	libign_strtoport.a libigev_signals.a $@.o
+	${CC} $@.o -L. \
 		-lign_unixserv -lign_inetserv -lign_strtoport \
-		-ligev_signals -o sndlog_data
+		-ligev_signals -o $@
 	cp $@ ${BIN}/$@
 
-sh_getopt: libigmisc_opts.a sh_getopt.o
-	${CC} sh_getopt.o -L. -ligmisc_opts -o sh_getopt
+sh_getopt: libigmisc_opts.a $@.o
+	${CC} $@.o -L. -ligmisc_opts -o $@
 	cp $@ ${BIN}/$@
 
 # irc logger is revisited and this will wait TODO
@@ -107,27 +108,31 @@ sh_getopt: libigmisc_opts.a sh_getopt.o
 
 # TODO this segfaults
 listwords: libigf_readword.a libigf_open.a libigf_offset.a \
-	libigf_read.a listwords.o
-	${CC} listwords.o -L. -ligf_readword -ligf_open \
-		-ligf_offset -ligf_read -o listwords
+	libigf_read.a $@.o
+	${CC} $@.o -L. -ligf_readword -ligf_open \
+		-ligf_offset -ligf_read -o $@
 	cp $@ ${BIN}/$@
 
 fext: libigf_search.a libigf_open.a libigf_read.a \
 	libigf_write.a libigf_offset.a \
-	libigm_search.a fext.o
-	${CC} fext.o -L. -ligf_search -ligf_open \
+	libigm_search.a $@.o
+	${CC} $@.o -L. -ligf_search -ligf_open \
 		-ligf_read -ligf_write -ligf_offset \
-		-ligm_search -o fext
+		-ligm_search -o $@
 	cp $@ ${BIN}/$@
 
-readNMEA: libigmath_geopos.a readNMEA.o
-	${CC} readNMEA.o -L. -ligmath_geopos -lm -o readNMEA
+readNMEA: libigmath_geopos.a $@.o
+	${CC} $@.o -L. -ligmath_geopos -lm -o $@
 	cp $@ ${BIN}/$@
 
 getfileinode: libigf_dir.a libigmisc_getans.a \
-	libigds_strarr.a getfileinode.o
-	${CC} getfileinode.o -L. -ligf_dir \
-		-ligmisc_getans -ligds_strarr -o getfileinode
+	libigds_strarr.a $@.o
+	${CC} $@.o -L. -ligf_dir \
+		-ligmisc_getans -ligds_strarr -o $@
+	cp $@ ${BIN}/$@
+
+in2outerr: libigf_read.a libigf_write.a $@.o
+	${CC} $@.o -L. -ligf_read -ligf_write -o $@
 	cp $@ ${BIN}/$@
 
 

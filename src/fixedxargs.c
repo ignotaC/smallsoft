@@ -115,6 +115,7 @@ int main( const int argc, const char *const argv[] )  {
   }
 
   // TODO this need proper handling - errors signals returns
+  // TODO this fucks up badly on  text'haha just force ' -> '\''
 
   return retval;
 
