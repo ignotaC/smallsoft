@@ -1,5 +1,5 @@
 
-DBG=#-DNDEBUG
+DBG=-DNDEBUG
 CC=cc -Wall -Wextra -pedantic -O2 -std=c99 -D_POSIX_C_SOURCE=200809L ${DBG}
 CCOBJ=${CC} -c
 AR=ar rcs
@@ -76,26 +76,26 @@ setup:
 	cp $* ${BIN}/$*
 
 
-workout: libigf_read.a libigf_write.a $@.o
+workout: libigf_read.a libigf_write.a workout.o
 	${CC} $@.o -L. -ligf_read -ligf_write -o $@ 
 	cp $@ ${BIN}/$@
 
-gethostipv: libigmisc_opts.a $@.o
+gethostipv: libigmisc_opts.a gethostipv.o
 	${CC} $@.o -L. -ligmisc_opts -o $@
 	cp $@ ${BIN}/$@
 
-getlimits: libigp_double.a $@.o
+getlimits: libigp_double.a getlimits.o
 	${CC} $@.o -L. -ligp_double -o $@
 	cp $@ ${BIN}/$@
 
 sndlog_data: libign_unixserv.a libign_inetserv.a \
-	libign_strtoport.a libigev_signals.a $@.o
+	libign_strtoport.a libigev_signals.a sndlog_data.o
 	${CC} $@.o -L. \
 		-lign_unixserv -lign_inetserv -lign_strtoport \
 		-ligev_signals -o $@
 	cp $@ ${BIN}/$@
 
-sh_getopt: libigmisc_opts.a $@.o
+sh_getopt: libigmisc_opts.a sh_getopt.o
 	${CC} $@.o -L. -ligmisc_opts -o $@
 	cp $@ ${BIN}/$@
 
@@ -108,30 +108,30 @@ sh_getopt: libigmisc_opts.a $@.o
 
 # TODO this segfaults
 listwords: libigf_readword.a libigf_open.a libigf_offset.a \
-	libigf_read.a $@.o
+	libigf_read.a listwords.o
 	${CC} $@.o -L. -ligf_readword -ligf_open \
 		-ligf_offset -ligf_read -o $@
 	cp $@ ${BIN}/$@
 
 fext: libigf_search.a libigf_open.a libigf_read.a \
 	libigf_write.a libigf_offset.a \
-	libigm_search.a $@.o
+	libigm_search.a fext.o
 	${CC} $@.o -L. -ligf_search -ligf_open \
 		-ligf_read -ligf_write -ligf_offset \
 		-ligm_search -o $@
 	cp $@ ${BIN}/$@
 
-readNMEA: libigmath_geopos.a $@.o
+readNMEA: libigmath_geopos.a readNMEA.o
 	${CC} $@.o -L. -ligmath_geopos -lm -o $@
 	cp $@ ${BIN}/$@
 
 getfileinode: libigf_dir.a libigmisc_getans.a \
-	libigds_strarr.a $@.o
+	libigds_strarr.a getfileinode.o
 	${CC} $@.o -L. -ligf_dir \
 		-ligmisc_getans -ligds_strarr -o $@
 	cp $@ ${BIN}/$@
 
-in2outerr: libigf_read.a libigf_write.a $@.o
+in2outerr: libigf_read.a libigf_write.a in2outerr.o
 	${CC} $@.o -L. -ligf_read -ligf_write -o $@
 	cp $@ ${BIN}/$@
 
@@ -155,78 +155,80 @@ in2outerr: libigf_read.a libigf_write.a $@.o
 
 #How to compile external static libs rules ( ignotalib submodule )
 
+# TODO you can use $@ on libigf_write.a here etc
+
 libigf_write.a:
 	${CCOBJ} ${IG}/ig_file/igf_write.c -o igf_write.o
-	${AR} libigf_write.a igf_write.o
+	${AR} $@ igf_write.o
 
 libigf_read.a:
 	${CCOBJ} ${IG}/ig_file/igf_read.c -o igf_read.o
-	${AR} libigf_read.a igf_read.o
+	${AR} $@ igf_read.o
 
 libigf_readword.a:
 	${CCOBJ} ${IG}/ig_file/igf_readword.c -o igf_readword.o
-	${AR} libigf_readword.a igf_readword.o
+	${AR} $@ igf_readword.o
 
 libigf_search.a:
 	${CCOBJ} ${IG}/ig_file/igf_search.c -o igf_search.o
-	${AR} libigf_search.a igf_search.o
+	${AR} $@ igf_search.o
 
 libigf_open.a:
 	${CCOBJ} ${IG}/ig_file/igf_open.c -o igf_open.o
-	${AR} libigf_open.a igf_open.o
+	${AR} $@ igf_open.o
 
 libigf_offset.a:
 	${CCOBJ} ${IG}/ig_file/igf_offset.c -o igf_offset.o
-	${AR} libigf_offset.a igf_offset.o
+	${AR} $@ igf_offset.o
 
 libign_unixserv.a:
 	${CCOBJ} ${IG}/ig_net/ign_unixserv.c -o ign_unixserv.o
-	${AR} libign_unixserv.a ign_unixserv.o
+	${AR} $@ ign_unixserv.o
 
 libign_inetserv.a:
 	${CCOBJ} ${IG}/ig_net/ign_inetserv.c -o ign_inetserv.o
-	${AR} libign_inetserv.a ign_inetserv.o
+	${AR} $@ ign_inetserv.o
 
 libign_strtoport.a:
 	${CCOBJ} ${IG}/ig_net/ign_strtoport.c -o ign_strtoport.o
-	${AR} libign_strtoport.a ign_strtoport.o
+	${AR} $@ ign_strtoport.o
 
 libigev_signals.a:
 	${CCOBJ} ${IG}/ig_event/igev_signals.c -o igev_signals.o
-	${AR} libigev_signals.a igev_signals.o
+	${AR} $@ igev_signals.o
 
 libigp_double.a:
 	${CCOBJ} ${IG}/ig_print/igp_double.c -o igp_double.o
-	${AR} libigp_double.a igp_double.o
+	${AR} $@ igp_double.o
 
 libigm_search.a:
 	${CCOBJ} ${IG}/ig_memory/igm_search.c -o igm_search.o
-	${AR} libigm_search.a igm_search.o
+	${AR} $@ igm_search.o
 
 libigmath_geopos.a:
 	${CCOBJ} ${IG}/ig_math/igmath_geopos.c -o igmath_geopos.o
-	${AR} libigmath_geopos.a igmath_geopos.o
+	${AR} $@ igmath_geopos.o
 
 libigf_opt.a:
 	${CCOBJ} ${IG}/ig_file/igf_opt.c -o igf_opt.o
-	${AR} libigf_opt.a igf_opt.o
+	${AR} $@ igf_opt.o
 
 libigds_strarr.a:
 	${CCOBJ} ${IG}/ig_datastructure/igds_strarr.c -o igds_strarr.o
-	${AR} libigds_strarr.a igds_strarr.o
+	${AR} $@ igds_strarr.o
 
 libigf_dir.a:
 	${CCOBJ} ${IG}/ig_file/igf_dir.c -o igf_dir.o
-	${AR} libigf_dir.a igf_dir.o
+	${AR} $@ igf_dir.o
 
 
 libigmisc_getans.a:
 	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_getans.c -o igmisc_getans.o
-	${AR} libigmisc_getans.a igmisc_getans.o
+	${AR} $@ igmisc_getans.o
 
 libigmisc_opts.a:
 	${CCOBJ} ${IG}/ig_miscellaneous/igmisc_opts.c -o igmisc_opts.o
-	${AR} libigmisc_opts.a igmisc_opts.o
+	${AR} $@ igmisc_opts.o
 
 
 clean clear:
